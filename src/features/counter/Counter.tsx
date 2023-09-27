@@ -11,6 +11,15 @@ import {
   decrementByAmount,
 } from "./counterSlice"
 import styles from "./Counter.module.css"
+import { Button } from "../../app/components/ui/button"
+import { Checkbox } from "../../app/components/ui/checkbox"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../app/components/ui/dropdown-menu"
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { Icon } from "../../app/components/ui/icon"
+import { Input } from "../../app/components/ui/input"
+import { Label } from "../../app/components/ui/label"
+import { StatusButton } from "../../app/components/ui/status-button"
+import { Textarea } from "../../app/components/ui/textarea"
 
 export function Counter() {
   const count = useAppSelector(selectCount)
@@ -23,53 +32,52 @@ export function Counter() {
   return (
     <div>
       <div className={styles.row}>
-        <button
+        <Button
           className={styles.button}
           aria-label="Decrement value"
           onClick={() => dispatch(decrement())}
         >
           -
-        </button>
+        </Button>
         <span className={styles.value}>{count}</span>
-        <button
+        <Button
           className={styles.button}
           aria-label="Increment value"
           onClick={() => dispatch(increment())}
         >
           +
-        </button>
+        </Button>
       </div>
       <div className={styles.row}>
-        <button
-          className={styles.button}
+        <Button
           onClick={() => dispatch(decrementByAmount(decrementValue))}
-        >
+        variant='default' size='sm'>
           Subtract Amount
-        </button>
-        <input
-          className={styles.textbox}
-          aria-label="Set amount"
+        </Button>
+        <Input
+          className="w-14"
+          // aria-label="Set amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <button
+        <Button
           className={styles.button}
           onClick={() => dispatch(incrementByAmount(incrementValue))}
         >
           Add Amount
-        </button>
-        <button
+        </Button>
+        <Button
           className={styles.asyncButton}
           onClick={() => dispatch(incrementAsync(incrementValue))}
         >
           Add Async
-        </button>
-        <button
+        </Button>
+        <Button
           className={styles.button}
           onClick={() => dispatch(incrementIfOdd(incrementValue))}
         >
           Add If Odd
-        </button>
+        </Button>
       </div>
     </div>
   )
