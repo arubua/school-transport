@@ -3,7 +3,7 @@ import { type Config } from "tailwindcss"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import animatePlugin from "tailwindcss-animate"
 import radixPlugin from "tailwindcss-radix"
-import { extendedTheme } from './src/App/utils/extended-theme'
+import { extendedTheme } from './src/utils/extended-theme'
 
 export default {
   content: ["./src/**/*.{ts,tsx,jsx,js}"],

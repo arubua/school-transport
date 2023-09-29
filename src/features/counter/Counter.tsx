@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { useAppSelector, useAppDispatch } from "../../app/hooks"
+import { useAppSelector, useAppDispatch } from "../../hooks/hooks"
 import {
   decrement,
   increment,
@@ -11,15 +11,15 @@ import {
   decrementByAmount,
 } from "./counterSlice"
 import styles from "./Counter.module.css"
-import { Button } from "../../app/components/ui/button"
-import { Checkbox } from "../../app/components/ui/checkbox"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../app/components/ui/dropdown-menu"
+import { Button } from "../../components/ui/button"
+import { Checkbox } from "../../components/ui/checkbox"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
-import { Icon } from "../../app/components/ui/icon"
-import { Input } from "../../app/components/ui/input"
-import { Label } from "../../app/components/ui/label"
-import { StatusButton } from "../../app/components/ui/status-button"
-import { Textarea } from "../../app/components/ui/textarea"
+import { Icon } from "../../components/ui/icon"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { StatusButton } from "../../components/ui/status-button"
+import { Textarea } from "../../components/ui/textarea"
 
 export function Counter() {
   const count = useAppSelector(selectCount)
