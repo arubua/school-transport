@@ -25,3 +25,14 @@ export const EmailSchema = z
 	.max(100, { message: 'Email is too long' })
 	// users can type the email in any case, but we store it in lowercase
 	.transform(value => value.toLowerCase())
+export const AddressSchema = z
+	.string({ required_error: 'Address is required' })
+	.min(3, { message: 'Address is too short' })
+	.max(100, { message: 'Address is too long' })
+export const PhoneSchema = z
+	.number({
+		required_error: 'Phone number is required',
+		invalid_type_error: 'Phone must be a number',
+	})
+	.min(10, { message: 'Phone Number is too short' })
+	.max(10, { message: 'Phone Number is too long' })

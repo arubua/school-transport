@@ -22,7 +22,7 @@ const LoginFormSchema = z.object({
 	password: PasswordSchema,
 })
 
-export default function Login() {
+export function Login() {
 	// 1. Define your form.
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
@@ -46,9 +46,10 @@ export default function Login() {
 					</p>
 				</div>
 				<Spacer size="xs" />
-				<div className="text-left">
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+						<div className="text-left">
 							<FormField
 								control={form.control}
 								name="username"
@@ -65,6 +66,7 @@ export default function Login() {
 									</FormItem>
 								)}
 							/>
+							<Spacer size="4xs" />
 							<FormField
 								control={form.control}
 								name="password"
@@ -83,10 +85,11 @@ export default function Login() {
 									</FormItem>
 								)}
 							/>
-							<Button type="submit">Submit</Button>
-						</form>
-					</Form>
-				</div>
+						</div>
+						<Button type="submit">Submit</Button>
+					</form>
+				</Form>
+
 				<div>
 					<div className="mx-auto w-full max-w-md px-8">
 						{/* <ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
