@@ -36,3 +36,6 @@ export const PhoneSchema = z
 	})
 	.min(10, { message: 'Phone Number is too short' })
 	.max(10, { message: 'Phone Number is too long' })
+export const RememberUser = z.boolean({
+	invalid_type_error: 'Must be a boolean',
+})

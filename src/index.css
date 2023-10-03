@@ -8,7 +8,7 @@
 		/* --font-mono: here if you got it... */
 
 		/* prefixed with foreground because it should look good on the background */
-		--foreground-danger: 345 82.7% 40.8%;
+		/* --foreground-danger: 345 82.7% 40.8%;
 
 		--background: 0 0% 100%;
 		--foreground: 222.2 84% 4.9%;
@@ -38,7 +38,62 @@
 		--destructive: 0 84.2% 60.2%;
 		--destructive-foreground: 210 40% 98%;
 
-		--ring: 215 20.2% 65.1%;
+		--ring: 215 20.2% 65.1%; */
+		--primary: 25.7 100% 50%; /* HSL */
+		--primary-hex: #FF7B02; /* HEX */
+		--primary-foreground: 25.7 100% 100%;
+	  
+		--background: 25.7 100% 100%; /* HSL */
+		--background-hex: #FFD9B2; /* HEX */
+	  
+		--foreground: 25.7 100% 5%; /* HSL */
+		--foreground-hex: #0E0300; /* HEX */
+	  
+		--muted: 25.7 60% 80%; /* HSL */
+		--muted-hex: #FFAA73; /* HEX */
+	  
+		--muted-foreground: 25.7 60% 20%; /* HSL */
+		--muted-foreground-hex: #331000; /* HEX */
+	  
+		--popover: 25.7 100% 95%; /* HSL */
+		--popover-hex: #FFD9B2; /* HEX */
+	  
+		--popover-foreground: 25.7 100% 5%; /* HSL */
+		--popover-foreground-hex: #0E0300; /* HEX */
+	  
+		--card: 25.7 100% 95%; /* HSL */
+		--card-hex: #FFD9B2; /* HEX */
+	  
+		--card-foreground: 25.7 100% 5%; /* HSL */
+		--card-foreground-hex: #0E0300; /* HEX */
+	  
+		--border: 0 0% 90%; /* HSL */
+		--border-hex: #E6E6E6; /* HEX */
+	  
+		--input: 0 0% 90%; /* HSL */
+		--input-hex: #E6E6E6; /* HEX */
+	  
+		--input-invalid: 25.7 100% 50%; /* HSL */
+		--input-invalid-hex: #FF7B02; /* HEX */
+	  
+		--secondary: 25.7 60% 80%; /* HSL */
+		--secondary-hex: #FFAA73; /* HEX */
+	  
+		--secondary-foreground: 25.7 100% 5%; /* HSL */
+		--secondary-foreground-hex: #0E0300; /* HEX */
+	  
+		--accent: 25.7 60% 70%; /* HSL */
+		--accent-hex: #FF8F42; /* HEX */
+	  
+		--accent-foreground: 25.7 100% 5%; /* HSL */
+		--accent-foreground-hex: #0E0300; /* HEX */
+	  
+		--destructive: 25.7 100% 50%; /* HSL */
+		--destructive-hex: #FF7B02; /* HEX */
+		--destructive-foreground:  0 100% 50%;
+	  
+		--ring: 25.7 70% 60%; /* HSL */
+		--ring-hex: #FF963D; /* HEX */
 
 		--radius: 0.5rem;
 	}

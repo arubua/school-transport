@@ -1,7 +1,11 @@
 import React from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PasswordSchema, UsernameSchema } from '../../utils/user-validation'
+import {
+	PasswordSchema,
+	RememberUser,
+	UsernameSchema,
+} from '../../utils/user-validation'
 import { useForm } from 'react-hook-form'
 import {
 	Form,
@@ -16,10 +20,16 @@ import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spacer } from '../../components/spacer'
 import { Link } from 'react-router-dom'
+import { Checkbox } from '../../components/ui/checkbox'
+import { Icon } from '../../components/ui/icon'
+import Logo from '../../components/ui/logo'
+import { useLogin } from '../../hooks/useLogin'
+import { Spinner } from '../../components/spinner'
 
 const LoginFormSchema = z.object({
 	username: UsernameSchema,
 	password: PasswordSchema,
+	remember_user: RememberUser,
 })
 
 export function Login() {
@@ -29,26 +39,47 @@ export function Login() {
 		defaultValues: {
 			username: '',
 			password: '',
+			remember_user: false,
 		},
 	})
 
-	function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+	const { mutate, isLoading, isError, error } = useLogin()
+
+	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
 		console.log(values)
+
+		try {
+			await mutate(values)
+			// Handle the successful login here
+			console.log('success')
+		} catch (e) {
+			// Handle login error
+			console.log('failed')
+		}
 	}
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
+				<div className="flex justify-center">
+					<Logo
+						src="/other/svg-icons/safiri-logo.svg"
+						alt="Logo Alt Text"
+						className="logo-class h-20 w-28"
+					/>
+				</div>
 				<div className="flex flex-col gap-3 text-center">
-					<h1 className="text-h1">Welcome back!</h1>
-					<p className="text-body-md text-muted-foreground">
+					<h2 className="text-h2">Welcome back!</h2>
+					<p className="text-body-sm text-muted-foreground">
 						Please enter your details.
 					</p>
 				</div>
-				<Spacer size="xs" />
-
+				<Spacer size="4xs" />
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="m-4 space-y-8 md:m-0"
+					>
 						<div className="text-left">
 							<FormField
 								control={form.control}
@@ -59,9 +90,6 @@ export function Login() {
 										<FormControl>
 											<Input placeholder="wazza" {...field} />
 										</FormControl>
-										<FormDescription>
-											This is your public display name.
-										</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -75,37 +103,57 @@ export function Login() {
 										<FormLabel>Password</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="password"
+												placeholder="********"
 												type="password"
 												{...field}
 											/>
 										</FormControl>
-										<FormDescription>This is your password.</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
+							<Spacer size="4xs" />
+							<div className="flex justify-between">
+								<FormField
+									control={form.control}
+									name="remember_user"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Checkbox
+													checked={field.value}
+													onCheckedChange={field.onChange}
+												/>
+											</FormControl>
+											<FormLabel className="ml-2">Remember ?</FormLabel>
+										</FormItem>
+									)}
+								/>
+								<Button variant="link">Forgot password ?</Button>
+							</div>
+							<Button className="w-full" type="submit">
+								Submit
+							</Button>
+							<Spacer size="4xs" />
+							<Button
+								className="w-full hover:bg-transparent"
+								type="submit"
+								variant={'outline'}
+							>
+								<Icon name="google-icon" size="md" className="mr-2" /> Sign in
+								with google
+							</Button>
 						</div>
-						<Button type="submit">Submit</Button>
 					</form>
 				</Form>
 
 				<div>
 					<div className="mx-auto w-full max-w-md px-8">
-						{/* <ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
-							{providerNames.map(providerName => (
-								<li key={providerName}>
-									<ProviderConnectionForm
-										type="Login"
-										providerName={providerName}
-										redirectTo={redirectTo}
-									/>
-								</li>
-							))}
-						</ul> */}
 						<div className="flex items-center justify-center gap-2 pt-6">
-							<span className="text-muted-foreground">New here?</span>
-							<Link to={'/signup'}>Create an account</Link>
+							<span className="text-muted-foreground">New here ?</span>
+							<Button className="p-0" variant="link">
+								<Link to={'/signup'}>Create an account</Link>
+							</Button>
 						</div>
 					</div>
 				</div>
