@@ -39,3 +39,7 @@ export const PhoneSchema = z
 export const RememberUser = z.boolean({
 	invalid_type_error: 'Must be a boolean',
 })
+export const ErrorSchema = z.object({
+	message: z.string(),
+	// Add any additional error properties you need here
+  });

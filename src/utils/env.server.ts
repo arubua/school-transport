@@ -1,21 +1,10 @@
 import { z } from 'zod'
 
 const schema = z.object({
-	NODE_ENV: z.enum(['production', 'development', 'test'] as const),
-	DATABASE_PATH: z.string(),
-	DATABASE_URL: z.string(),
-	SESSION_SECRET: z.string(),
-	INTERNAL_COMMAND_TOKEN: z.string(),
-	CACHE_DATABASE_PATH: z.string(),
-	// If you plan on using Sentry, uncomment this line
-	// SENTRY_DSN: z.string(),
-	// If you plan to use Resend, uncomment this line
-	// RESEND_API_KEY: z.string(),
-	// If you plan to use GitHub auth, remove the default:
-	GITHUB_CLIENT_ID: z.string().default('MOCK_GITHUB_CLIENT_ID'),
-	GITHUB_CLIENT_SECRET: z.string().default('MOCK_GITHUB_CLIENT_SECRET'),
-	GITHUB_TOKEN: z.string().default('MOCK_GITHUB_TOKEN'),
-})
+	VITE_NODE_ENV: z.enum(['production', 'development', 'test'] as const),
+	
+  });
+  
 
 declare global {
 	namespace NodeJS {
@@ -24,7 +13,10 @@ declare global {
 }
 
 export function init() {
-	const parsed = schema.safeParse(process.env)
+	const parsed = schema.safeParse({
+		VITE_NODE_ENV: import.meta.env.MODE,
+		VITE_BASE_URL:import.meta.env.VITE_BASE_URL
+	})
 
 	if (parsed.success === false) {
 		console.error(
@@ -37,9 +29,6 @@ export function init() {
 }
 
 /**
- * This is used in both `entry.server.ts` and `root.tsx` to ensure that
- * the environment variables are set and globally available before the app is
- * started.
  *
  * NOTE: Do *not* add any environment variables in here that you do not wish to
  * be included in the client.

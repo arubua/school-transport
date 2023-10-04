@@ -2,6 +2,7 @@ import React from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+	ErrorSchema,
 	PasswordSchema,
 	RememberUser,
 	UsernameSchema,
@@ -25,6 +26,7 @@ import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
 import { useLogin } from '../../hooks/useLogin'
 import { Spinner } from '../../components/spinner'
+import { toast } from 'sonner'
 
 const LoginFormSchema = z.object({
 	username: UsernameSchema,
@@ -43,20 +45,21 @@ export function Login() {
 		},
 	})
 
-	const { mutate, isLoading, isError, error } = useLogin()
+	const loginMutation = useLogin()
 
 	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-		console.log(values)
-
 		try {
-			await mutate(values)
+			const result = await loginMutation.mutateAsync(values)
+			toast.success('Login successful', result)
 			// Handle the successful login here
-			console.log('success')
 		} catch (e) {
 			// Handle login error
-			console.log('failed')
+			const error = ErrorSchema.parse(e)
+			toast.error(error.message)
 		}
 	}
+
+	const { isLoading, isError, error } = loginMutation
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
@@ -131,7 +134,8 @@ export function Login() {
 								/>
 								<Button variant="link">Forgot password ?</Button>
 							</div>
-							<Button className="w-full" type="submit">
+							<Button className="w-full" type="submit" disabled={isLoading}>
+								<Spinner showSpinner={isLoading} />
 								Submit
 							</Button>
 							<Spacer size="4xs" />

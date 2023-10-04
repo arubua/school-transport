@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Toaster, toast as showToast } from 'sonner'
 import { type Toast } from '../utils/toast.server'
 
-export function EpicToaster({ toast }: { toast?: Toast | null }) {
+export function TheToaster({ toast }: { toast?: Toast | null }) {
 	return (
 		<>
 			<Toaster closeButton position="top-center" />
