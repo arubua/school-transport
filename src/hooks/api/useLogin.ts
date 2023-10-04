@@ -1,4 +1,3 @@
-// src/hooks/useLogin.ts
 import { useMutation } from '@tanstack/react-query'
 
 const login = async ({
@@ -10,7 +9,6 @@ const login = async ({
 	password: string
 	remember_user: boolean
 }) => {
-	// Replace this with your actual login API request.
 	const response = await fetch('/api/login', {
 		method: 'POST',
 		headers: {

@@ -20,14 +20,14 @@ export const handlers: Array<RequestHandler> = [
 		// Replace this with your validation logic.
 		if (data.username === 'testuser' && data.password === 'testpassword') {
 			return res(
-        ctx.delay(5000),
+				ctx.delay(2000),
 				ctx.status(200),
-				ctx.json({ token: 'yourAuthTokenHere' }) // Customize the response data
+				ctx.json({ token: 'yourAuthTokenHere' }), // Customize the response data
 			)
 		}
 
 		return res(
-      ctx.delay(5000),
+			ctx.delay(5000),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)

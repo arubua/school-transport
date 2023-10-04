@@ -24,7 +24,7 @@ import { Link } from 'react-router-dom'
 import { Checkbox } from '../../components/ui/checkbox'
 import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
-import { useLogin } from '../../hooks/useLogin'
+import { useLogin } from '../../hooks/api/useLogin'
 import { Spinner } from '../../components/spinner'
 import { toast } from 'sonner'
 
