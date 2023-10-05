@@ -15,7 +15,7 @@ This is the frontend application for the School Transport System, a web-based pl
 - `preview` - locally preview production build
 - `test` - launch test runner
 
-![Application Logo](./other/statsvg-iconsic/safiri-logo.svg)
+![Application Logo](./other/svg-icons/safiri-logo.svg)
 
 ## Installation
 
