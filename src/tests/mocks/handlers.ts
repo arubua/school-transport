@@ -1,5 +1,6 @@
 // src/mocks.ts
 import { rest, RequestHandler } from 'msw'
+import { redirect } from 'react-router-dom'
 import { z } from 'zod'
 
 // Define a Zod schema for the login request body
@@ -22,12 +23,15 @@ export const handlers: Array<RequestHandler> = [
 			return res(
 				ctx.delay(2000),
 				ctx.status(200),
-				ctx.json({ token: 'yourAuthTokenHere' }), // Customize the response data
+				ctx.json({
+					username: data.username,
+					token: 'yourAuthTokenHere',
+				}), // Customize the response data
 			)
 		}
 
 		return res(
-			ctx.delay(5000),
+			ctx.delay(2000),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)

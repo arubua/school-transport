@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './features/Home'
+import Splash from './features/Splash'
 import { Login } from './features/Auth/Login'
 import { SignUp } from './features/Auth/Signup'
 
 import { init } from './utils/env.server'
 import { worker } from './tests/mocks/browser'
 import { TheToaster } from './components/toaster'
+import Home from './views'
 
 //initializing environment variables
 init()
@@ -32,9 +33,17 @@ function App() {
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
-					<Route path="" element={<Home />} />
-					<Route path="login" element={<Login />} />
-					<Route path="signup" element={<SignUp />} />
+					<Route path="" element={<Login />} />
+					<Route path="auth" element={<Login />}>
+						<Route path="" element={<Login />} />
+						<Route path="login" element={<Login />} />
+						<Route path="signup" element={<SignUp />} />
+					</Route>
+					<Route path="app">
+						<Route path="home" element={<Home />} />
+						{/* <Route path="" element={<AnalyticsPage />} /> */}
+						{/* <Route path="dashboard" element={<AnalyticsPage />} /> */}
+					</Route>
 				</Routes>
 			</BrowserRouter>
 			<TheToaster />

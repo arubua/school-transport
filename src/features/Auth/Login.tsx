@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -20,7 +20,7 @@ import {
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spacer } from '../../components/spacer'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Checkbox } from '../../components/ui/checkbox'
 import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
@@ -48,18 +48,22 @@ export function Login() {
 	const loginMutation = useLogin()
 
 	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-		try {
-			const result = await loginMutation.mutateAsync(values)
-			toast.success('Login successful', result)
-			// Handle the successful login here
-		} catch (e) {
-			// Handle login error
-			const error = ErrorSchema.parse(e)
-			toast.error(error.message)
-		}
+		await loginMutation.mutateAsync(values)
 	}
 
-	const { isLoading, isError, error } = loginMutation
+	const { isLoading, error, data, isSuccess } = loginMutation
+
+	const navigate = useNavigate(); // Get the navigate function
+
+	useEffect(() => {
+	  if (isSuccess) {
+		console.log('result', data);
+		toast.success('Login successful');
+		navigate('/app/home'); // Redirect to /app on success
+	  } else {
+		toast.error('Failed to login!');
+	  }
+	}, [isSuccess, data, navigate]);
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
