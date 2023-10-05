@@ -1,17 +1,12 @@
-# vite-template-redux
+# School Transport Frontend
+This is the frontend application for the School Transport System, a web-based platform designed to streamline the management of school transportation for children.
 
-Uses [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/), and [React Testing Library](https://github.com/testing-library/react-testing-library) to create a modern [React](https://react.dev/) app compatible with [Create React App](https://create-react-app.dev/)
-
-```sh
-npx degit reduxjs/redux-templates/packages/vite-template-redux my-app
-```
-
-## Goals
-
-- Easy migration from Create React App or Vite
-- As beginner friendly as Create React App
-- Optimized performance compared to Create React App
-- Customizable without ejecting
+##Technology stack
+- React 
+- Typescript 
+- Zod 
+- React Query
+- Tailwind
 
 ## Scripts
 
@@ -20,8 +15,34 @@ npx degit reduxjs/redux-templates/packages/vite-template-redux my-app
 - `preview` - locally preview production build
 - `test` - launch test runner
 
-## Inspiration
+![Application Logo](./other/statsvg-iconsic/safiri-logo.svg)
 
-- [Create React App](https://github.com/facebook/create-react-app/tree/main/packages/cra-template)
-- [Vite](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react)
-- [Vitest](https://github.com/vitest-dev/vitest/tree/main/examples/react-testing-lib)
+## Installation
+
+1. Clone the repository
+   - `git@github.com:DataIntegrated/schools-frontend.git`
+2. Install dependencies
+   - `npm install`
+
+## Usage
+
+1. Start the development server:
+   - `npm start`
+2. Access the application on your web browser *May vary for various reasons*
+   - [url](http://localhost:3000)
+
+## Contributing
+
+We welcome contributions to enhance the application. If you would like to contribute, please follow these steps:
+
+1. Fork/Clone the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes and push them.
+4. Submit a pull request with a detailed description of your changes.
+
+
+
+[^1]: Enjoy using the application!
+
+
+
