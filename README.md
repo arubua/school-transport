@@ -1,3 +1,5 @@
+![Application Logo](./other/svg-icons/safiri-logo.svg)
+
 # School Transport Frontend
 This is the frontend application for the School Transport System, a web-based platform designed to streamline the management of school transportation for children.
 
@@ -15,7 +17,6 @@ This is the frontend application for the School Transport System, a web-based pl
 - `preview` - locally preview production build
 - `test` - launch test runner
 
-![Application Logo](./other/svg-icons/safiri-logo.svg)
 
 ## Installation
 
