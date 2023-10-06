@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import Logo from '../../components/ui/logo'
 import { Icon } from '../../components/ui/icon'
-
+import {z} from 'zod'
 interface MenuItem {
 	title: string
 	route: string
@@ -58,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							className={({ isActive }) =>
 								` ${
 									isActive ? 'text-[#FF7B02]' : 'text-slate-800'
-								} mb-4 flex items-center text-base font-medium text-slate-800 hover:text-primary`
+								} mb-4 flex items-center text-base font-medium hover:text-primary`
 							}
 						>
 							{menu.icon && menu.icon !== '' && (

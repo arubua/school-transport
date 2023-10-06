@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import  Sidebar  from "../Sidebar/Sidebar";
-// import { Navbar } from "../Navbar";
+import  Navbar from "../Navbar";
 // import { clearStorage, getStorage } from "../../utils/storage";
 // import appTitle from "../../utils/appTitle";
 // import userLoggedInTimeout from "../../utils/userLoggedInTimeout";
@@ -70,7 +70,7 @@ const Layout: React.FC<LayoutProps> = (props) => {
 
   return (
     <div>
-      <div className="app-home-container">
+      <div className="flex">
         <Sidebar
           onToggle={onToggle}
         //   app={props.app}
@@ -78,15 +78,15 @@ const Layout: React.FC<LayoutProps> = (props) => {
           pathname={location.pathname}
           hideSidebarOnMobile={hideSidebarOnMobile}
         />
-        <div className="app-main-container">
-          {/* <Navbar
+        <div className="w-full" >
+          <Navbar
             user={props.user || {}}
             onToggle={onToggle}
-            onSignMeOut={onSignMeOut}
+            // onSignMeOut={onSignMeOut}
             title={title}
-            notifications={alerts}
-            isLoadingViolationNotification={isLoadingViolationNotification}
-          /> */}
+            // notifications={alerts}
+            // isLoadingViolationNotification={isLoadingViolationNotification}
+          />
           <div id="app-main-content" className="app-main-content">
             <div
               style={{
