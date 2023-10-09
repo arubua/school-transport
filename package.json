@@ -26,6 +26,7 @@
     "@reduxjs/toolkit": "^1.8.1",
     "@tanstack/react-query": "^4.35.7",
     "@tanstack/react-query-devtools": "^4.35.7",
+    "@tanstack/react-table": "^8.10.6",
     "class-variance-authority": "^0.7.0",
     "execa": "^8.0.1",
     "react": "^18.2.0",
@@ -41,6 +42,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.1.0",
     "@tanstack/eslint-plugin-query": "^4.36.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.11.4",

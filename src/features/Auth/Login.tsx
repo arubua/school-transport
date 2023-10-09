@@ -24,9 +24,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Checkbox } from '../../components/ui/checkbox'
 import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
-import { useLogin } from '../../hooks/api/useLogin'
+import { useLogin } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
 import { toast } from 'sonner'
+import { useLocalStorage, useSessionStorage } from '../../hooks/hooks'
+import { getSessionExpirationDate } from '../../utils/auth'
 
 const LoginFormSchema = z.object({
 	username: UsernameSchema,
@@ -35,7 +37,12 @@ const LoginFormSchema = z.object({
 })
 
 export function Login() {
-	// 1. Define your form.
+
+	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
+	const [storedToken, setStoredToken] = useSessionStorage('TOKEN', null)
+	const [tokenExpiry, setTokenExpiry] = useSessionStorage('TOKEN_EXPIRY', new Date())
+
+
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
 		defaultValues: {
@@ -53,17 +60,19 @@ export function Login() {
 
 	const { isLoading, error, data, isSuccess } = loginMutation
 
-	const navigate = useNavigate(); // Get the navigate function
+	const navigate = useNavigate() // Get the navigate function
 
 	useEffect(() => {
-	  if (isSuccess) {
-		console.log('result', data);
-		toast.success('Login successful');
-		navigate('/app/home'); // Redirect to /app on success
-	  } else {
-		toast.error('Failed to login!');
-	  }
-	}, [isSuccess, data, navigate]);
+		if (isSuccess) {
+			toast.success('Login successful')
+			setStoredUser(data)
+			setStoredToken(data.token)
+			setTokenExpiry(getSessionExpirationDate())
+			navigate('/app/home') // Redirect to /app on success
+		} else {
+			toast.error('Failed to login!')
+		}
+	}, [isSuccess, data, navigate])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">

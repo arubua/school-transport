@@ -1,62 +1,65 @@
-import { Outlet, useLocation } from "react-router-dom";
-import Layout from "../features/Layout";
-import { menus } from "../utils/constants";
-import { useEffect, useState } from "react";
-import Splash from "../features/Splash";
-import { useNavigate } from "react-router-dom";
-import { z } from "zod";
+import { Outlet, useLocation } from 'react-router-dom'
+import Layout from '../features/Layout'
+import { menus } from '../utils/constants'
+import { useEffect, useState } from 'react'
+import Splash from '../features/Splash'
+import { useNavigate } from 'react-router-dom'
+import { z } from 'zod'
+import { getUser } from '../utils/storage'
+import { EmailSchema, NameSchema } from '../utils/user-validation'
+import { getSessionExpirationDate, isUserTimedOut } from '../utils/auth'
 
 // Define a Zod schema for user data
 const UserSchema = z.object({
-  account: z.string(),
-  token: z.string(),
-  accountVerified: z.boolean(),
-});
+	username: NameSchema,
+	token: z.string(),
+	email: EmailSchema,
+})
 
-type User = z.infer<typeof UserSchema>;
+type User = z.infer<typeof UserSchema>
 
 const Home: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState({});
+	const [loading, setLoading] = useState(false)
+	const [user, setUser] = useState<any>({})
 
-  const location = useLocation();
-  const history = useNavigate();
+	const location = useLocation()
+	const history = useNavigate()
 
-  useEffect(() => {
-    // init();
-  }, []);
+	useEffect(() => {
+		init()
+	}, [])
 
-  // async function init() {
-  //   try {
-  //     const userData = UserSchema.parse(await getStorage());
-      
-  //     if (!userData.account || !userData.token || !userData.accountVerified) {
-  //       history.push("/auth/signin");
-  //       return;
-  //     }
+	async function init() {
+		try {
+			const userData = UserSchema.parse(await getUser())
 
-  //     const isTimedOut = await userLoggedInTimeout(userData);
-  //     if (isTimedOut) {
-  //       history.push("/auth/signin");
-  //       return;
-  //     }
+			if (!userData.email || !userData.token || !userData.username) {
+				history('/auth/login')
+				return
+			}
 
-  //     setLoading(false);
-  //   } catch (error) {
-  //     // Handle schema validation errors or other errors
-  //     console.error("Error:", error);
-  //   }
-  // }
+			const isTimedOut = await isUserTimedOut()
+			if (isTimedOut) {
+				history('/auth/login')
+				return
+			}
 
-  if (loading) {
-    return <Splash />;
-  }
+			setLoading(false)
+		} catch (error) {
+			// Handle schema validation errors or other errors
+			console.error('Error:', error)
+		}
+	}
 
-  return (
-    <Layout location={location} user={user} menus={menus}>
-      <Outlet />
-    </Layout>
-  );
-};
+	if (loading) {
+		return <Splash />
+	}
 
-export default Home;
+	return (
+		<Layout location={location} menus={menus}>
+			<Outlet />
+		</Layout>
+	)
+}
+
+export default Home

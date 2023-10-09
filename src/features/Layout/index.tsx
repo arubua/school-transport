@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import  Sidebar  from "../Sidebar/Sidebar";
 import  Navbar from "../Navbar";
+import { getUser } from "../../utils/storage";
+import { isUserTimedOut } from "../../utils/auth";
 // import { clearStorage, getStorage } from "../../utils/storage";
 // import appTitle from "../../utils/appTitle";
 // import userLoggedInTimeout from "../../utils/userLoggedInTimeout";
@@ -11,7 +13,6 @@ import  Navbar from "../Navbar";
 interface LayoutProps {
   location: any; 
   menus: any[]; 
-  user: any; 
   children: React.ReactNode;
 }
 
@@ -24,23 +25,35 @@ const Layout: React.FC<LayoutProps> = (props) => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const pathname = location.pathname;
+
 
   useEffect(() => {
-    const pathname = location.pathname;
-    let path = pathname.replaceAll("/", " ").trim();
-    // document.title = appTitle(path);
-    setTitle(path);
+    const lastPathSegment = pathname[pathname.length - 1];
+
+    getAppTitle()
+    setUserLoggedIn()
   }, [location]);
 
-//   const setUserLoggedIn = async () => {
-//     let user = await getStorage();
-//     if (!user.token && !user.accountVerified) return navigate("/login");
-//     const isSessionExpired = userLoggedInTimeout(user);
-//     if (isSessionExpired) {
-//       return navigate("/auth/signin");
-//     }
-//     setUser(user);
-//   };
+  const getAppTitle = () => {
+    const pathSegments = pathname.split('/'); 
+    const lastPathSegment = pathSegments[pathSegments.length - 1];
+
+    let title =  lastPathSegment.charAt(0).toUpperCase() + lastPathSegment.slice(1);
+    setTitle(title)
+
+    return title
+  };
+
+  const setUserLoggedIn = async () => {
+    let user = await getUser();
+    if (!user.token && !user.username) return navigate("/login");
+    const isSessionExpired = isUserTimedOut()
+    if (isSessionExpired) {
+      return navigate("/auth/signin");
+    }
+    setUser(user);
+  };
 
   function onToggle() {
     const sidebar_class = document.getElementById("sidebar")!.classList;
@@ -80,7 +93,7 @@ const Layout: React.FC<LayoutProps> = (props) => {
         />
         <div className="w-full" >
           <Navbar
-            user={props.user || {}}
+            user={user || {}}
             onToggle={onToggle}
             // onSignMeOut={onSignMeOut}
             title={title}
