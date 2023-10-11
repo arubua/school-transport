@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery,useMutation } from '@tanstack/react-query';
+
 
 const getParents = async () => {
   const response = await fetch('/api/parents');
@@ -27,9 +28,6 @@ export const useParentById = (parentId : string) => {
   return useQuery(['parent', parentId], () => getParentById(parentId));
 };
 
-import { useMutation } from '@tanstack/react-query';
-
-import { useMutation } from '@tanstack/react-query';
 
 // Specify the types for parentId and updatedData
 const updateParentById = async (

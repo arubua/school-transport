@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import { useNavigate, Outlet } from 'react-router-dom'
 import { z } from 'zod'
 
 const TokenSchema = z.string().optional()
@@ -13,10 +13,11 @@ interface AuthRouteProps {
 
 function AuthRoute({ token, children }: AuthRouteProps) {
 	const isUserLoggedIn = !!token
+	const navigate = useNavigate()
 
 	if (!isUserLoggedIn) {
 		// Redirect to the login page if the user is not logged in
-		return <Navigate to="/auth/login" />
+		navigate('/auth/login')
 	}
 
 	// Render the protected route if the user is logged in

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -37,11 +37,14 @@ const LoginFormSchema = z.object({
 })
 
 export function Login() {
-
 	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
 	const [storedToken, setStoredToken] = useSessionStorage('TOKEN', null)
-	const [tokenExpiry, setTokenExpiry] = useSessionStorage('TOKEN_EXPIRY', new Date())
-
+	const [tokenExpiry, setTokenExpiry] = useSessionStorage(
+		'TOKEN_EXPIRY',
+		new Date(),
+	)
+	const navigate = useNavigate() // Get the navigate function
+	const loginMutation = useLogin()
 
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
@@ -52,27 +55,26 @@ export function Login() {
 		},
 	})
 
-	const loginMutation = useLogin()
-
 	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
 		await loginMutation.mutateAsync(values)
 	}
 
-	const { isLoading, error, data, isSuccess } = loginMutation
-
-	const navigate = useNavigate() // Get the navigate function
+	const { isLoading, isError, data, isSuccess } = loginMutation
 
 	useEffect(() => {
 		if (isSuccess) {
 			toast.success('Login successful')
 			setStoredUser(data)
 			setStoredToken(data.token)
+			form.reset()
+
 			setTokenExpiry(getSessionExpirationDate())
 			navigate('/app/home') // Redirect to /app on success
-		} else {
+		}
+		if (isError) {
 			toast.error('Failed to login!')
 		}
-	}, [isSuccess, data, navigate])
+	}, [isSuccess, isLoading])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">

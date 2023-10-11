@@ -13,6 +13,18 @@ const loginRequestBodySchema = z.object({
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 
+const getParentsSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		email: z.string(),
+		phone: z.number(),
+		image:z.string()
+	}),
+)
+
+type getParentsResponse = z.infer<typeof getParentsSchema>
+
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
 		const requestBody = await req.text()
@@ -36,6 +48,24 @@ export const handlers: Array<RequestHandler> = [
 			ctx.delay(2000),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
+		)
+	}),
+	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
+		const numberOfParents = 15 // Set the number of parent objects you want to generate
+
+		// Generate an array of parent objects using Faker and the schema
+		const parents = Array.from({ length: numberOfParents }, () => ({
+			id: faker.string.uuid(),
+			name: faker.person.fullName(),
+			email: faker.internet.email(),
+			phone: faker.phone.number(),
+			image: faker.image.avatar()
+		}))
+
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json(parents), // Respond with the generated parent objects
 		)
 	}),
 ]

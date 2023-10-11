@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { getUser } from '../utils/storage'
 import { EmailSchema, NameSchema } from '../utils/user-validation'
 import { getSessionExpirationDate, isUserTimedOut } from '../utils/auth'
+import AuthRoute from '../features/Auth/AuthRoute'
 
 // Define a Zod schema for user data
 const UserSchema = z.object({
@@ -21,6 +22,8 @@ type User = z.infer<typeof UserSchema>
 const Home: React.FC = () => {
 	const [loading, setLoading] = useState(false)
 	const [user, setUser] = useState<any>({})
+
+	const token = sessionStorage.getItem('TOKEN') || ''
 
 	const location = useLocation()
 	const history = useNavigate()
@@ -56,9 +59,11 @@ const Home: React.FC = () => {
 	}
 
 	return (
-		<Layout location={location} menus={menus}>
-			<Outlet />
-		</Layout>
+		<AuthRoute token={token}>
+			<Layout location={location} menus={menus}>
+				<Outlet />
+			</Layout>
+		</AuthRoute>
 	)
 }
 
