@@ -13,6 +13,7 @@ import { z } from 'zod'
 import AuthRoute from './features/Auth/AuthRoute'
 import AnalyticsView from './views/Home'
 import ParentsView from './views/Parents'
+import Auth from './features/Auth/Auth'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -43,18 +44,19 @@ function App() {
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
-					<Route path="" element={<Login />} />
-					<Route path="auth" element={<Login />}>
+					{/* <Route path="" element={< />} /> */}
+					<Route path="auth" element={<Auth />}>
 						<Route path="" element={<Login />} />
 						<Route path="login" element={<Login />} />
 						<Route path="signup" element={<SignUp />} />
 					</Route>
 					<Route path="app" element={<Home />}>
-						<Route element={<AuthRoute token={token} />}>
+						{/* <Route element={<AuthRoute token={token} />}> */}
+							<Route path="" element={<AnalyticsView />} />
 							<Route path="home" element={<AnalyticsView />} />
 							<Route path="parents" element={<ParentsView />} />
 							{/* <Route path="dashboard" element={<AnalyticsPage />} /> */}
-						</Route>
+						{/* </Route> */}
 					</Route>
 				</Routes>
 			</BrowserRouter>
