@@ -26,31 +26,41 @@ const Home: React.FC = () => {
 	const token = sessionStorage.getItem('TOKEN') || ''
 
 	const location = useLocation()
-	const history = useNavigate()
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		init()
 	}, [])
 
 	async function init() {
+		setLoading(true)
 		try {
 			const userData = UserSchema.parse(await getUser())
 
 			if (!userData.email || !userData.token || !userData.username) {
-				history('/auth/login')
+				setLoading(false)
+
+				navigate('/auth/login')
 				return
 			}
 
 			const isTimedOut = await isUserTimedOut()
+
 			if (isTimedOut) {
-				history('/auth/login')
+				setLoading(false)
+
+				navigate('/auth/login')
 				return
 			}
 
+			setUser(userData)
 			setLoading(false)
 		} catch (error) {
-			// Handle schema validation errors or other errors
 			console.error('Error:', error)
+
+			setLoading(false)
+
+			navigate('/auth/login')
 		}
 	}
 
@@ -59,11 +69,11 @@ const Home: React.FC = () => {
 	}
 
 	return (
-		<AuthRoute token={token}>
-			<Layout location={location} menus={menus}>
-				<Outlet />
-			</Layout>
-		</AuthRoute>
+		// <AuthRoute token={token}>
+		<Layout user={user} location={location} menus={menus}>
+			<Outlet />
+		</Layout>
+		// </AuthRoute>
 	)
 }
 

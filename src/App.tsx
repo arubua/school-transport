@@ -10,10 +10,11 @@ import { worker } from './tests/mocks/browser'
 import { TheToaster } from './components/toaster'
 import Home from './views'
 import { z } from 'zod'
-import AuthRoute from './features/Auth/AuthRoute'
 import AnalyticsView from './views/Home'
 import ParentsView from './views/Parents'
 import Auth from './features/Auth/Auth'
+import StudentsView from './views/Students'
+import AddStudent from './features/Students/add-student'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -38,8 +39,6 @@ function App() {
 		}
 	}, [])
 
-	const token = sessionStorage.getItem('TOKEN') || ''
-
 	return (
 		<div className="App">
 			<BrowserRouter>
@@ -52,10 +51,11 @@ function App() {
 					</Route>
 					<Route path="app" element={<Home />}>
 						{/* <Route element={<AuthRoute token={token} />}> */}
-							<Route path="" element={<AnalyticsView />} />
-							<Route path="home" element={<AnalyticsView />} />
-							<Route path="parents" element={<ParentsView />} />
-							{/* <Route path="dashboard" element={<AnalyticsPage />} /> */}
+						<Route path="" element={<AnalyticsView />} />
+						<Route path="home" element={<AnalyticsView />} />
+						<Route path="parents" element={<ParentsView />} />
+						<Route path="students" element={<StudentsView />} />
+						<Route path="students/addStudent" element={<AddStudent />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

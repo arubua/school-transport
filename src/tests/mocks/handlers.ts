@@ -13,13 +13,27 @@ const loginRequestBodySchema = z.object({
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 
+const getStudentsSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		class: z.string(),
+		stop: z.string(),
+		parent_name: z.string(),
+		parent_phone: z.number(),
+		image: z.string(),
+	}),
+)
+
+type getStudentsResponse = z.infer<typeof getStudentsSchema>
+
 const getParentsSchema = z.array(
 	z.object({
 		id: z.string(),
 		name: z.string(),
 		email: z.string(),
 		phone: z.number(),
-		image:z.string()
+		image: z.string(),
 	}),
 )
 
@@ -59,7 +73,7 @@ export const handlers: Array<RequestHandler> = [
 			name: faker.person.fullName(),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
-			image: faker.image.avatar()
+			image: faker.image.avatar(),
 		}))
 
 		return res(
@@ -67,5 +81,21 @@ export const handlers: Array<RequestHandler> = [
 			ctx.status(200),
 			ctx.json(parents), // Respond with the generated parent objects
 		)
+	}),
+	rest.get<getStudentsResponse>('/api/students', async (req, res, ctx) => {
+		const numberofStudents = 15
+
+		const students = Array.from({ length: numberofStudents }, () => ({
+			id: faker.string.uuid(),
+			name: faker.person.fullName(),
+			class: faker.number.int({ min: 1, max: 7 }),
+			stop: faker.location.streetAddress(),
+			school: faker.company.name(),
+			parent_name: faker.person.fullName(),
+			parent_phone: faker.phone.number(),
+			image: faker.image.avatar(),
+		}))
+
+		return res(ctx.delay(2000), ctx.status(200), ctx.json(students))
 	}),
 ]
