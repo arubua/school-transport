@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/button'
 import { Link } from 'react-router-dom'
 import Logo from '../../components/ui/logo'
 
-const Home = () => {
+const Splash = () => {
 	return (
 		<div className="">
 			<header className="App-header">
@@ -22,4 +22,4 @@ const Home = () => {
 	)
 }
 
-export default Home
+export default Splash

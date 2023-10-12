@@ -1,6 +1,8 @@
 // src/mocks.ts
 import { rest, RequestHandler } from 'msw'
+import { redirect } from 'react-router-dom'
 import { z } from 'zod'
+import { faker } from '@faker-js/faker'
 
 // Define a Zod schema for the login request body
 const loginRequestBodySchema = z.object({
@@ -10,6 +12,18 @@ const loginRequestBodySchema = z.object({
 })
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
+
+const getParentsSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		email: z.string(),
+		phone: z.number(),
+		image:z.string()
+	}),
+)
+
+type getParentsResponse = z.infer<typeof getParentsSchema>
 
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
@@ -22,14 +36,36 @@ export const handlers: Array<RequestHandler> = [
 			return res(
 				ctx.delay(2000),
 				ctx.status(200),
-				ctx.json({ token: 'yourAuthTokenHere' }), // Customize the response data
+				ctx.json({
+					username: data.username,
+					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
+					token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
+				}), // Customize the response data
 			)
 		}
 
 		return res(
-			ctx.delay(5000),
+			ctx.delay(2000),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
+		)
+	}),
+	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
+		const numberOfParents = 15 // Set the number of parent objects you want to generate
+
+		// Generate an array of parent objects using Faker and the schema
+		const parents = Array.from({ length: numberOfParents }, () => ({
+			id: faker.string.uuid(),
+			name: faker.person.fullName(),
+			email: faker.internet.email(),
+			phone: faker.phone.number(),
+			image: faker.image.avatar()
+		}))
+
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json(parents), // Respond with the generated parent objects
 		)
 	}),
 ]

@@ -1,13 +1,23 @@
 import React, { useEffect } from 'react'
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './features/Home'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Splash from './features/Splash'
 import { Login } from './features/Auth/Login'
 import { SignUp } from './features/Auth/Signup'
 
 import { init } from './utils/env.server'
 import { worker } from './tests/mocks/browser'
 import { TheToaster } from './components/toaster'
+import Home from './views'
+import { z } from 'zod'
+import AuthRoute from './features/Auth/AuthRoute'
+import AnalyticsView from './views/Home'
+import ParentsView from './views/Parents'
+import Auth from './features/Auth/Auth'
+
+const AuthSchema = z.object({
+	token: z.string().optional(),
+})
 
 //initializing environment variables
 init()
@@ -28,13 +38,26 @@ function App() {
 		}
 	}, [])
 
+	const token = sessionStorage.getItem('TOKEN') || ''
+
 	return (
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
-					<Route path="" element={<Home />} />
-					<Route path="login" element={<Login />} />
-					<Route path="signup" element={<SignUp />} />
+					{/* <Route path="" element={< />} /> */}
+					<Route path="auth" element={<Auth />}>
+						<Route path="" element={<Login />} />
+						<Route path="login" element={<Login />} />
+						<Route path="signup" element={<SignUp />} />
+					</Route>
+					<Route path="app" element={<Home />}>
+						{/* <Route element={<AuthRoute token={token} />}> */}
+							<Route path="" element={<AnalyticsView />} />
+							<Route path="home" element={<AnalyticsView />} />
+							<Route path="parents" element={<ParentsView />} />
+							{/* <Route path="dashboard" element={<AnalyticsPage />} /> */}
+						{/* </Route> */}
+					</Route>
 				</Routes>
 			</BrowserRouter>
 			<TheToaster />

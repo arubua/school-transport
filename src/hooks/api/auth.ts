@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 
+
 const login = async ({
 	username,
 	password,
@@ -19,10 +20,13 @@ const login = async ({
 
 	if (!response.ok) {
 		const data = await response.json()
+
 		throw new Error(data.error)
 	}
 
-	return response.json()
+	const data = await response.json()
+
+	return data
 }
 
 export const useLogin = () => {

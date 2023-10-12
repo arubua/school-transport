@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -20,13 +20,15 @@ import {
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spacer } from '../../components/spacer'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Checkbox } from '../../components/ui/checkbox'
 import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
-import { useLogin } from '../../hooks/api/useLogin'
+import { useLogin } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
 import { toast } from 'sonner'
+import { useLocalStorage, useSessionStorage } from '../../hooks/hooks'
+import { getSessionExpirationDate } from '../../utils/auth'
 
 const LoginFormSchema = z.object({
 	username: UsernameSchema,
@@ -35,7 +37,15 @@ const LoginFormSchema = z.object({
 })
 
 export function Login() {
-	// 1. Define your form.
+	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
+	const [storedToken, setStoredToken] = useSessionStorage('TOKEN', null)
+	const [tokenExpiry, setTokenExpiry] = useSessionStorage(
+		'TOKEN_EXPIRY',
+		new Date(),
+	)
+	const navigate = useNavigate() // Get the navigate function
+	const loginMutation = useLogin()
+
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
 		defaultValues: {
@@ -45,21 +55,26 @@ export function Login() {
 		},
 	})
 
-	const loginMutation = useLogin()
-
 	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-		try {
-			const result = await loginMutation.mutateAsync(values)
-			toast.success('Login successful', result)
-			// Handle the successful login here
-		} catch (e) {
-			// Handle login error
-			const error = ErrorSchema.parse(e)
-			toast.error(error.message)
-		}
+		await loginMutation.mutateAsync(values)
 	}
 
-	const { isLoading, isError, error } = loginMutation
+	const { isLoading, isError, data, isSuccess } = loginMutation
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success('Login successful')
+			setStoredUser(data)
+			setStoredToken(data.token)
+			form.reset()
+
+			setTokenExpiry(getSessionExpirationDate())
+			navigate('/app/home') // Redirect to /app on success
+		}
+		if (isError) {
+			toast.error('Failed to login!')
+		}
+	}, [isSuccess, isLoading])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
