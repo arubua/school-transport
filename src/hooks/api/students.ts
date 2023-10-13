@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import {
 	GradeSchema,
+	ImageFileSchema,
 	SchoolNameSchema,
 	UsernameSchema,
 } from '../../utils/user-validation'
@@ -22,12 +23,12 @@ const addStudent = async ({
 	name,
 	grade,
 	school,
-	image,
+	// image,
 }: {
-	name: typeof UsernameSchema
-	grade: typeof GradeSchema
-	school: typeof SchoolNameSchema
-	image: string
+	name: string
+	grade: number
+	school: string
+	// image: typeof ImageFileSchema
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',
@@ -38,7 +39,7 @@ const addStudent = async ({
 			name,
 			grade,
 			school,
-			image,
+			// image,
 		}),
 	})
 

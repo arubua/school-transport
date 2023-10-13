@@ -66,13 +66,34 @@ export const BusStopSchema = z.object({
 	location: CoordinatesSchema,
 	details: z.string().optional(),
 })
+// export const ImageFileSchema = z.object({
+// 	file: z.object({
+// 		name: z.string(),
+// 		type: z
+// 			.string()
+// 			.regex(/^image\/.+/i, 'Invalid file type. Only image files are allowed.'),
+// 		size: z.number(),
+// 		content: z.any(),
+// 	}),
+// })
+
+const MAX_FILE_SIZE = 500000
+const ACCEPTED_IMAGE_TYPES = [
+	'image/jpeg',
+	'image/jpg',
+	'image/png',
+	'image/webp',
+]
+
 export const ImageFileSchema = z.object({
-	file: z.object({
-		name: z.string(),
-		type: z
-			.string()
-			.regex(/^image\/.+/i, 'Invalid file type. Only image files are allowed.'),
-		size: z.number(),
-		content: z.any(),
-	}),
+	image: z
+		.any()
+		.refine(
+			files => files?.[0]?.size <= MAX_FILE_SIZE,
+			`Max image size is 5MB.`,
+		)
+		.refine(
+			files => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+			'Only .jpg, .jpeg, .png and .webp formats are supported.',
+		),
 })

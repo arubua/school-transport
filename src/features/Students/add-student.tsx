@@ -20,22 +20,26 @@ import {
 	BusStopSchema,
 	GradeSchema,
 	ImageFileSchema,
+	NameSchema,
 	SchoolNameSchema,
 	UsernameSchema,
 } from '../../utils/user-validation'
 import { z } from 'zod'
 import { useAddStudent } from '../../hooks/api/students'
+import { Separator } from '../../components/separator'
 
 const StudentFormSchema = z.object({
-	name: UsernameSchema,
+	name: NameSchema,
 	grade: GradeSchema,
 	school: SchoolNameSchema,
-	bus_stop: BusStopSchema,
-	image: ImageFileSchema,
+	// bus_stop: BusStopSchema,
+	// image: ImageFileSchema,
 })
 
 const AddStudent = () => {
 	const addStudentMutation = useAddStudent()
+
+	const { isLoading, isError, data, isSuccess } = addStudentMutation
 
 	const form = useForm<z.infer<typeof StudentFormSchema>>({
 		resolver: zodResolver(StudentFormSchema),
@@ -43,8 +47,8 @@ const AddStudent = () => {
 			name: '',
 			grade: undefined,
 			school: '',
-			bus_stop: {},
-			image: undefined,
+			// bus_stop: {},
+			// image: {},
 		},
 	})
 
@@ -55,67 +59,102 @@ const AddStudent = () => {
 	return (
 		<div>
 			<Spacer size="2xs" />
-			<Tabs defaultValue="student" className="w-[400px]">
-				<TabsList className="grid w-full grid-cols-2">
+			<Tabs defaultValue="student" className=" w-full">
+				<TabsList className="flex justify-start">
 					<TabsTrigger value="student">Student Details</TabsTrigger>
 					<TabsTrigger value="parent">Parent Details</TabsTrigger>
 				</TabsList>
 				<TabsContent value="student">
 					<div>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="m-4 space-y-8 md:m-0"
-						>
-							<div className="text-left">
-								<FormField
-									control={form.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="m-4 space-y-8 md:m-0"
+							>
+								<div className=" text-left">
+									<Spacer size="4xs" />
+									<Separator orientation="horizontal" />
+									<Spacer size="4xs" />
+									<div className="flex">
+										<div className="w-64">
 											<FormLabel>Name</FormLabel>
-											<FormControl>
-												<Input placeholder="Luke Skywalker" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<Spacer size="4xs" />
-								<FormField
-									control={form.control}
-									name="grade"
-									render={({ field }) => (
-										<FormItem>
+										</div>
+										<FormField
+											control={form.control}
+											name="name"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input
+															className="w-96"
+															placeholder="Luke Skywalker"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+									<Spacer size="4xs" />
+									<Separator orientation="horizontal" />
+									<Spacer size="4xs" />
+									<div className="flex">
+										<div className="w-64">
 											<FormLabel>Grade</FormLabel>
-											<FormControl>
-												<Input placeholder="2" type="number" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<Spacer size="4xs" />
-								<div className="flex justify-between">
-									<FormField
-										control={form.control}
-										name="bus_stop"
-										render={({ field }) => (
-											<FormItem>
-												<FormControl>
-													<Input placeholder="" {...field} />
-												</FormControl>
-												<FormLabel className="ml-2">Remember ?</FormLabel>
-											</FormItem>
-										)}
-									/>
-									<Button variant="link">Forgot password ?</Button>
+										</div>
+										<FormField
+											control={form.control}
+											name="grade"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input
+															className="w-96"
+															placeholder="1"
+															type="number"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+									<Spacer size="4xs" />
+									<Separator orientation="horizontal" />
+									<Spacer size="4xs" />
+									<div className="flex">
+										<div className="w-64">
+											<FormLabel>School</FormLabel>
+										</div>
+										<FormField
+											control={form.control}
+											name="name"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input
+															className="w-96"
+															placeholder="NBBPS"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+									<Spacer size="4xs" />
+									<Separator orientation="horizontal" />
+									<Spacer size="4xs" />
+									{/* <Button className="w-full" type="submit" disabled={isLoading}>
+										<Spinner showSpinner={isLoading} />
+										Submit
+									</Button> */}
 								</div>
-								<Button className="w-full" type="submit" disabled={isLoading}>
-									<Spinner showSpinner={isLoading} />
-									Submit
-								</Button>
-							</div>
-						</form>
+							</form>
+						</Form>
 					</div>
 				</TabsContent>
 				<TabsContent value="parent">
