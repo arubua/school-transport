@@ -42,4 +42,37 @@ export const RememberUser = z.boolean({
 export const ErrorSchema = z.object({
 	message: z.string(),
 	// Add any additional error properties you need here
-  });
+})
+//Student schemas
+export const GradeSchema = z
+	.number()
+	.int() // Ensure it's an integer
+	.min(1, 'Grade should be at least 1')
+	.max(8, 'Grade cannot be greater than 8')
+	.refine(grade => Number.isInteger(grade), {
+		message: 'Grade should be a whole number',
+	})
+export const SchoolNameSchema = z
+	.string()
+	.min(2, 'School name should be at least 2 characters long')
+
+export const CoordinatesSchema = z.object({
+	latitude: z.number(),
+	longitude: z.number(),
+})
+
+export const BusStopSchema = z.object({
+	name: z.string().min(2, 'Bus stop name should be at least 2 characters long'),
+	location: CoordinatesSchema,
+	details: z.string().optional(),
+})
+export const ImageFileSchema = z.object({
+	file: z.object({
+		name: z.string(),
+		type: z
+			.string()
+			.regex(/^image\/.+/i, 'Invalid file type. Only image files are allowed.'),
+		size: z.number(),
+		content: z.any(),
+	}),
+})

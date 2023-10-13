@@ -16,25 +16,40 @@ import { Checkbox } from '../../components/ui/checkbox'
 import { Button } from '../../components/ui/button'
 import { Spinner } from '../../components/spinner'
 import { Icon } from '../../components/ui/icon'
+import {
+	BusStopSchema,
+	GradeSchema,
+	ImageFileSchema,
+	SchoolNameSchema,
+	UsernameSchema,
+} from '../../utils/user-validation'
+import { z } from 'zod'
+import { useAddStudent } from '../../hooks/api/students'
 
-const LoginFormSchema = z.object({
-	username: UsernameSchema,
-	password: PasswordSchema,
-	remember_user: RememberUser,
+const StudentFormSchema = z.object({
+	name: UsernameSchema,
+	grade: GradeSchema,
+	school: SchoolNameSchema,
+	bus_stop: BusStopSchema,
+	image: ImageFileSchema,
 })
 
 const AddStudent = () => {
-	const form = useForm<z.infer<typeof LoginFormSchema>>({
-		resolver: zodResolver(LoginFormSchema),
+	const addStudentMutation = useAddStudent()
+
+	const form = useForm<z.infer<typeof StudentFormSchema>>({
+		resolver: zodResolver(StudentFormSchema),
 		defaultValues: {
-			username: '',
-			password: '',
-			remember_user: false,
+			name: '',
+			grade: undefined,
+			school: '',
+			bus_stop: {},
+			image: undefined,
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-		await loginMutation.mutateAsync(values)
+	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+		await addStudentMutation.mutateAsync(values)
 	}
 
 	return (
@@ -54,12 +69,12 @@ const AddStudent = () => {
 							<div className="text-left">
 								<FormField
 									control={form.control}
-									name="username"
+									name="name"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Username</FormLabel>
+											<FormLabel>Name</FormLabel>
 											<FormControl>
-												<Input placeholder="wazza" {...field} />
+												<Input placeholder="Luke Skywalker" {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -68,16 +83,12 @@ const AddStudent = () => {
 								<Spacer size="4xs" />
 								<FormField
 									control={form.control}
-									name="password"
+									name="grade"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Password</FormLabel>
+											<FormLabel>Grade</FormLabel>
 											<FormControl>
-												<Input
-													placeholder="********"
-													type="password"
-													{...field}
-												/>
+												<Input placeholder="2" type="number" {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -87,14 +98,11 @@ const AddStudent = () => {
 								<div className="flex justify-between">
 									<FormField
 										control={form.control}
-										name="remember_user"
+										name="bus_stop"
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
+													<Input placeholder="" {...field} />
 												</FormControl>
 												<FormLabel className="ml-2">Remember ?</FormLabel>
 											</FormItem>
@@ -105,15 +113,6 @@ const AddStudent = () => {
 								<Button className="w-full" type="submit" disabled={isLoading}>
 									<Spinner showSpinner={isLoading} />
 									Submit
-								</Button>
-								<Spacer size="4xs" />
-								<Button
-									className="w-full hover:bg-transparent"
-									type="submit"
-									variant={'outline'}
-								>
-									<Icon name="google-icon" size="md" className="mr-2" /> Sign in
-									with google
 								</Button>
 							</div>
 						</form>
