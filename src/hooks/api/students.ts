@@ -20,12 +20,14 @@ export const useStudents = () => {
 }
 
 const addStudent = async ({
-	name,
+	firstName,
+	lastName,
 	grade,
 	school,
-	// image,
-}: {
-	name: string
+} // image,
+: {
+	firstName: string
+	lastName: string
 	grade: number
 	school: string
 	// image: typeof ImageFileSchema
@@ -36,7 +38,8 @@ const addStudent = async ({
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			name,
+			firstName,
+			lastName,
 			grade,
 			school,
 			// image,

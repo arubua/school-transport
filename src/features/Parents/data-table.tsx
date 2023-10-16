@@ -25,6 +25,7 @@ import { Input } from '../../components/ui/input'
 import { DataTablePagination } from '../../components/table/pagination'
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
+import { useNavigate } from 'react-router-dom'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -35,6 +36,8 @@ export function DataTable<TData, TValue>({
 	columns,
 	data,
 }: DataTableProps<TData, TValue>) {
+	const navigate = useNavigate()
+
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -66,10 +69,16 @@ export function DataTable<TData, TValue>({
 					}
 					className="max-w-sm"
 				/>
-				<Button variant="outline">
-					<Icon name="download" className='mr-2' />
-					Export
-				</Button>
+				<div className="flex gap-2">
+					<Button variant="outline" size={'sm'}>
+						<Icon name="download" className="mr-2" />
+						Export
+					</Button>
+					<Button size={'sm'} onClick={() => navigate('addParent')}>
+						<Icon name="plus" className="mr-2" />
+						Add Parent
+					</Button>
+				</div>
 			</div>
 			<div className="rounded-md border">
 				<Table>

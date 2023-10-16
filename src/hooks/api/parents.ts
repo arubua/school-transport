@@ -1,86 +1,96 @@
-import { useQuery,useMutation } from '@tanstack/react-query';
-
+import { useQuery, useMutation } from '@tanstack/react-query'
 
 const getParents = async () => {
-  const response = await fetch('/api/parents');
-  if (!response.ok) {
-    throw new Error('Failed to fetch parents data');
-  }
-  const data = await response.json();
-  return data;
-};
+	const response = await fetch('/api/parents')
+	if (!response.ok) {
+		throw new Error('Failed to fetch parents data')
+	}
+	const data = await response.json()
+	return data
+}
 
 export const useParents = () => {
-  return useQuery(['parents'], getParents);
-};
+	return useQuery(['parents'], getParents)
+}
 
+const getParentById = async (parentId: string) => {
+	const response = await fetch(`/api/parents/${parentId}`)
+	if (!response.ok) {
+		throw new Error('Failed to fetch parent data')
+	}
+	const data = await response.json()
+	return data
+}
 
-const getParentById = async (parentId : string) => {
-  const response = await fetch(`/api/parents/${parentId}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch parent data');
-  }
-  const data = await response.json();
-  return data;
-};
-
-export const useParentById = (parentId : string) => {
-  return useQuery(['parent', parentId], () => getParentById(parentId));
-};
-
+export const useParentById = (parentId: string) => {
+	return useQuery(['parent', parentId], () => getParentById(parentId))
+}
 
 // Specify the types for parentId and updatedData
 const updateParentById = async (
-  parentId: string, // Assuming parentId is a string, adjust the type accordingly
-  updatedData: Record<string, any> // Assuming updatedData is an object, adjust the type accordingly
+	parentId: string, // Assuming parentId is a string, adjust the type accordingly
+	updatedData: Record<string, any>, // Assuming updatedData is an object, adjust the type accordingly
 ) => {
-  const response = await fetch(`/api/parents/${parentId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(updatedData),
-  });
+	const response = await fetch(`/api/parents/${parentId}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(updatedData),
+	})
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error);
-  }
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
 
-  const data = await response.json();
-  return data;
-};
+	const data = await response.json()
+	return data
+}
 
 export const useUpdateParent = () => {
-  return useMutation(updateParentById, {
-    mutationKey: 'updateParent',
-  });
-};
+	return useMutation(updateParentById, {
+		mutationKey: 'updateParent',
+	})
+}
 
+const addParent = async ({
+	firstName,
+	lastName,
+	email,
+	phone, // image,
+}: {
+	firstName: string
+	lastName: string
+	email: string
+	phone: number
+	// image: typeof ImageFileSchema
+}) => {
+	const response = await fetch('/api/student', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			firstName,
+			lastName,
+			email,
+			phone,
+			// image,
+		}),
+	})
 
+	if (!response.ok) {
+		const data = await response.json()
 
-const createParent = async (newData) => {
-  const response = await fetch('/api/parents', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(newData),
-  });
+		throw new Error(data.error)
+	}
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error);
-  }
+	const data = await response.json()
 
-  const data = await response.json();
-  return data;
-};
+	return data
+}
 
-export const useCreateParent = () => {
-  return useMutation(createParent);
-};
-
-
-
-
+export const useAddParent = () => {
+	return useMutation(addParent)
+}
