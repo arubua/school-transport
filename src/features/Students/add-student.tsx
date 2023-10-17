@@ -43,16 +43,16 @@ import { useParents } from '../../hooks/api/parents'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
-import { FileRejection } from 'react-dropzone'
+import { FileRejection, DropzoneInputProps } from 'react-dropzone'
 
 const StudentFormSchema = z.object({
 	firstName: NameSchema,
 	lastName: NameSchema,
-	grade: GradeSchema,
+	grade: z.string(),
 	school: SchoolNameSchema,
-	parent: z.number(),
+	parent: z.string(),
 	// bus_stop: BusStopSchema,
-	// image: ImageFileSchema,
+	avatarImage: z.string(),
 })
 
 const AddStudent = () => {
@@ -61,8 +61,6 @@ const AddStudent = () => {
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
 
 	const handleDeleteImage = (fileToDelete: File) => {
-		console.log("filetodelete",fileToDelete)
-		// Implement your delete logic here
 		const updatedAcceptedFiles = acceptedFiles.filter(
 			file => file !== fileToDelete,
 		)
@@ -80,15 +78,15 @@ const AddStudent = () => {
 		defaultValues: {
 			firstName: '',
 			lastName: '',
-			grade: undefined,
+			grade: "",
 			school: '',
-			parent: undefined,
-			// bus_stop: {},
-			// image: {},
+			parent: "",
+			avatarImage: '',
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+		console.log('values', values)
 		await addStudentMutation.mutateAsync(values)
 	}
 
@@ -168,7 +166,7 @@ const AddStudent = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="1" type="number" {...field} />
+											<Input type='number' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -280,7 +278,7 @@ const AddStudent = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="school"
+								name="avatarImage"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>

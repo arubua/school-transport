@@ -18,17 +18,15 @@ interface FileUploadProps {
 	fileName: string
 	delete: (file: File) => void
 	rejectedFiles?: FileRejection[]
-	uploadedImages: string[]
+	// uploadedImages: string[]
 }
 
 const FileUpload: React.FC<FileUploadProps> = props => {
-	// console.log('props', props)
 	const previewFiles = props.acceptedFiles
 
 	const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
 	const handleImagePreview = (files: File[]) => {
-		console.log('handlepreview', files)
 		const previews = files.map(file => URL.createObjectURL(file))
 		setImagePreviews([ ...previews])
 	}
@@ -51,7 +49,7 @@ const FileUpload: React.FC<FileUploadProps> = props => {
 					))}
 				</div>
 			)}
-			<div className="min-h-32 max-w-xs rounded-sm border p-4 ">
+			<div className="min-h-32 max-w-xs rounded border p-4 ">
 				<Dropzone
 					accept={props.accept}
 					multiple={props.multiple}

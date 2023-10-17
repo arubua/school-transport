@@ -24,13 +24,15 @@ const addStudent = async ({
 	lastName,
 	grade,
 	school,
-} // image,
-: {
+	image,
+	parent,
+}: {
 	firstName: string
 	lastName: string
-	grade: number
+	grade: string
 	school: string
-	// image: typeof ImageFileSchema
+	image: string
+	parent: string
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',
@@ -42,7 +44,8 @@ const addStudent = async ({
 			lastName,
 			grade,
 			school,
-			// image,
+			image,
+			parent
 		}),
 	})
 
