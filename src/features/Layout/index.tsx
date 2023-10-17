@@ -63,15 +63,20 @@ const Layout: React.FC<LayoutProps> = props => {
 	//   setUser(user);
 	// };
 
-	function onToggle() {
-		const sidebar_class = document.getElementById('sidebar')!.classList
-		if (sidebar_class.contains('show')) {
-			sidebar_class.remove('show')
-			sidebar_class.add('hide')
-			return
-		}
-		sidebar_class.add('show')
-		sidebar_class.remove('hide')
+	// function onToggle() {
+	// 	const sidebar = document.getElementById('sidebar')
+
+	// 	if (sidebar?.classList.contains('hidden')) {
+	// 		sidebar.classList.remove('hidden')
+	// 	} else {
+	// 		sidebar?.classList.add('hidden')
+	// 	}
+	// }
+
+	const [isSidebarVisible, setSidebarVisible] = useState(true)
+
+	const toggleSidebar = () => {
+		setSidebarVisible(!isSidebarVisible)
 	}
 
 	function hideSidebarOnMobile() {
@@ -93,8 +98,8 @@ const Layout: React.FC<LayoutProps> = props => {
 		<div>
 			<div className="flex">
 				<Sidebar
-					onToggle={onToggle}
-					//   app={props.app}
+					toggleSidebar={toggleSidebar}
+					isSidebarVisible={isSidebarVisible}
 					menus={props.menus || []}
 					pathname={location.pathname}
 					hideSidebarOnMobile={hideSidebarOnMobile}
@@ -102,8 +107,8 @@ const Layout: React.FC<LayoutProps> = props => {
 				<div className="w-full">
 					<Navbar
 						user={props.user || {}}
-						onToggle={onToggle}
-						// onSignMeOut={onSignMeOut}
+						toggleSidebar={toggleSidebar}
+						isSidebarVisible={isSidebarVisible}
 						title={title}
 						// notifications={alerts}
 						// isLoadingViolationNotification={isLoadingViolationNotification}

@@ -42,19 +42,33 @@ import { useEffect, useState } from 'react'
 import { useParents } from '../../hooks/api/parents'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
+import FileUpload from '../../components/ui/file-input'
+import { FileRejection } from 'react-dropzone'
 
 const StudentFormSchema = z.object({
 	firstName: NameSchema,
 	lastName: NameSchema,
 	grade: GradeSchema,
 	school: SchoolNameSchema,
-	parent: NameSchema,
+	parent: z.number(),
 	// bus_stop: BusStopSchema,
 	// image: ImageFileSchema,
 })
 
 const AddStudent = () => {
-	const [parents, setParents] = useState([])
+	const [parents, setParents] = useState<{ label: string; value: number }[]>([])
+	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
+	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
+
+	const handleDeleteImage = (fileToDelete: File) => {
+		console.log("filetodelete",fileToDelete)
+		// Implement your delete logic here
+		const updatedAcceptedFiles = acceptedFiles.filter(
+			file => file !== fileToDelete,
+		)
+		setAcceptedFiles(updatedAcceptedFiles)
+	}
+
 	const addStudentMutation = useAddStudent()
 
 	const { isLoading, isError, data, isSuccess } = addStudentMutation
@@ -68,7 +82,7 @@ const AddStudent = () => {
 			lastName: '',
 			grade: undefined,
 			school: '',
-			parent: '',
+			parent: undefined,
 			// bus_stop: {},
 			// image: {},
 		},
@@ -250,17 +264,65 @@ const AddStudent = () => {
 											</PopoverContent>
 										</Popover>
 										{/* <FormDescription>
-											This is the parent that will be used in the dashboard.
-										</FormDescription> */}
+        This is the parent that will be used in the dashboard.
+      </FormDescription> */}
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 						</div>
-						<Button size="sm" type="submit" disabled={isLoading}>
-							<Spinner showSpinner={isLoading} />
-							Submit
-						</Button>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>School</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="school"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<FileUpload
+												accept={{
+													'image/png': ['.png'],
+													'image/jpg': ['.jpg'],
+													'image/jpeg': ['.jpeg'],
+												}}
+												multiple={false} // Set this to true if you want to allow multiple files
+												onDrop={(acceptedFiles, rejectedFiles) => {
+													setAcceptedFiles(acceptedFiles)
+													setRejectedFiles(rejectedFiles)
+												}}
+												// error={'upload files error'}
+												format="PNG JPG JPEG"
+												size={5}
+												onDownload={() => {
+													// Handle the download action here
+												}}
+												downloading={false}
+												acceptedFiles={acceptedFiles}
+												fileName="avatar" // Provide a file name if needed
+												delete={file => {
+													handleDeleteImage(file)
+												}}
+												rejectedFiles={rejectedFiles}
+												{...field} // Pass the field props to FileUpload
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="3xs" />
+						<div className="flex max-w-xl justify-end">
+							<Button size="sm" type="submit" disabled={isLoading}>
+								{isLoading && <Spinner showSpinner={isLoading} />}
+								Submit
+							</Button>
+						</div>
 					</div>
 				</form>
 			</Form>
