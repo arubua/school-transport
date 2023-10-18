@@ -28,7 +28,7 @@ const FileUpload: React.FC<FileUploadProps> = props => {
 
 	const handleImagePreview = (files: File[]) => {
 		const previews = files.map(file => URL.createObjectURL(file))
-		setImagePreviews([ ...previews])
+		setImagePreviews([...previews])
 	}
 
 	useEffect(() => {

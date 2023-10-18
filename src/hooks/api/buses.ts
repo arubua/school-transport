@@ -6,46 +6,40 @@ import {
 	UsernameSchema,
 } from '../../utils/user-validation'
 
-const getStudents = async () => {
-	const response = await fetch('/api/students')
+const getBuses = async () => {
+	const response = await fetch('/api/buses')
 	if (!response.ok) {
-		throw new Error('Failed to fetch students data')
+		throw new Error('Failed to fetch buses data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useStudents = () => {
-	return useQuery(['students'], getStudents)
+export const useBuses = () => {
+	return useQuery(['buses'], getBuses)
 }
 
-const addStudent = async ({
-	firstName,
-	lastName,
-	grade,
+const addBus = async ({
+	reg_number,
+	capacity,
 	school,
 	avatarImage,
-	parent,
 }: {
-	firstName: string
-	lastName: string
-	grade: string
+	reg_number: string
+	capacity: string
 	school: string
 	avatarImage: File[]
-	parent: string
 }) => {
-	const response = await fetch('/api/student', {
+	const response = await fetch('/api/driver', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
-			grade,
+			reg_number,
+			capacity,
 			school,
 			avatarImage,
-			parent
 		}),
 	})
 
@@ -60,6 +54,6 @@ const addStudent = async ({
 	return data
 }
 
-export const useAddStudent = () => {
-	return useMutation(addStudent)
+export const useAddBus = () => {
+	return useMutation(addBus)
 }

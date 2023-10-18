@@ -39,6 +39,30 @@ const getParentsSchema = z.array(
 
 type getParentsResponse = z.infer<typeof getParentsSchema>
 
+const getDriversSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		phone_number: z.number(),
+		bus: z.string(),
+		image: z.string(),
+	}),
+)
+
+type getDriversResponse = z.infer<typeof getDriversSchema>
+
+const getBusesSchema = z.array(
+	z.object({
+		id: z.string(),
+		reg_number: z.string(),
+		capacity: z.number(),
+		school: z.string(),
+		image: z.string(),
+	}),
+)
+
+type getBusesResponse = z.infer<typeof getBusesSchema>
+
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
 		const requestBody = await req.text()
@@ -97,5 +121,31 @@ export const handlers: Array<RequestHandler> = [
 		}))
 
 		return res(ctx.delay(2000), ctx.status(200), ctx.json(students))
+	}),
+	rest.get<getDriversResponse>('/api/drivers', async (req, res, ctx) => {
+		const numberofDrivers = 15
+
+		const drivers = Array.from({ length: numberofDrivers }, () => ({
+			id: faker.string.uuid(),
+			name: faker.person.fullName(),
+			phone_number: faker.phone.number(),
+			bus: faker.vehicle.vehicle(),
+			image: faker.image.avatar(),
+		}))
+
+		return res(ctx.delay(2000), ctx.status(200), ctx.json(drivers))
+	}),
+	rest.get<getBusesResponse>('/api/buses', async (req, res, ctx) => {
+		const numberofBuses = 15
+
+		const buses = Array.from({ length: numberofBuses }, () => ({
+			id: faker.string.uuid(),
+			reg_number: faker.vehicle.vehicle(),
+			capacity: faker.number.int({ min: 1, max: 33 }),
+			school: faker.company.name(),
+			image: faker.image.avatar(),
+		}))
+
+		return res(ctx.delay(2000), ctx.status(200), ctx.json(buses))
 	}),
 ]

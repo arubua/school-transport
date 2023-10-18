@@ -26,45 +26,48 @@ export const useParentById = (parentId: string) => {
 	return useQuery(['parent', parentId], () => getParentById(parentId))
 }
 
-// Specify the types for parentId and updatedData
-const updateParentById = async (
-	parentId: string, // Assuming parentId is a string, adjust the type accordingly
-	updatedData: Record<string, any>, // Assuming updatedData is an object, adjust the type accordingly
-) => {
-	const response = await fetch(`/api/parents/${parentId}`, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
+// // Specify the types for parentId and updatedData
+// const updateParentById = async (
+// 	parentId: string, // Assuming parentId is a string, adjust the type accordingly
+// 	updatedData: Record<string, any>, // Assuming updatedData is an object, adjust the type accordingly
+// ) => {
+// 	const response = await fetch(`/api/parents/${parentId}`, {
+// 		method: 'PUT',
+// 		headers: {
+// 			'Content-Type': 'application/json',
+// 		},
+// 		body: JSON.stringify(updatedData),
+// 	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
-	}
+// 	if (!response.ok) {
+// 		const data = await response.json()
+// 		throw new Error(data.error)
+// 	}
 
-	const data = await response.json()
-	return data
-}
+// 	const data = await response.json()
+// 	return data
+// }
 
-export const useUpdateParent = () => {
-	return useMutation(updateParentById, {
-		mutationKey: 'updateParent',
-	})
-}
+// export const useUpdateParent = () => {
+// 	return useMutation(updateParentById, {
+// 		mutationKey: 'updateParent',
+// 	})
+// }
 
 const addParent = async ({
 	firstName,
 	lastName,
 	email,
-	phone, // image,
+	phone,
+	address,
+	avatarImage
 }: {
 	firstName: string
 	lastName: string
 	email: string
-	phone: number
-	// image: typeof ImageFileSchema
+	phone: string
+	address: string
+	avatarImage: File[]
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',
@@ -76,7 +79,8 @@ const addParent = async ({
 			lastName,
 			email,
 			phone,
-			// image,
+			address,
+			avatarImage
 		}),
 	})
 

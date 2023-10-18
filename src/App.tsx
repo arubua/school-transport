@@ -16,6 +16,8 @@ import Auth from './features/Auth/Auth'
 import StudentsView from './views/Students'
 import AddStudent from './features/Students/add-student'
 import AddParent from './features/Parents/add-parent'
+import DriversView from './views/Drivers'
+import AddDriver from './features/Drivers/add-driver'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -44,7 +46,7 @@ function App() {
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
-					<Route path="" element={< Home/>} />
+					<Route path="" element={<Home />} />
 					<Route path="auth" element={<Auth />}>
 						<Route path="" element={<Login />} />
 						<Route path="login" element={<Login />} />
@@ -58,6 +60,10 @@ function App() {
 						<Route path="parents/addParent" element={<AddParent />} />
 						<Route path="students" element={<StudentsView />} />
 						<Route path="students/addStudent" element={<AddStudent />} />
+						<Route path="drivers" element={<DriversView />} />
+						<Route path="drivers/addDriver" element={<AddDriver />} />
+						<Route path="buses" element={<DriversView />} />
+						<Route path="buses/addBus" element={<AddDriver />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

@@ -51,8 +51,7 @@ const StudentFormSchema = z.object({
 	grade: z.string(),
 	school: SchoolNameSchema,
 	parent: z.string(),
-	// bus_stop: BusStopSchema,
-	avatarImage: z.string(),
+	avatarImage: z.array(ImageFileSchema).optional(),
 })
 
 const AddStudent = () => {
@@ -78,10 +77,10 @@ const AddStudent = () => {
 		defaultValues: {
 			firstName: '',
 			lastName: '',
-			grade: "",
+			grade: '',
 			school: '',
-			parent: "",
-			avatarImage: '',
+			parent: '',
+			avatarImage: [],
 		},
 	})
 
@@ -166,7 +165,7 @@ const AddStudent = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input type='number' {...field} />
+											<Input type="number" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -205,7 +204,6 @@ const AddStudent = () => {
 								name="parent"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
-										{/* <FormLabel>parent</FormLabel> */}
 										<Popover>
 											<PopoverTrigger asChild>
 												<FormControl>
@@ -229,14 +227,14 @@ const AddStudent = () => {
 													</Button>
 												</FormControl>
 											</PopoverTrigger>
-											<PopoverContent className="w-[200px] p-0">
+											<PopoverContent className="w-[200px p-0">
 												<Command>
 													<CommandInput
 														placeholder="Search parent..."
 														className="h-9"
 													/>
 													<CommandEmpty>No parent found.</CommandEmpty>
-													<CommandGroup>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
 														{parents.map(parent => (
 															<CommandItem
 																value={parent.label}
@@ -274,12 +272,12 @@ const AddStudent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>School</FormLabel>
+								<FormLabel>Avatar</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
 								name="avatarImage"
-								render={({ field }) => (
+								render={({ field: { onChange } }) => (
 									<FormItem>
 										<FormControl>
 											<FileUpload
@@ -292,6 +290,7 @@ const AddStudent = () => {
 												onDrop={(acceptedFiles, rejectedFiles) => {
 													setAcceptedFiles(acceptedFiles)
 													setRejectedFiles(rejectedFiles)
+													onChange(acceptedFiles)
 												}}
 												// error={'upload files error'}
 												format="PNG JPG JPEG"
@@ -306,7 +305,7 @@ const AddStudent = () => {
 													handleDeleteImage(file)
 												}}
 												rejectedFiles={rejectedFiles}
-												{...field} // Pass the field props to FileUpload
+												// {...field}
 											/>
 										</FormControl>
 										<FormMessage />

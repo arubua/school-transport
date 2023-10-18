@@ -6,35 +6,33 @@ import {
 	UsernameSchema,
 } from '../../utils/user-validation'
 
-const getStudents = async () => {
-	const response = await fetch('/api/students')
+const getDrivers = async () => {
+	const response = await fetch('/api/drivers')
 	if (!response.ok) {
-		throw new Error('Failed to fetch students data')
+		throw new Error('Failed to fetch drivers data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useStudents = () => {
-	return useQuery(['students'], getStudents)
+export const useDrivers = () => {
+	return useQuery(['drivers'], getDrivers)
 }
 
-const addStudent = async ({
+const addDriver = async ({
 	firstName,
 	lastName,
-	grade,
-	school,
-	avatarImage,
-	parent,
+	phone_number,
+	bus_id,
+    avatarImage
 }: {
 	firstName: string
 	lastName: string
-	grade: string
-	school: string
-	avatarImage: File[]
-	parent: string
+	phone_number: string
+	bus_id: string
+    avatarImage: File[]
 }) => {
-	const response = await fetch('/api/student', {
+	const response = await fetch('/api/driver', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -42,10 +40,9 @@ const addStudent = async ({
 		body: JSON.stringify({
 			firstName,
 			lastName,
-			grade,
-			school,
-			avatarImage,
-			parent
+			phone_number,
+			bus_id,
+            avatarImage
 		}),
 	})
 
@@ -60,6 +57,6 @@ const addStudent = async ({
 	return data
 }
 
-export const useAddStudent = () => {
-	return useMutation(addStudent)
+export const useAddDriver = () => {
+	return useMutation(addDriver)
 }

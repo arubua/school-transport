@@ -30,9 +30,9 @@ export const AddressSchema = z
 	.min(3, { message: 'Address is too short' })
 	.max(100, { message: 'Address is too long' })
 export const PhoneSchema = z
-	.number({
+	.string({
 		required_error: 'Phone number is required',
-		invalid_type_error: 'Phone must be a number',
+		// invalid_type_error: 'Phone must be a number',
 	})
 	.min(10, { message: 'Phone Number is too short' })
 	.max(10, { message: 'Phone Number is too long' })
@@ -55,6 +55,10 @@ export const GradeSchema = z
 export const SchoolNameSchema = z
 	.string()
 	.min(2, 'School name should be at least 2 characters long')
+
+	export const BusSchema = z
+	.string()
+	.min(1, 'Please select a bus')
 
 export const CoordinatesSchema = z.object({
 	latitude: z.number(),
@@ -86,14 +90,11 @@ const ACCEPTED_IMAGE_TYPES = [
 ]
 
 export const ImageFileSchema = z.object({
-	image: z
-		.any()
-		.refine(
-			files => files?.[0]?.size <= MAX_FILE_SIZE,
-			`Max image size is 5MB.`,
-		)
-		.refine(
-			files => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-			'Only .jpg, .jpeg, .png and .webp formats are supported.',
-		),
+	name: z.string(),
+	type: z.string(),
+	path: z.string(),
+	lastModified: z.number(),
+	lastModifiedDate: z.date(),
+	size: z.number(),
+	webkitRelativePath: z.string(),
 })
