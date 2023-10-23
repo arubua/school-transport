@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { useStudents } from '../../hooks/api/students'
 import { Spinner } from '../../components/spinner'
+import { useBuses } from '../../hooks/api/buses'
 
-export default function Drivers() {
-	const { data, error, isLoading } = useStudents()
+export default function Buses() {
+	const { data, error, isLoading } = useBuses()
 
 	if (isLoading) {
 		return (

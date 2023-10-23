@@ -18,6 +18,10 @@ import AddStudent from './features/Students/add-student'
 import AddParent from './features/Parents/add-parent'
 import DriversView from './views/Drivers'
 import AddDriver from './features/Drivers/add-driver'
+import BusesView from './views/Buses'
+import AddBus from './features/Buses/add-bus'
+import ZonesView from './views/Zones'
+import AddZone from './features/Zones/add-zone'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -62,8 +66,10 @@ function App() {
 						<Route path="students/addStudent" element={<AddStudent />} />
 						<Route path="drivers" element={<DriversView />} />
 						<Route path="drivers/addDriver" element={<AddDriver />} />
-						<Route path="buses" element={<DriversView />} />
-						<Route path="buses/addBus" element={<AddDriver />} />
+						<Route path="buses" element={<BusesView />} />
+						<Route path="buses/addBus" element={<AddBus />} />
+						<Route path="zones" element={<ZonesView />} />
+						<Route path="buses/addZone" element={<AddZone />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

@@ -73,9 +73,9 @@ export function DataTable<TData, TValue>({
 						<Icon name="download" className="mr-2" />
 						Export
 					</Button>
-					<Button size={'sm'} onClick={() => navigate('addBus')}>
+					<Button size={'sm'} onClick={() => navigate('addZOne')}>
 						<Icon name="plus" className="mr-2" />
-						Add Bus
+						Add Zone
 					</Button>
 				</div>
 			</div>

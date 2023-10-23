@@ -63,6 +63,18 @@ const getBusesSchema = z.array(
 
 type getBusesResponse = z.infer<typeof getBusesSchema>
 
+const getZonesSchema = z.array(
+	z.object({
+		id: z.string(),
+		reg_number: z.string(),
+		capacity: z.number(),
+		school: z.string(),
+		image: z.string(),
+	}),
+)
+
+type getZonesResponse = z.infer<typeof getZonesSchema>
+
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
 		const requestBody = await req.text()
@@ -129,7 +141,7 @@ export const handlers: Array<RequestHandler> = [
 			id: faker.string.uuid(),
 			name: faker.person.fullName(),
 			phone_number: faker.phone.number(),
-			bus: faker.vehicle.vehicle(),
+			bus: faker.vehicle.vrm(),
 			image: faker.image.avatar(),
 		}))
 
@@ -140,12 +152,27 @@ export const handlers: Array<RequestHandler> = [
 
 		const buses = Array.from({ length: numberofBuses }, () => ({
 			id: faker.string.uuid(),
-			reg_number: faker.vehicle.vehicle(),
+			reg_number: faker.vehicle.vrm(),
+			driver: faker.person.fullName(),
 			capacity: faker.number.int({ min: 1, max: 33 }),
 			school: faker.company.name(),
-			image: faker.image.avatar(),
+			image: faker.image.dataUri(),
 		}))
 
 		return res(ctx.delay(2000), ctx.status(200), ctx.json(buses))
 	}),
+	rest.get<getZonesResponse>('/api/zones', async (req, res, ctx) => {
+		const numberOfZones = 5;
+		const zones = [];
+	  
+		for (let i = 0; i < numberOfZones; i++) {
+		  const zoneName = `Zone ${String.fromCharCode(65 + i)}`; // Convert ASCII value to letter (A, B, C, ...)
+		  zones.push({
+			id: faker.string.uuid(),
+			name: zoneName,
+		  });
+		}
+	  
+		return res(ctx.delay(2000), ctx.status(200), ctx.json(zones));
+	  })
 ]

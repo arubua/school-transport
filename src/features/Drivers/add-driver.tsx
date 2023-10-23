@@ -1,5 +1,4 @@
 import { Spacer } from '../../components/spacer'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import {
 	Command,
 	CommandEmpty,
@@ -15,7 +14,6 @@ import {
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
