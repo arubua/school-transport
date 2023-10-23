@@ -15,57 +15,70 @@ import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Parent = {
+export type Bus = {
 	id: string
-	name: string
-	phone: number
-	email: string
+	reg_number: string
+	capacity: string
+	driver: string
+	school: string
 	image: string
 }
 
-export const columns: ColumnDef<Parent>[] = [
+export const columns: ColumnDef<Bus>[] = [
 	{
-		accessorKey: 'name',
+		accessorKey: 'reg_number',
 		header: ({ column }) => {
 			return (
-			  <Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-			  >
-				Parent Name
-				<Icon name='arrow-up-down' className="ml-2 h-4 w-4" />
-			  </Button>
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Registration No.
+					<Icon name="arrow-up-down" className="ml-2 h-4 w-4" />
+				</Button>
 			)
-		  },
+		},
 		cell: ({ row }) => {
-			let name = row.original.name
+			let reg_number = row.original.reg_number
 			let image = row.original.image
+			let school = row.original.school
 
 			return (
 				<div className="flex items-center">
 					<Avatar>
-						<AvatarImage src={image} alt={name} />
-						<AvatarFallback>{getInitials(name)}</AvatarFallback>
+						<AvatarImage src={image} alt={reg_number} />
+						<AvatarFallback>{getInitials(reg_number)}</AvatarFallback>
 					</Avatar>
-					<div className="ml-1 text-left">{name}</div>
+					<div className="ml-1">
+						<div className=" text-left">{reg_number}</div>
+						<div className="flex text-muted-foreground ">
+							{/* <span>{`Grade ${grade}`}</span> */}
+							<span>{`${school} School`}</span>
+						</div>
+					</div>
 				</div>
 			)
 		},
 	},
 	{
-		accessorKey: 'email',
-		header: () => <div className="text-left">Email</div>,
+		accessorKey: 'driver',
+		header: () => <div className="text-left">Driver</div>,
 		cell: ({ row }) => {
-			let email = row.original.email
-			return <div className="text-left">{email}</div>
+			let driver = row.original.driver
+
+			return (
+				<div className="text-left">
+					{driver}
+				</div>
+			)
 		},
 	},
 	{
-		accessorKey: 'phone',
-		header: () => <div className="text-left">Phone Number</div>,
+		accessorKey: 'capacity',
+		header: () => <div className="text-left">Capacity</div>,
 		cell: ({ row }) => {
-			let phone = row.original.phone
-			return <div className="text-left">{phone}</div>
+			let capacity = row.original.capacity
+			return <div className="text-left">{capacity}</div>
 		},
 	},
 	{
@@ -86,11 +99,11 @@ export const columns: ColumnDef<Parent>[] = [
 						<DropdownMenuItem
 							onClick={() => navigator.clipboard.writeText(parent.id)}
 						>
-							View student(s) details
+							View bus details
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>Edit parent</DropdownMenuItem>
-						<DropdownMenuItem>Delete parent</DropdownMenuItem>
+						<DropdownMenuItem>Change driver</DropdownMenuItem>
+						<DropdownMenuItem>Deactivate Bus</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)

@@ -15,28 +15,28 @@ import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Parent = {
+export type Driver = {
 	id: string
 	name: string
-	phone: number
-	email: string
+	phone_number: string
+	bus: string
 	image: string
 }
 
-export const columns: ColumnDef<Parent>[] = [
+export const columns: ColumnDef<Driver>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) => {
 			return (
-			  <Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-			  >
-				Parent Name
-				<Icon name='arrow-up-down' className="ml-2 h-4 w-4" />
-			  </Button>
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Driver Name
+					<Icon name="arrow-up-down" className="ml-2 h-4 w-4" />
+				</Button>
 			)
-		  },
+		},
 		cell: ({ row }) => {
 			let name = row.original.name
 			let image = row.original.image
@@ -47,25 +47,32 @@ export const columns: ColumnDef<Parent>[] = [
 						<AvatarImage src={image} alt={name} />
 						<AvatarFallback>{getInitials(name)}</AvatarFallback>
 					</Avatar>
-					<div className="ml-1 text-left">{name}</div>
+					<div className="ml-1">
+						<div className=" text-left">{name}</div>
+					</div>
 				</div>
 			)
 		},
 	},
 	{
-		accessorKey: 'email',
-		header: () => <div className="text-left">Email</div>,
+		accessorKey: 'phone_number',
+		header: () => <div className="text-left">Phone Number</div>,
 		cell: ({ row }) => {
-			let email = row.original.email
-			return <div className="text-left">{email}</div>
+			let phoneNumber = row.original.phone_number
+
+			return (
+				<div className="">
+					<div className="text-left">{phoneNumber}</div>
+				</div>
+			)
 		},
 	},
 	{
-		accessorKey: 'phone',
-		header: () => <div className="text-left">Phone Number</div>,
+		accessorKey: 'bus',
+		header: () => <div className="text-left">Bus</div>,
 		cell: ({ row }) => {
-			let phone = row.original.phone
-			return <div className="text-left">{phone}</div>
+			let bus = row.original.bus
+			return <div className="text-left">{bus}</div>
 		},
 	},
 	{
@@ -86,11 +93,11 @@ export const columns: ColumnDef<Parent>[] = [
 						<DropdownMenuItem
 							onClick={() => navigator.clipboard.writeText(parent.id)}
 						>
-							View student(s) details
+							Reassign Bus
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>Edit parent</DropdownMenuItem>
-						<DropdownMenuItem>Delete parent</DropdownMenuItem>
+						<DropdownMenuItem>Edit driver details</DropdownMenuItem>
+						<DropdownMenuItem>Delete Driver</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)
