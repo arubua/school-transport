@@ -34,6 +34,7 @@ const getParentsSchema = z.array(
 		email: z.string(),
 		phone: z.number(),
 		image: z.string(),
+		students: z.string().array().optional(),
 	}),
 )
 
@@ -84,7 +85,7 @@ export const handlers: Array<RequestHandler> = [
 		// Replace this with your validation logic.
 		if (data.username === 'testuser' && data.password === 'testpassword') {
 			return res(
-				ctx.delay(2000),
+				ctx.delay(0),
 				ctx.status(200),
 				ctx.json({
 					username: data.username,
@@ -95,13 +96,14 @@ export const handlers: Array<RequestHandler> = [
 		}
 
 		return res(
-			ctx.delay(2000),
+			ctx.delay(0),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)
 	}),
 	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
-		const numberOfParents = 15 // Set the number of parent objects you want to generate
+		const numberOfParents = 15
+		const numberOfStudents = 3
 
 		// Generate an array of parent objects using Faker and the schema
 		const parents = Array.from({ length: numberOfParents }, () => ({
@@ -110,10 +112,15 @@ export const handlers: Array<RequestHandler> = [
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
 			image: faker.image.avatar(),
+			students: Array.from({ length: numberOfStudents }, () => ({
+				id: faker.string.uuid(),
+				image: faker.image.avatar(),
+				name: faker.person.fullName(),
+			})),
 		}))
 
 		return res(
-			ctx.delay(2000),
+			ctx.delay(0),
 			ctx.status(200),
 			ctx.json(parents), // Respond with the generated parent objects
 		)
@@ -132,7 +139,7 @@ export const handlers: Array<RequestHandler> = [
 			image: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(students))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
 	}),
 	rest.get<getDriversResponse>('/api/drivers', async (req, res, ctx) => {
 		const numberofDrivers = 15
@@ -145,7 +152,7 @@ export const handlers: Array<RequestHandler> = [
 			image: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(drivers))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(drivers))
 	}),
 	rest.get<getBusesResponse>('/api/buses', async (req, res, ctx) => {
 		const numberofBuses = 15
@@ -159,20 +166,20 @@ export const handlers: Array<RequestHandler> = [
 			image: faker.image.dataUri(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(buses))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(buses))
 	}),
 	rest.get<getZonesResponse>('/api/zones', async (req, res, ctx) => {
-		const numberOfZones = 5;
-		const zones = [];
-	  
+		const numberOfZones = 5
+		const zones = []
+
 		for (let i = 0; i < numberOfZones; i++) {
-		  const zoneName = `Zone ${String.fromCharCode(65 + i)}`; // Convert ASCII value to letter (A, B, C, ...)
-		  zones.push({
-			id: faker.string.uuid(),
-			name: zoneName,
-		  });
+			const zoneName = `Zone ${String.fromCharCode(65 + i)}` // Convert ASCII value to letter (A, B, C, ...)
+			zones.push({
+				id: faker.string.uuid(),
+				name: zoneName,
+			})
 		}
-	  
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(zones));
-	  })
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
+	}),
 ]

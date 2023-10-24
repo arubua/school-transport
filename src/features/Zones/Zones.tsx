@@ -107,7 +107,7 @@ export default function Zones() {
 				{noResults ? (
 					<div className="text-red-500">No zones match the search term.</div>
 				) : (
-					filteredData.map((zone: { name?: string }) => {
+					filteredData?.map((zone: { name?: string }) => {
 						return (
 							<div
 								key={zone?.name}
