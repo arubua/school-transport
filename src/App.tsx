@@ -62,6 +62,7 @@ function App() {
 						<Route path="home" element={<AnalyticsView />} />
 						<Route path="parents" element={<ParentsView />} />
 						<Route path="parents/addParent" element={<AddParent />} />
+						<Route path="parents/editParent" element={<AddParent />} />
 						<Route path="students" element={<StudentsView />} />
 						<Route path="students/addStudent" element={<AddStudent />} />
 						<Route path="drivers" element={<DriversView />} />

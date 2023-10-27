@@ -20,6 +20,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '../../components/ui/tooltip'
+import { useNavigate } from 'react-router-dom'
 
 export type Student = {
 	id: string
@@ -29,7 +30,8 @@ export type Student = {
 
 export type Parent = {
 	id: string
-	name: string
+	firstName: string
+	lastName: string
 	phone: number
 	email: string
 	image: string
@@ -51,7 +53,9 @@ export const columns: ColumnDef<Parent>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let name = row.original.name
+			let firstName = row.original.firstName
+			let lastName = row.original.lastName
+			let name = `${firstName} ${lastName}`
 			let image = row.original.image
 
 			return (
@@ -114,6 +118,7 @@ export const columns: ColumnDef<Parent>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			const parent = row.original
+			const navigate = useNavigate()
 
 			return (
 				<DropdownMenu>
@@ -126,13 +131,15 @@ export const columns: ColumnDef<Parent>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(parent.id)}
+							onClick={() =>
+								navigate(`editParent`, { state: { parent } })
+							}
 						>
-							View student(s) details
+							Update Parent
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>Edit parent</DropdownMenuItem>
 						<DropdownMenuItem>Delete parent</DropdownMenuItem>
+						{/* <DropdownMenuItem>Delete parent</DropdownMenuItem> */}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)

@@ -108,10 +108,11 @@ export const handlers: Array<RequestHandler> = [
 		// Generate an array of parent objects using Faker and the schema
 		const parents = Array.from({ length: numberOfParents }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
-			image: faker.image.avatar(),
+			avatarImage: faker.image.avatar(),
 			students: Array.from({ length: numberOfStudents }, () => ({
 				id: faker.string.uuid(),
 				image: faker.image.avatar(),

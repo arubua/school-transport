@@ -30,9 +30,10 @@ import {
 import { z } from 'zod'
 import { useAddParent } from '../../hooks/api/parents'
 import { Separator } from '../../components/separator'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FileRejection } from 'react-dropzone'
 import FileUpload from '../../components/ui/file-input'
+import { useLocation } from 'react-router-dom'
 
 export const ParentFormSchema = z.object({
 	firstName: NameSchema,
@@ -44,6 +45,10 @@ export const ParentFormSchema = z.object({
 })
 
 const AddParent = () => {
+	const location = useLocation()
+
+	const isUpdating = location.state && location.state.parent;
+
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
 
@@ -87,9 +92,17 @@ const AddParent = () => {
 		},
 	})
 
+	useEffect(() => {
+		if (isUpdating) {
+		  const parentData = location.state.parent;
+		  form.reset(parentData); 
+		}
+	  }, [isUpdating, location.state, form]);
+
 	async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
 		await AddParentMutation.mutateAsync(values)
 	}
+
 
 	return (
 		<div>
@@ -237,7 +250,7 @@ const AddParent = () => {
 												}}
 												downloading={false}
 												acceptedFiles={acceptedFiles}
-												fileName="avatar" // Provide a file name if needed
+												fileName="avatar" 
 												delete={file => {
 													handleDeleteImage(file)
 												}}
