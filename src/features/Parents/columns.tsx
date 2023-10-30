@@ -11,9 +11,18 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogClose,
+	DialogTrigger,
+} from '../../components/dialog'
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
-import z from 'zod'
+
 import {
 	Tooltip,
 	TooltipContent,
@@ -21,6 +30,10 @@ import {
 	TooltipTrigger,
 } from '../../components/ui/tooltip'
 import { useNavigate } from 'react-router-dom'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { useDeleteParent } from '../../hooks/api/parents'
+import { Form } from '../../components/form'
 
 export type Student = {
 	id: string
@@ -40,7 +53,8 @@ export type Parent = {
 
 export const columns: ColumnDef<Parent>[] = [
 	{
-		accessorKey: 'name',
+		id: 'name',
+		accessorFn: row => `${row.firstName} ${row.lastName}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -80,7 +94,7 @@ export const columns: ColumnDef<Parent>[] = [
 			return (
 				<div className="flex gap-1">
 					{students.map((student, index) => (
-						<TooltipProvider>
+						<TooltipProvider key={index}>
 							<Tooltip>
 								<TooltipTrigger>
 									<Avatar key={index} className="h-6 w-6">
@@ -120,28 +134,72 @@ export const columns: ColumnDef<Parent>[] = [
 			const parent = row.original
 			const navigate = useNavigate()
 
+			const [open, setOpen] = React.useState(false)
+			const wait = () => new Promise(resolve => setTimeout(resolve, 1000))
+
+			const deleteParentMutation = useDeleteParent()
+
+			const form = useForm()
+
+			async function onSubmit() {
+				await deleteParentMutation.mutateAsync(parent.id)
+			}
+
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<Icon name="dots-horizontal" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() =>
-								navigate(`editParent`, { state: { parent } })
-							}
-						>
-							Update Parent
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>Delete parent</DropdownMenuItem>
-						{/* <DropdownMenuItem>Delete parent</DropdownMenuItem> */}
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div>
+					<Dialog open={open} onOpenChange={setOpen}>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost" className="h-8 w-8 p-0">
+									<span className="sr-only">Open menu</span>
+									<Icon name="dots-horizontal" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuLabel>Actions</DropdownMenuLabel>
+								<DropdownMenuItem
+									onClick={() => navigate(`editParent`, { state: { parent } })}
+								>
+									Update Parent
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DialogTrigger>
+									<DropdownMenuItem>Delete parent</DropdownMenuItem>
+								</DialogTrigger>
+								{/* <DropdownMenuItem>Delete parent</DropdownMenuItem> */}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<DialogContent className="sm:max-w-[425px]">
+							<Form {...form}>
+								<form
+									onSubmit={event => {
+										wait().then(() => {
+											form.handleSubmit(onSubmit)
+											setOpen(false)
+										})
+										event.preventDefault()
+									}}
+								>
+									<DialogHeader>
+										<DialogTitle>Delete Parent</DialogTitle>
+									</DialogHeader>
+									<div className="py-4">
+										<div className="text-destructive">
+											Are you sure you want to delete {parent.firstName}{' '}
+											{parent.lastName} ?
+										</div>
+									</div>
+									<DialogFooter>
+										<DialogClose />
+										<Button variant="destructive" size="sm" type="submit">
+											Delete
+										</Button>
+									</DialogFooter>
+								</form>
+							</Form>
+						</DialogContent>
+					</Dialog>
+				</div>
 			)
 		},
 	},

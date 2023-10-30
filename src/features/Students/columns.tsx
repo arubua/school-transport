@@ -11,24 +11,39 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogClose,
+	DialogTrigger,
+} from '../../components/dialog'
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+import { useNavigate } from 'react-router-dom'
+import React from 'react'
+import { useDeleteStudent } from '../../hooks/api/students'
+import { useForm } from 'react-hook-form'
+import { Form } from '../../components/form'
+
 export type Student = {
 	id: string
-	name: string
-	class: string
+	firstName: string
+	lastName: string
+	grade: string
 	school: string
 	stop: string
 	parent_phone: number
-	parent_name: string
-	image: string
+	parent: string
+	avatarImage: string
 }
 
 export const columns: ColumnDef<Student>[] = [
 	{
-		accessorKey: 'name',
+		id: 'name',
+		accessorFn: row => `${row.firstName} ${row.lastName}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -41,9 +56,11 @@ export const columns: ColumnDef<Student>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let name = row.original.name
-			let image = row.original.image
-			let grade = row.original.class
+			let firstName = row.original.firstName
+			let lastName = row.original.lastName
+			let name = `${firstName} ${lastName}`
+			let image = row.original.avatarImage
+			let grade = row.original.grade
 			let school = row.original.school
 
 			return (
@@ -64,10 +81,10 @@ export const columns: ColumnDef<Student>[] = [
 		},
 	},
 	{
-		accessorKey: 'parent_name',
+		accessorKey: 'parent',
 		header: () => <div className="text-left">Parent Details</div>,
 		cell: ({ row }) => {
-			let parentName = row.original.parent_name
+			let parentName = row.original.parent
 			let parentPhone = row.original.parent_phone
 
 			return (
@@ -89,28 +106,76 @@ export const columns: ColumnDef<Student>[] = [
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const parent = row.original
+			const student = row.original
+			const navigate = useNavigate()
+
+			const [open, setOpen] = React.useState(false)
+			const wait = () => new Promise(resolve => setTimeout(resolve, 1000))
+
+			const deleteStudentMutation = useDeleteStudent()
+
+			const form = useForm()
+
+			async function onSubmit() {
+				await deleteStudentMutation.mutateAsync(student.id)
+			}
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<Icon name="dots-horizontal" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(parent.id)}
-						>
-							View parent details
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>Edit Student details</DropdownMenuItem>
-						<DropdownMenuItem>Delete Student</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div>
+					<Dialog open={open} onOpenChange={setOpen}>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost" className="h-8 w-8 p-0">
+									<span className="sr-only">Open menu</span>
+									<Icon name="dots-horizontal" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuLabel>Actions</DropdownMenuLabel>
+								<DropdownMenuItem
+									onClick={() =>
+										navigate(`editStudent`, { state: { student } })
+									}
+								>
+									Update Student
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DialogTrigger>
+									<DropdownMenuItem>Delete student</DropdownMenuItem>
+								</DialogTrigger>
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<DialogContent className="sm:max-w-[425px]">
+							<Form {...form}>
+								<form
+									onSubmit={event => {
+										wait().then(() => {
+											form.handleSubmit(onSubmit)
+											setOpen(false)
+										})
+										event.preventDefault()
+									}}
+								>
+									<DialogHeader>
+										<DialogTitle>Delete Student</DialogTitle>
+									</DialogHeader>
+									<div className="py-4">
+										<div className="text-destructive">
+											Are you sure you want to delete {student.firstName}{' '}
+											{student.lastName} ?
+										</div>
+									</div>
+									<DialogFooter>
+										<DialogClose />
+										<Button variant="destructive" size="sm" type="submit">
+											Delete
+										</Button>
+									</DialogFooter>
+								</form>
+							</Form>
+						</DialogContent>
+					</Dialog>
+				</div>
 			)
 		},
 	},

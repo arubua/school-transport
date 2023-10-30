@@ -27,32 +27,33 @@ export const useParentById = (parentId: string) => {
 }
 
 // // Specify the types for parentId and updatedData
-// const updateParentById = async (
-// 	parentId: string, // Assuming parentId is a string, adjust the type accordingly
-// 	updatedData: Record<string, any>, // Assuming updatedData is an object, adjust the type accordingly
-// ) => {
-// 	const response = await fetch(`/api/parents/${parentId}`, {
-// 		method: 'PUT',
-// 		headers: {
-// 			'Content-Type': 'application/json',
-// 		},
-// 		body: JSON.stringify(updatedData),
-// 	})
+const updateParentById = async ({
+	parentId,
+	updatedData,
+}: {
+	parentId: string
+	updatedData: object
+}) => {
+	const response = await fetch(`/api/parents/${parentId}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(updatedData),
+	})
 
-// 	if (!response.ok) {
-// 		const data = await response.json()
-// 		throw new Error(data.error)
-// 	}
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
 
-// 	const data = await response.json()
-// 	return data
-// }
+	const data = await response.json()
+	return data
+}
 
-// export const useUpdateParent = () => {
-// 	return useMutation(updateParentById, {
-// 		mutationKey: 'updateParent',
-// 	})
-// }
+export const useUpdateParent = () => {
+	return useMutation(updateParentById)
+}
 
 const addParent = async ({
 	firstName,
@@ -60,7 +61,7 @@ const addParent = async ({
 	email,
 	phone,
 	address,
-	avatarImage
+	avatarImage,
 }: {
 	firstName: string
 	lastName: string
@@ -80,7 +81,7 @@ const addParent = async ({
 			email,
 			phone,
 			address,
-			avatarImage
+			avatarImage,
 		}),
 	})
 
@@ -97,4 +98,24 @@ const addParent = async ({
 
 export const useAddParent = () => {
 	return useMutation(addParent)
+}
+
+const deleteParent = async (id: string) => {
+	const response = await fetch(`/api/parents/${id}`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
+
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
+
+	return {}
+}
+
+export const useDeleteParent = () => {
+	return useMutation(deleteParent)
 }

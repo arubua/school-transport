@@ -16,7 +16,8 @@ type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 const getStudentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		class: z.string(),
 		stop: z.string(),
 		parent_name: z.string(),
@@ -30,7 +31,8 @@ type getStudentsResponse = z.infer<typeof getStudentsSchema>
 const getParentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		email: z.string(),
 		phone: z.number(),
 		image: z.string(),
@@ -43,7 +45,8 @@ type getParentsResponse = z.infer<typeof getParentsSchema>
 const getDriversSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		phone_number: z.number(),
 		bus: z.string(),
 		image: z.string(),
@@ -112,6 +115,7 @@ export const handlers: Array<RequestHandler> = [
 			lastName: faker.person.lastName('male'),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
+			address: faker.location.streetAddress(),
 			avatarImage: faker.image.avatar(),
 			students: Array.from({ length: numberOfStudents }, () => ({
 				id: faker.string.uuid(),
@@ -131,13 +135,14 @@ export const handlers: Array<RequestHandler> = [
 
 		const students = Array.from({ length: numberofStudents }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
-			class: faker.number.int({ min: 1, max: 7 }),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
+			grade: faker.number.int({ min: 1, max: 7 }),
 			stop: faker.location.streetAddress(),
 			school: faker.company.name(),
-			parent_name: faker.person.fullName(),
+			parent: faker.person.fullName(),
 			parent_phone: faker.phone.number(),
-			image: faker.image.avatar(),
+			avatarImage: faker.image.avatar(),
 		}))
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
@@ -147,7 +152,8 @@ export const handlers: Array<RequestHandler> = [
 
 		const drivers = Array.from({ length: numberofDrivers }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
 			phone_number: faker.phone.number(),
 			bus: faker.vehicle.vrm(),
 			image: faker.image.avatar(),
@@ -182,5 +188,8 @@ export const handlers: Array<RequestHandler> = [
 		}
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
+	}),
+	rest.delete('/api/parents/:id', async (req, res, ctx) => {
+		return res(ctx.delay(0), ctx.status(200), ctx.json('Delete successful'))
 	}),
 ]
