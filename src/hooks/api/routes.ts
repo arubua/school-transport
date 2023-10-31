@@ -1,32 +1,32 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 
-const getParents = async () => {
-	const response = await fetch('/api/parents')
+const getRoutes = async () => {
+	const response = await fetch('/api/routes')
 	if (!response.ok) {
-		throw new Error('Failed to fetch parents data')
+		throw new Error('Failed to fetch routes data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useParents = () => {
-	return useQuery(['parents'], getParents)
+export const useRoutes = () => {
+	return useQuery(['routes'], getRoutes)
 }
 
-const getParentById = async (parentId: string) => {
-	const response = await fetch(`/api/parents/${parentId}`)
+const getRouteById = async (routeId: string) => {
+	const response = await fetch(`/api/routes/${routeId}`)
 	if (!response.ok) {
-		throw new Error('Failed to fetch parent data')
+		throw new Error('Failed to fetch route data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useParentById = (parentId: string) => {
-	return useQuery(['parent', parentId], () => getParentById(parentId))
+export const useRouteById = (routeId: string) => {
+	return useQuery(['route', routeId], () => getRouteById(routeId))
 }
 
-const addParent = async ({
+const addRoute = async ({
 	firstName,
 	lastName,
 	email,
@@ -41,7 +41,7 @@ const addParent = async ({
 	address: string
 	avatarImage: File[] | undefined
 }) => {
-	const response = await fetch('/api/parents', {
+	const response = await fetch('/api/route', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -67,18 +67,18 @@ const addParent = async ({
 	return data
 }
 
-export const useAddParent = () => {
-	return useMutation(addParent)
+export const useAddRoute = () => {
+	return useMutation(addRoute)
 }
 
-const updateParentById = async ({
-	parentId,
+const updateRouteById = async ({
+	routeId,
 	updatedData,
 }: {
-	parentId: string
+	routeId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/parents/${parentId}`, {
+	const response = await fetch(`/api/routes/${routeId}`, {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
@@ -95,14 +95,14 @@ const updateParentById = async ({
 	return data
 }
 
-export const useUpdateParent = () => {
-	return useMutation(updateParentById)
+export const useUpdateRoute = () => {
+	return useMutation(updateRouteById)
 }
 
 
 
-const deleteParent = async (id: string) => {
-	const response = await fetch(`/api/parents/${id}`, {
+const deleteRoute = async (id: string) => {
+	const response = await fetch(`/api/routes/${id}`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
@@ -117,6 +117,6 @@ const deleteParent = async (id: string) => {
 	return {}
 }
 
-export const useDeleteParent = () => {
-	return useMutation(deleteParent)
+export const useDeleteRoute = () => {
+	return useMutation(deleteRoute)
 }
