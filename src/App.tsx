@@ -21,6 +21,11 @@ import ParentForm from './features/Parents/parent-form'
 import StudentForm from './features/Students/student-form'
 import DriverForm from './features/Drivers/driver-form'
 import BusForm from './features/Buses/bus-form'
+import StopsView from './views/Stops'
+import StopsForm from './features/Stops/stops-form'
+import RoutesView from './views/Routes'
+import RouteForm from './features/Routes/route-form'
+import ScheduleForm from './features/Schedules/schedule-form'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -70,8 +75,18 @@ function App() {
 						<Route path="buses" element={<BusesView />} />
 						<Route path="buses/addBus" element={<BusForm />} />
 						<Route path="buses/editBus" element={<BusForm />} />
+						<Route path="stops" element={<StopsView />} />
+						<Route path="stops/addStop" element={<StopsForm />} />
+						<Route path="stops/editStop" element={<StopsForm />} />
+						<Route path="routes" element={<RoutesView />} />
+						<Route path="routes/addRoute" element={<RouteForm />} />
+						<Route path="routes/editRoute" element={<RouteForm />} />
+						<Route path="schedules" element={<RoutesView />} />
+						<Route path="schedules/addSchedule" element={<ScheduleForm />} />
+						<Route path="schedules/editSchedule" element={<ScheduleForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
+
 						{/* </Route> */}
 					</Route>
 				</Routes>

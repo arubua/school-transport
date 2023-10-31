@@ -1,32 +1,32 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 
-const getParents = async () => {
-	const response = await fetch('/api/parents')
+const getSchedules = async () => {
+	const response = await fetch('/api/schedules')
 	if (!response.ok) {
-		throw new Error('Failed to fetch parents data')
+		throw new Error('Failed to fetch schedules data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useParents = () => {
-	return useQuery(['parents'], getParents)
+export const useSchedules = () => {
+	return useQuery(['schedules'], getSchedules)
 }
 
-const getParentById = async (parentId: string) => {
-	const response = await fetch(`/api/parents/${parentId}`)
+const getScheduleById = async (scheduleId: string) => {
+	const response = await fetch(`/api/schedules/${scheduleId}`)
 	if (!response.ok) {
-		throw new Error('Failed to fetch parent data')
+		throw new Error('Failed to fetch schedule data')
 	}
 	const data = await response.json()
 	return data
 }
 
-export const useParentById = (parentId: string) => {
-	return useQuery(['parent', parentId], () => getParentById(parentId))
+export const useScheduleById = (scheduleId: string) => {
+	return useQuery(['schedule', scheduleId], () => getScheduleById(scheduleId))
 }
 
-const addParent = async ({
+const addSchedule = async ({
 	firstName,
 	lastName,
 	email,
@@ -41,7 +41,7 @@ const addParent = async ({
 	address: string
 	avatarImage: File[] | undefined
 }) => {
-	const response = await fetch('/api/parents', {
+	const response = await fetch('/api/schedule', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -67,18 +67,18 @@ const addParent = async ({
 	return data
 }
 
-export const useAddParent = () => {
-	return useMutation(addParent)
+export const useAddSchedule = () => {
+	return useMutation(addSchedule)
 }
 
-const updateParentById = async ({
-	parentId,
+const updateScheduleById = async ({
+	scheduleId,
 	updatedData,
 }: {
-	parentId: string
+	scheduleId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/parents/${parentId}`, {
+	const response = await fetch(`/api/schedules/${scheduleId}`, {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
@@ -95,14 +95,14 @@ const updateParentById = async ({
 	return data
 }
 
-export const useUpdateParent = () => {
-	return useMutation(updateParentById)
+export const useUpdateSchedule = () => {
+	return useMutation(updateScheduleById)
 }
 
 
 
-const deleteParent = async (id: string) => {
-	const response = await fetch(`/api/parents/${id}`, {
+const deleteSchedule = async (id: string) => {
+	const response = await fetch(`/api/schedules/${id}`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
@@ -117,6 +117,6 @@ const deleteParent = async (id: string) => {
 	return {}
 }
 
-export const useDeleteParent = () => {
-	return useMutation(deleteParent)
+export const useDeleteSchedule = () => {
+	return useMutation(deleteSchedule)
 }
