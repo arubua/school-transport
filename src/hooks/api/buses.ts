@@ -1,10 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import {
-	GradeSchema,
-	ImageFileSchema,
-	SchoolNameSchema,
-	UsernameSchema,
-} from '../../utils/user-validation'
 
 const getBuses = async () => {
 	const response = await fetch('/api/buses')
@@ -22,13 +16,13 @@ export const useBuses = () => {
 const addBus = async ({
 	reg_number,
 	capacity,
-	school,
+	driverId,
 	avatarImage,
 }: {
 	reg_number: string
 	capacity: string
-	school: string
-	avatarImage: File[]
+	driverId: string
+	avatarImage: File[] | undefined
 }) => {
 	const response = await fetch('/api/driver', {
 		method: 'POST',
@@ -38,7 +32,7 @@ const addBus = async ({
 		body: JSON.stringify({
 			reg_number,
 			capacity,
-			school,
+			driverId,
 			avatarImage,
 		}),
 	})
@@ -56,4 +50,52 @@ const addBus = async ({
 
 export const useAddBus = () => {
 	return useMutation(addBus)
+}
+
+const deleteBus = async (id: string) => {
+	const response = await fetch(`/api/buses/${id}`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
+
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
+
+	return {}
+}
+
+export const useDeleteBus = () => {
+	return useMutation(deleteBus)
+}
+
+const updateBus = async ({
+	busId,
+	updatedData,
+}: {
+	busId: string
+	updatedData: object
+}) => {
+	const response = await fetch(`/api/buses/${busId}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(updatedData),
+	})
+
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
+
+	const data = await response.json()
+	return data
+}
+
+export const useUpdateBus = () => {
+	return useMutation(updateBus)
 }

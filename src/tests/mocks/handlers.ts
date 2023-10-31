@@ -16,7 +16,8 @@ type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 const getStudentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		class: z.string(),
 		stop: z.string(),
 		parent_name: z.string(),
@@ -30,10 +31,12 @@ type getStudentsResponse = z.infer<typeof getStudentsSchema>
 const getParentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		email: z.string(),
 		phone: z.number(),
 		image: z.string(),
+		students: z.string().array().optional(),
 	}),
 )
 
@@ -42,7 +45,8 @@ type getParentsResponse = z.infer<typeof getParentsSchema>
 const getDriversSchema = z.array(
 	z.object({
 		id: z.string(),
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		phone_number: z.number(),
 		bus: z.string(),
 		image: z.string(),
@@ -84,7 +88,7 @@ export const handlers: Array<RequestHandler> = [
 		// Replace this with your validation logic.
 		if (data.username === 'testuser' && data.password === 'testpassword') {
 			return res(
-				ctx.delay(2000),
+				ctx.delay(0),
 				ctx.status(200),
 				ctx.json({
 					username: data.username,
@@ -95,25 +99,33 @@ export const handlers: Array<RequestHandler> = [
 		}
 
 		return res(
-			ctx.delay(2000),
+			ctx.delay(0),
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)
 	}),
 	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
-		const numberOfParents = 15 // Set the number of parent objects you want to generate
+		const numberOfParents = 15
+		const numberOfStudents = 3
 
 		// Generate an array of parent objects using Faker and the schema
 		const parents = Array.from({ length: numberOfParents }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
-			image: faker.image.avatar(),
+			address: faker.location.streetAddress(),
+			avatarImage: faker.image.avatar(),
+			students: Array.from({ length: numberOfStudents }, () => ({
+				id: faker.string.uuid(),
+				image: faker.image.avatar(),
+				name: faker.person.fullName(),
+			})),
 		}))
 
 		return res(
-			ctx.delay(2000),
+			ctx.delay(0),
 			ctx.status(200),
 			ctx.json(parents), // Respond with the generated parent objects
 		)
@@ -123,29 +135,32 @@ export const handlers: Array<RequestHandler> = [
 
 		const students = Array.from({ length: numberofStudents }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
-			class: faker.number.int({ min: 1, max: 7 }),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
+			grade: faker.number.int({ min: 1, max: 7 }),
 			stop: faker.location.streetAddress(),
 			school: faker.company.name(),
-			parent_name: faker.person.fullName(),
+			parent: faker.person.fullName(),
+			parentId: faker.string.uuid(),
 			parent_phone: faker.phone.number(),
-			image: faker.image.avatar(),
+			avatarImage: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(students))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
 	}),
 	rest.get<getDriversResponse>('/api/drivers', async (req, res, ctx) => {
 		const numberofDrivers = 15
 
 		const drivers = Array.from({ length: numberofDrivers }, () => ({
 			id: faker.string.uuid(),
-			name: faker.person.fullName(),
+			firstName: faker.person.firstName('male'),
+			lastName: faker.person.lastName('male'),
 			phone_number: faker.phone.number(),
 			bus: faker.vehicle.vrm(),
 			image: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(drivers))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(drivers))
 	}),
 	rest.get<getBusesResponse>('/api/buses', async (req, res, ctx) => {
 		const numberofBuses = 15
@@ -159,20 +174,35 @@ export const handlers: Array<RequestHandler> = [
 			image: faker.image.dataUri(),
 		}))
 
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(buses))
+		return res(ctx.delay(0), ctx.status(200), ctx.json(buses))
 	}),
 	rest.get<getZonesResponse>('/api/zones', async (req, res, ctx) => {
-		const numberOfZones = 5;
-		const zones = [];
-	  
+		const numberOfZones = 5
+		const zones = []
+
 		for (let i = 0; i < numberOfZones; i++) {
-		  const zoneName = `Zone ${String.fromCharCode(65 + i)}`; // Convert ASCII value to letter (A, B, C, ...)
-		  zones.push({
-			id: faker.string.uuid(),
-			name: zoneName,
-		  });
+			const zoneName = `Zone ${String.fromCharCode(65 + i)}` // Convert ASCII value to letter (A, B, C, ...)
+			zones.push({
+				id: faker.string.uuid(),
+				name: zoneName,
+			})
 		}
-	  
-		return res(ctx.delay(2000), ctx.status(200), ctx.json(zones));
-	  })
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
+	}),
+	rest.delete('/api/parents/:id', async (req, res, ctx) => {
+		return res(ctx.delay(0), ctx.status(200), ctx.json('Deleted parent successfuly'))
+	}),
+	rest.delete('/api/students/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted student successfuly'))
+	}),
+	rest.delete('/api/drivers/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted driver successfuly'))
+	}),
+	rest.delete('/api/buses/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted buses successfuly'))
+	}),
+	rest.delete('/api/zones/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted zone successfuly'))
+	}),
 ]
