@@ -68,7 +68,7 @@ const addParent = async ({
 	email: string
 	phone: string
 	address: string
-	avatarImage: File[]
+	avatarImage: File[] | undefined
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',

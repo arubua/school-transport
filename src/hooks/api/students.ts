@@ -25,14 +25,14 @@ const addStudent = async ({
 	grade,
 	school,
 	avatarImage,
-	parent,
+	parentId,
 }: {
 	firstName: string
 	lastName: string
 	grade: string
 	school: string
-	avatarImage: File[]
-	parent: string
+	avatarImage: File[] | undefined
+	parentId: string
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',
@@ -45,7 +45,7 @@ const addStudent = async ({
 			grade,
 			school,
 			avatarImage,
-			parent,
+			parentId,
 		}),
 	})
 

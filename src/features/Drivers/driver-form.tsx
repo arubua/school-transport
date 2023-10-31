@@ -22,12 +22,21 @@ import {
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../../components/ui/input'
+import { Checkbox } from '../../components/ui/checkbox'
 import { Button } from '../../components/ui/button'
 import { cn } from '../../utils/misc'
 import {
+	BusSchema,
+	BusStopSchema,
+	GradeSchema,
 	ImageFileSchema,
+	NameSchema,
+	PhoneSchema,
+	SchoolNameSchema,
+	UsernameSchema,
 } from '../../utils/user-validation'
 import { z } from 'zod'
+import { useAddStudent } from '../../hooks/api/students'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
 import { useParents } from '../../hooks/api/parents'
@@ -35,20 +44,27 @@ import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection, DropzoneInputProps } from 'react-dropzone'
-import {  useDrivers } from '../../hooks/api/drivers'
-import { useAddBus } from '../../hooks/api/buses'
+import { useAddDriver, useDrivers, useUpdateDriver } from '../../hooks/api/drivers'
+import { useBuses } from '../../hooks/api/buses'
+import { useLocation } from 'react-router-dom'
 
-const BusFormSchema = z.object({
-	reg_number: z.string(),
-	capacity: z.string(),
-	driver_id: z.string(),
-	avatarImage: z.array(ImageFileSchema).optional(),
+const DriversFormSchema = z.object({
+	firstName: NameSchema,
+	lastName: NameSchema,
+	phone_number: PhoneSchema,
+	bus_id: BusSchema,
+	avatarImage: z.array(z.instanceof(File)),
 })
 
-const AddBus = () => {
-	const [drivers, setDrivers] = useState<{ label: string; value: number }[]>([])
+const DriverForm = () => {
+	const location = useLocation()
+
+	const [isUpdating] = useState(location.state && location.state.driver)
+
+	const [buses, setBuses] = useState<{ label: string; value: string }[]>([])
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
+	const [driverId,setDriverId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -57,43 +73,61 @@ const AddBus = () => {
 		setAcceptedFiles(updatedAcceptedFiles)
 	}
 
-	const addBusMutation = useAddBus()
+	const addDriverMutation = useAddDriver()
+	const updateDriverMutation = useUpdateDriver()
 
-	const { isLoading, isError, data, isSuccess } = addBusMutation
 
-	const { data: driversRaw } = useDrivers()
+	const { isLoading, isError, data, isSuccess } = addDriverMutation
 
-	const form = useForm<z.infer<typeof BusFormSchema>>({
-		resolver: zodResolver(BusFormSchema),
+	const { data: busesRaw } = useBuses()
+
+	const form = useForm<z.infer<typeof DriversFormSchema>>({
+		resolver: zodResolver(DriversFormSchema),
 		defaultValues: {
-			reg_number: '',
-			capacity: '',
-			driver_id: '',
-			avatarImage: [],
+			firstName: '',
+			lastName: '',
+			phone_number: '',
+			bus_id: '',
+			avatarImage: undefined,
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof BusFormSchema>) {
-		await addBusMutation.mutateAsync(values)
+	useEffect(() => {
+		if (isUpdating) {
+			const driverData = location.state.driver
+			setDriverId(driverData.id)
+			form.reset(driverData)
+		}
+	}, [isUpdating, location.state, form])
+
+	async function onSubmit(values: z.infer<typeof DriversFormSchema>) {
+		if (isUpdating) {
+			await updateDriverMutation.mutateAsync({
+				driverId: driverId,
+				updatedData: values,
+			})
+		} else {
+		await addDriverMutation.mutateAsync(values)
+		}
 	}
 
 	useEffect(() => {
-		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
-			const fDrivers = driversRaw.map(driver => ({
-				label: driver.name,
-				value: driver.id,
+		if (Array.isArray(busesRaw) && busesRaw.length > 0) {
+			const fBuses = busesRaw.map(bus => ({
+				label: bus.reg_number,
+				value: bus.id,
 			}))
-			setDrivers(fDrivers)
+			setBuses(fBuses)
 		}
-	}, [driversRaw])
+	}, [busesRaw])
 
 	return (
 		<div>
 			<div className="flex flex-col items-start">
 				<Spacer size="3xs" />
-				<h4 className="font-semibold">Bus Info</h4>
+				<h4 className="font-semibold">Personal Info</h4>
 				<p className="text-muted-foreground">
-					Update bus photo and details here.
+					Update drivers photo and personal details here.
 				</p>
 			</div>
 			<Spacer size="4xs" />
@@ -109,15 +143,31 @@ const AddBus = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col gap-2 md:flex-row md:gap-0">
 							<div className="w-64">
-								<FormLabel>Registration Number</FormLabel>
+								<FormLabel>Name</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="reg_number"
+								name="firstName"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="KBV 001A" {...field} />
+											<Input placeholder="First name" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="lastName"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<Input
+												className="ml-0 md:ml-2"
+												placeholder="Last name"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -129,15 +179,15 @@ const AddBus = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Capacity</FormLabel>
+								<FormLabel>Phone Number</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="capacity"
+								name="phone_number"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="33" {...field} />
+											<Input {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -149,11 +199,11 @@ const AddBus = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Driver</FormLabel>
+								<FormLabel>Bus</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="driver_id"
+								name="bus_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -168,10 +218,9 @@ const AddBus = () => {
 														)}
 													>
 														{field.value
-															? drivers.find(
-																	driver => driver.value === field.value,
-															  )?.label
-															: 'Select driver'}
+															? buses.find(bus => bus.value === field.value)
+																	?.label
+															: 'Select bus'}
 														<Icon
 															name="caret-sort"
 															className="ml-2 h-4 w-4 shrink-0 opacity-50"
@@ -182,25 +231,25 @@ const AddBus = () => {
 											<PopoverContent className="w-[200px p-0">
 												<Command>
 													<CommandInput
-														placeholder="Search drivers..."
+														placeholder="Search bus..."
 														className="h-9"
 													/>
-													<CommandEmpty>No driver found.</CommandEmpty>
+													<CommandEmpty>No bus found.</CommandEmpty>
 													<CommandGroup className="max-h-[250px] overflow-y-scroll">
-														{drivers.map(driver => (
+														{buses.map(bus => (
 															<CommandItem
-																value={driver.label}
-																key={driver.value}
+																value={bus.label}
+																key={bus.value}
 																onSelect={() => {
-																	form.setValue('driver_id', driver.value)
+																	form.setValue('bus_id', bus.value)
 																}}
 															>
-																{driver.label}
+																{bus.label}
 																<Icon
 																	name="check"
 																	className={cn(
 																		'ml-auto h-4 w-4',
-																		driver.value === field.value
+																		bus.value === field.value
 																			? 'opacity-100'
 																			: 'opacity-0',
 																	)}
@@ -211,9 +260,6 @@ const AddBus = () => {
 												</Command>
 											</PopoverContent>
 										</Popover>
-										{/* <FormDescription>
-        This is the parent that will be used in the dashboard.
-      </FormDescription> */}
 										<FormMessage />
 									</FormItem>
 								)}
@@ -279,4 +325,4 @@ const AddBus = () => {
 	)
 }
 
-export default AddBus
+export default DriverForm

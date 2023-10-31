@@ -141,6 +141,7 @@ export const handlers: Array<RequestHandler> = [
 			stop: faker.location.streetAddress(),
 			school: faker.company.name(),
 			parent: faker.person.fullName(),
+			parentId: faker.string.uuid(),
 			parent_phone: faker.phone.number(),
 			avatarImage: faker.image.avatar(),
 		}))
@@ -190,6 +191,18 @@ export const handlers: Array<RequestHandler> = [
 		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
 	}),
 	rest.delete('/api/parents/:id', async (req, res, ctx) => {
-		return res(ctx.delay(0), ctx.status(200), ctx.json('Delete successful'))
+		return res(ctx.delay(0), ctx.status(200), ctx.json('Deleted parent successfuly'))
+	}),
+	rest.delete('/api/students/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted student successfuly'))
+	}),
+	rest.delete('/api/drivers/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted driver successfuly'))
+	}),
+	rest.delete('/api/buses/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted buses successfuly'))
+	}),
+	rest.delete('/api/zones/:id', async (req, res, ctx) => {
+		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted zone successfuly'))
 	}),
 ]

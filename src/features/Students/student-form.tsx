@@ -45,14 +45,14 @@ const StudentFormSchema = z.object({
 	lastName: NameSchema,
 	grade: z.string(),
 	school: SchoolNameSchema,
-	parent: z.string(),
-	avatarImage: z.array(ImageFileSchema).optional(),
+	parentId: z.string(),
+	avatarImage: z.array(z.instanceof(File)),
 })
 
 const StudentForm = () => {
 	const location = useLocation()
 
-	const [parents, setParents] = useState<{ label: string; value: number }[]>([])
+	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
 	const [studentId, setStudentId] = useState('')
@@ -80,8 +80,8 @@ const StudentForm = () => {
 			lastName: '',
 			grade: '',
 			school: '',
-			parent: '',
-			avatarImage: [],
+			parentId: '',
+			avatarImage: undefined,
 		},
 	})
 
@@ -107,14 +107,13 @@ const StudentForm = () => {
 	useEffect(() => {
 		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
 			const fParents = parentsRaw.map(parent => ({
-				label: parent.name,
+				label: `${parent.firstName} ${parent.lastName}`,
 				value: parent.id,
 			}))
 			setParents(fParents)
 		}
 	}, [parentsRaw])
 
-	console.log('location',location.state.student)
 	return (
 		<div>
 			<div className="flex flex-col items-start">
@@ -217,7 +216,7 @@ const StudentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="parent"
+								name="parentId"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -253,10 +252,10 @@ const StudentForm = () => {
 													<CommandGroup className="max-h-[250px] overflow-y-scroll">
 														{parents.map(parent => (
 															<CommandItem
-																value={parent.label}
+																value={parent.value}
 																key={parent.value}
 																onSelect={() => {
-																	form.setValue('parent', parent.value)
+																	form.setValue('parentId', parent.value)
 																}}
 															>
 																{parent.label}

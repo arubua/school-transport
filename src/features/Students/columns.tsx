@@ -23,10 +23,13 @@ import {
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 import { useNavigate } from 'react-router-dom'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDeleteStudent } from '../../hooks/api/students'
 import { useForm } from 'react-hook-form'
 import { Form } from '../../components/form'
+import { Checkbox } from '../../components/ui/checkbox'
+import { toast } from 'sonner'
+import { Spinner } from '../../components/spinner'
 
 export type Student = {
 	id: string
@@ -41,6 +44,27 @@ export type Student = {
 }
 
 export const columns: ColumnDef<Student>[] = [
+	{
+		id: 'select',
+		header: ({ table }) => (
+			<Checkbox
+				className="absolute left-4 top-3 h-[18px] w-[18px]"
+				checked={table.getIsAllPageRowsSelected()}
+				onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+				aria-label="Select all"
+			/>
+		),
+		cell: ({ row }) => (
+			<Checkbox
+				className="h-[18px] w-[18px]"
+				checked={row.getIsSelected()}
+				onCheckedChange={value => row.toggleSelected(!!value)}
+				aria-label="Select row"
+			/>
+		),
+		enableSorting: false,
+		enableHiding: false,
+	},
 	{
 		id: 'name',
 		accessorFn: row => `${row.firstName} ${row.lastName}`,
@@ -110,15 +134,26 @@ export const columns: ColumnDef<Student>[] = [
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
-			const wait = () => new Promise(resolve => setTimeout(resolve, 1000))
 
 			const deleteStudentMutation = useDeleteStudent()
+
+			const { isLoading, isError, data, isSuccess } = deleteStudentMutation
 
 			const form = useForm()
 
 			async function onSubmit() {
 				await deleteStudentMutation.mutateAsync(student.id)
 			}
+
+			useEffect(() => {
+				if (isSuccess) {
+					toast.success("Student deleted successfuly")
+					setOpen(false)
+				}
+				if (isError) {
+					toast.error('Failed to delete student!')
+				}
+			}, [isSuccess, isLoading])
 
 			return (
 				<div>
@@ -147,15 +182,7 @@ export const columns: ColumnDef<Student>[] = [
 						</DropdownMenu>
 						<DialogContent className="sm:max-w-[425px]">
 							<Form {...form}>
-								<form
-									onSubmit={event => {
-										wait().then(() => {
-											form.handleSubmit(onSubmit)
-											setOpen(false)
-										})
-										event.preventDefault()
-									}}
-								>
+								<form onSubmit={form.handleSubmit(onSubmit)}>
 									<DialogHeader>
 										<DialogTitle>Delete Student</DialogTitle>
 									</DialogHeader>
@@ -167,7 +194,13 @@ export const columns: ColumnDef<Student>[] = [
 									</div>
 									<DialogFooter>
 										<DialogClose />
-										<Button variant="destructive" size="sm" type="submit">
+										<Button
+											disabled={isLoading}
+											variant="destructive"
+											size="sm"
+											type="submit"
+										>
+											{isLoading && <Spinner showSpinner={isLoading} />}
 											Delete
 										</Button>
 									</DialogFooter>

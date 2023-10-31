@@ -30,10 +30,11 @@ import {
 	TooltipTrigger,
 } from '../../components/ui/tooltip'
 import { useNavigate } from 'react-router-dom'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDeleteParent } from '../../hooks/api/parents'
 import { Form } from '../../components/form'
+import { toast } from 'sonner'
 
 export type Student = {
 	id: string
@@ -135,15 +136,26 @@ export const columns: ColumnDef<Parent>[] = [
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
-			const wait = () => new Promise(resolve => setTimeout(resolve, 1000))
 
 			const deleteParentMutation = useDeleteParent()
+			const { isLoading, isError, data, isSuccess } = deleteParentMutation
+
 
 			const form = useForm()
 
 			async function onSubmit() {
 				await deleteParentMutation.mutateAsync(parent.id)
 			}
+
+			useEffect(() => {
+				if (isSuccess) {
+					toast.success("Parent deleted successfuly")
+					setOpen(false)
+				}
+				if (isError) {
+					toast.error('Failed to delete parent!')
+				}
+			}, [isSuccess, isLoading])
 
 			return (
 				<div>
@@ -166,19 +178,12 @@ export const columns: ColumnDef<Parent>[] = [
 								<DialogTrigger>
 									<DropdownMenuItem>Delete parent</DropdownMenuItem>
 								</DialogTrigger>
-								{/* <DropdownMenuItem>Delete parent</DropdownMenuItem> */}
 							</DropdownMenuContent>
 						</DropdownMenu>
 						<DialogContent className="sm:max-w-[425px]">
 							<Form {...form}>
 								<form
-									onSubmit={event => {
-										wait().then(() => {
-											form.handleSubmit(onSubmit)
-											setOpen(false)
-										})
-										event.preventDefault()
-									}}
+									onSubmit={form.handleSubmit(onSubmit)}
 								>
 									<DialogHeader>
 										<DialogTitle>Delete Parent</DialogTitle>

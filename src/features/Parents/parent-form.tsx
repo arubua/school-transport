@@ -32,8 +32,7 @@ export const ParentFormSchema = z.object({
 	email: EmailSchema,
 	phone: z.string(),
 	address: AddressSchema,
-	// avatarImage: z.array(ImageFileSchema).optional(),
-	avatarImage: z.array(z.string()),
+	avatarImage: z.array(z.instanceof(File)),
 
 })
 
@@ -58,22 +57,6 @@ const ParentForm = () => {
 
 	const { isLoading, isError, data, isSuccess } = AddParentMutation
 
-	// Create an object matching the schema
-	const fileData = {
-		name: 'example.jpg',
-		type: 'image/jpeg',
-		path: '/path/to/file.jpg',
-		lastModified: Date.now(),
-		lastModifiedDate: new Date(),
-		size: 1024, // Size in bytes
-		webkitRelativePath: '/path/to/file.jpg',
-	}
-
-	// Convert the object to a File
-	const file = new File([JSON.stringify(fileData)], fileData.name, {
-		type: fileData.type,
-		lastModified: fileData.lastModified,
-	})
 
 	const form = useForm<z.infer<typeof ParentFormSchema>>({
 		resolver: zodResolver(ParentFormSchema),
@@ -83,7 +66,7 @@ const ParentForm = () => {
 			email: '',
 			phone: '',
 			address: '',
-			avatarImage: [""],
+			avatarImage: undefined,
 		},
 	})
 

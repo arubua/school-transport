@@ -14,13 +14,13 @@ import ParentsView from './views/Parents'
 import Auth from './features/Auth/Auth'
 import StudentsView from './views/Students'
 import DriversView from './views/Drivers'
-import AddDriver from './features/Drivers/add-driver'
 import BusesView from './views/Buses'
-import AddBus from './features/Buses/add-bus'
 import ZonesView from './views/Zones'
 import AddZone from './features/Zones/add-zone'
 import ParentForm from './features/Parents/parent-form'
 import StudentForm from './features/Students/student-form'
+import DriverForm from './features/Drivers/driver-form'
+import BusForm from './features/Buses/bus-form'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -65,9 +65,11 @@ function App() {
 						<Route path="students/addStudent" element={<StudentForm />} />
 						<Route path="students/editStudent" element={<StudentForm />} />
 						<Route path="drivers" element={<DriversView />} />
-						<Route path="drivers/addDriver" element={<AddDriver />} />
+						<Route path="drivers/addDriver" element={<DriverForm />} />
+						<Route path="drivers/editDriver" element={<DriverForm />} />
 						<Route path="buses" element={<BusesView />} />
-						<Route path="buses/addBus" element={<AddBus />} />
+						<Route path="buses/addBus" element={<BusForm />} />
+						<Route path="buses/editBus" element={<BusForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
 						{/* </Route> */}
