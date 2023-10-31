@@ -4,7 +4,6 @@ import { redirect } from 'react-router-dom'
 import { z } from 'zod'
 import { faker } from '@faker-js/faker'
 
-// Define a Zod schema for the login request body
 const loginRequestBodySchema = z.object({
 	username: z.string(),
 	password: z.string(),
@@ -66,6 +65,42 @@ const getBusesSchema = z.array(
 )
 
 type getBusesResponse = z.infer<typeof getBusesSchema>
+
+const getStopsSchema = z.array(
+	z.object({
+		id: z.string(),
+		latitude: z.string(),
+		longitude: z.string(),
+		description: z.string(),
+		zone_id: z.string(),
+	}),
+)
+
+type getStopsResponse = z.infer<typeof getStopsSchema>
+
+const getRoutesSchema = z.array(
+	z.object({
+		id: z.string(),
+		stops: z.string().array().optional(),
+		zone_id: z.string(),
+		name: z.string(),
+	}),
+)
+
+type getRoutesResponse = z.infer<typeof getRoutesSchema>
+
+const getSchedulesSchema = z.array(
+	z.object({
+		id: z.string(),
+		route_id: z.string(),
+		driver_id: z.string(),
+		bus_id: z.string(),
+		start_time: z.string(),
+		students: z.array(z.string()).optional(),
+	}),
+)
+
+type getSchedulesResponse = z.infer<typeof getSchedulesSchema>
 
 const getZonesSchema = z.array(
 	z.object({
@@ -176,6 +211,64 @@ export const handlers: Array<RequestHandler> = [
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(buses))
 	}),
+	rest.get<getStopsResponse>('/api/stops', async (req, res, ctx) => {
+		const numberofStops = 15
+
+		const stops = Array.from({ length: numberofStops }, () => ({
+			id: faker.string.uuid(),
+			latitude: faker.location.latitude(),
+			longitude: faker.location.longitude(),
+			description: faker.location.streetAddress(true),
+			zone_id: faker.string.uuid(),
+		}))
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(stops))
+	}),
+	rest.get<getRoutesResponse>('/api/routes', async (req, res, ctx) => {
+		const numberofRoutes = 5
+		const numberofStops = 5
+
+		const routes = Array.from({ length: numberofRoutes }, () => ({
+			id: faker.string.uuid(),
+			name: faker.word.words(3),
+			zone_id: faker.string.uuid(),
+			stops: Array.from({ length: numberofStops }, () => ({
+				id: faker.string.uuid(),
+				latitude: faker.location.latitude(),
+				longitude: faker.location.longitude(),
+				description: faker.location.streetAddress(true),
+				zone_id: faker.string.uuid(),
+			})),
+		}))
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(routes))
+	}),
+	rest.get<getSchedulesResponse>('/api/schedules', async (req, res, ctx) => {
+		const numberofSchedules = 5
+		const numberofStudents = 5
+
+		const schedules = Array.from({ length: numberofSchedules }, () => ({
+			id: faker.string.uuid(),
+			route_id: faker.string.uuid(),
+			driver_id: faker.string.uuid(),
+			bus_id: faker.string.uuid(),
+			start_time: faker.date.soon({ days: 0.2 }),
+			students: Array.from({ length: numberofStudents }, () => ({
+				id: faker.string.uuid(),
+				firstName: faker.person.firstName('male'),
+				lastName: faker.person.lastName('male'),
+				grade: faker.number.int({ min: 1, max: 7 }),
+				stop: faker.location.streetAddress(),
+				school: faker.company.name(),
+				parent: faker.person.fullName(),
+				parentId: faker.string.uuid(),
+				parent_phone: faker.phone.number(),
+				avatarImage: faker.image.avatar(),
+			})),
+		}))
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(schedules))
+	}),
 	rest.get<getZonesResponse>('/api/zones', async (req, res, ctx) => {
 		const numberOfZones = 5
 		const zones = []
@@ -191,18 +284,59 @@ export const handlers: Array<RequestHandler> = [
 		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
 	}),
 	rest.delete('/api/parents/:id', async (req, res, ctx) => {
-		return res(ctx.delay(0), ctx.status(200), ctx.json('Deleted parent successfuly'))
+		return res(
+			ctx.delay(0),
+			ctx.status(200),
+			ctx.json('Deleted parent successfuly'),
+		)
 	}),
 	rest.delete('/api/students/:id', async (req, res, ctx) => {
-		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted student successfuly'))
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted student successfuly'),
+		)
 	}),
 	rest.delete('/api/drivers/:id', async (req, res, ctx) => {
-		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted driver successfuly'))
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted driver successfuly'),
+		)
 	}),
 	rest.delete('/api/buses/:id', async (req, res, ctx) => {
-		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted buses successfuly'))
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted bus successfuly'),
+		)
+	}),
+	rest.delete('/api/stops/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted stop successfuly'),
+		)
+	}),
+	rest.delete('/api/routes/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted route successfuly'),
+		)
+	}),
+	rest.delete('/api/schedules/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted schedule successfuly'),
+		)
 	}),
 	rest.delete('/api/zones/:id', async (req, res, ctx) => {
-		return res(ctx.delay(2000), ctx.status(200), ctx.json('Deleted zone successfuly'))
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted zone successfuly'),
+		)
 	}),
 ]

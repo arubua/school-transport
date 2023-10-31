@@ -25,6 +25,21 @@ export const menus = [
 		route: '/app/buses',
 	},
 	{
+		title: 'Stops',
+		icon: 'map',
+		route: '/app/stops',
+	},
+	{
+		title: 'Routes',
+		icon: 'map',
+		route: '/app/routes',
+	},
+	{
+		title: 'Schedules',
+		icon: 'map',
+		route: '/app/schedules',
+	},
+	{
 		title: 'Zones',
 		icon: 'map',
 		route: '/app/zones',
