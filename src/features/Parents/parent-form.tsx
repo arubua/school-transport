@@ -1,21 +1,7 @@
 import { Spacer } from '../../components/spacer'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-} from '../../components/command'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '../../components/popover'
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -24,40 +10,40 @@ import {
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../../components/ui/input'
-import { Checkbox } from '../../components/ui/checkbox'
 import { Button } from '../../components/ui/button'
-import { cn } from '../../utils/misc'
+import { Spinner } from '../../components/spinner'
 import {
-	BusStopSchema,
-	GradeSchema,
+	AddressSchema,
+	EmailSchema,
 	ImageFileSchema,
 	NameSchema,
-	SchoolNameSchema,
-	UsernameSchema,
 } from '../../utils/user-validation'
 import { z } from 'zod'
-import { useAddStudent } from '../../hooks/api/students'
+import { useAddParent, useUpdateParent } from '../../hooks/api/parents'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
-import { useParents } from '../../hooks/api/parents'
-import { Icon } from '../../components/ui/icon'
-import { Spinner } from '../../components/spinner'
+import { FileRejection } from 'react-dropzone'
 import FileUpload from '../../components/ui/file-input'
-import { FileRejection, DropzoneInputProps } from 'react-dropzone'
+import { useLocation } from 'react-router-dom'
 
-const StudentFormSchema = z.object({
+export const ParentFormSchema = z.object({
 	firstName: NameSchema,
 	lastName: NameSchema,
-	grade: z.string(),
-	school: SchoolNameSchema,
-	parent: z.string(),
-	avatarImage: z.array(ImageFileSchema).optional(),
+	email: EmailSchema,
+	phone: z.string(),
+	address: AddressSchema,
+	avatarImage: z.array(z.instanceof(File)),
+
 })
 
-const AddStudent = () => {
-	const [parents, setParents] = useState<{ label: string; value: number }[]>([])
+const ParentForm = () => {
+	const location = useLocation()
+
+	const [isUpdating] = useState(location.state && location.state.parent)
+
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
+	const [parentId, setParentId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -66,38 +52,43 @@ const AddStudent = () => {
 		setAcceptedFiles(updatedAcceptedFiles)
 	}
 
-	const addStudentMutation = useAddStudent()
+	const AddParentMutation = useAddParent()
+	const updateParentMutation = useUpdateParent()
 
-	const { isLoading, isError, data, isSuccess } = addStudentMutation
+	const { isLoading, isError, data, isSuccess } = AddParentMutation
 
-	const { data: parentsRaw } = useParents()
 
-	const form = useForm<z.infer<typeof StudentFormSchema>>({
-		resolver: zodResolver(StudentFormSchema),
+	const form = useForm<z.infer<typeof ParentFormSchema>>({
+		resolver: zodResolver(ParentFormSchema),
 		defaultValues: {
 			firstName: '',
 			lastName: '',
-			grade: '',
-			school: '',
-			parent: '',
-			avatarImage: [],
+			email: '',
+			phone: '',
+			address: '',
+			avatarImage: undefined,
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
-		console.log('values', values)
-		await addStudentMutation.mutateAsync(values)
-	}
-
 	useEffect(() => {
-		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
-			const fParents = parentsRaw.map(parent => ({
-				label: parent.name,
-				value: parent.id,
-			}))
-			setParents(fParents)
+		if (isUpdating) {
+			const parentData = location.state.parent
+			setParentId(parentData.id)
+			form.reset(parentData)
 		}
-	}, [parentsRaw])
+	}, [isUpdating, location.state, form])
+
+	async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
+
+		if (isUpdating) {
+			await updateParentMutation.mutateAsync({
+				parentId: parentId,
+				updatedData: values,
+			})
+		} else {
+			await AddParentMutation.mutateAsync(values)
+		}
+	}
 
 	return (
 		<div>
@@ -105,7 +96,7 @@ const AddStudent = () => {
 				<Spacer size="3xs" />
 				<h4 className="font-semibold">Personal Info</h4>
 				<p className="text-muted-foreground">
-					Update students photo and personal details here.
+					Update parents photo and personal details here.
 				</p>
 			</div>
 			<Spacer size="4xs" />
@@ -157,15 +148,15 @@ const AddStudent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Grade</FormLabel>
+								<FormLabel>Email</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="grade"
+								name="email"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input type="number" {...field} />
+											<Input placeholder="jdoe@gmail.com" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -177,15 +168,15 @@ const AddStudent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>School</FormLabel>
+								<FormLabel>Phone Number</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="school"
+								name="phone"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="NBBPS" {...field} />
+											<Input placeholder="+254710000000" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -197,71 +188,16 @@ const AddStudent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Parent</FormLabel>
+								<FormLabel>Address</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="parent"
+								name="address"
 								render={({ field }) => (
-									<FormItem className="flex flex-col">
-										<Popover>
-											<PopoverTrigger asChild>
-												<FormControl>
-													<Button
-														variant="outline"
-														role="combobox"
-														className={cn(
-															'w-[200px] justify-between',
-															!field.value && 'text-muted-foreground',
-														)}
-													>
-														{field.value
-															? parents.find(
-																	parent => parent.value === field.value,
-															  )?.label
-															: 'Select parent'}
-														<Icon
-															name="caret-sort"
-															className="ml-2 h-4 w-4 shrink-0 opacity-50"
-														/>
-													</Button>
-												</FormControl>
-											</PopoverTrigger>
-											<PopoverContent className="w-[200px p-0">
-												<Command>
-													<CommandInput
-														placeholder="Search parent..."
-														className="h-9"
-													/>
-													<CommandEmpty>No parent found.</CommandEmpty>
-													<CommandGroup className="max-h-[250px] overflow-y-scroll">
-														{parents.map(parent => (
-															<CommandItem
-																value={parent.label}
-																key={parent.value}
-																onSelect={() => {
-																	form.setValue('parent', parent.value)
-																}}
-															>
-																{parent.label}
-																<Icon
-																	name="check"
-																	className={cn(
-																		'ml-auto h-4 w-4',
-																		parent.value === field.value
-																			? 'opacity-100'
-																			: 'opacity-0',
-																	)}
-																/>
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</Command>
-											</PopoverContent>
-										</Popover>
-										{/* <FormDescription>
-        This is the parent that will be used in the dashboard.
-      </FormDescription> */}
+									<FormItem>
+										<FormControl>
+											<Input placeholder="Kasuku Center" {...field} />
+										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -300,7 +236,7 @@ const AddStudent = () => {
 												}}
 												downloading={false}
 												acceptedFiles={acceptedFiles}
-												fileName="avatar" // Provide a file name if needed
+												fileName="avatar"
 												delete={file => {
 													handleDeleteImage(file)
 												}}
@@ -327,4 +263,4 @@ const AddStudent = () => {
 	)
 }
 
-export default AddStudent
+export default ParentForm

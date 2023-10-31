@@ -25,14 +25,14 @@ const addStudent = async ({
 	grade,
 	school,
 	avatarImage,
-	parent,
+	parentId,
 }: {
 	firstName: string
 	lastName: string
 	grade: string
 	school: string
-	avatarImage: File[]
-	parent: string
+	avatarImage: File[] | undefined
+	parentId: string
 }) => {
 	const response = await fetch('/api/student', {
 		method: 'POST',
@@ -45,7 +45,7 @@ const addStudent = async ({
 			grade,
 			school,
 			avatarImage,
-			parent
+			parentId,
 		}),
 	})
 
@@ -62,4 +62,52 @@ const addStudent = async ({
 
 export const useAddStudent = () => {
 	return useMutation(addStudent)
+}
+
+const updateStudentById = async ({
+	studentId,
+	updatedData,
+}: {
+	studentId: string
+	updatedData: object
+}) => {
+	const response = await fetch(`/api/students/${studentId}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(updatedData),
+	})
+
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
+
+	const data = await response.json()
+	return data
+}
+
+export const useUpdateStudent = () => {
+	return useMutation(updateStudentById)
+}
+
+const deleteStudent = async (id: string) => {
+	const response = await fetch(`/api/students/${id}`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
+
+	if (!response.ok) {
+		const data = await response.json()
+		throw new Error(data.error)
+	}
+
+	return {}
+}
+
+export const useDeleteStudent = () => {
+	return useMutation(deleteStudent)
 }

@@ -1,9 +1,19 @@
 import { Spacer } from '../../components/spacer'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+} from '../../components/command'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '../../components/popover'
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -14,12 +24,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../../components/ui/input'
 import { Checkbox } from '../../components/ui/checkbox'
 import { Button } from '../../components/ui/button'
-import { Spinner } from '../../components/spinner'
-import { Icon } from '../../components/ui/icon'
+import { cn } from '../../utils/misc'
 import {
-	AddressSchema,
+	BusSchema,
 	BusStopSchema,
-	EmailSchema,
 	GradeSchema,
 	ImageFileSchema,
 	NameSchema,
@@ -28,29 +36,35 @@ import {
 	UsernameSchema,
 } from '../../utils/user-validation'
 import { z } from 'zod'
-import { useAddParent } from '../../hooks/api/parents'
+import { useAddStudent } from '../../hooks/api/students'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
-import { FileRejection } from 'react-dropzone'
+import { useParents } from '../../hooks/api/parents'
+import { Icon } from '../../components/ui/icon'
+import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
+import { FileRejection, DropzoneInputProps } from 'react-dropzone'
+import { useAddDriver, useDrivers, useUpdateDriver } from '../../hooks/api/drivers'
+import { useBuses } from '../../hooks/api/buses'
 import { useLocation } from 'react-router-dom'
 
-export const ParentFormSchema = z.object({
+const DriversFormSchema = z.object({
 	firstName: NameSchema,
 	lastName: NameSchema,
-	email: EmailSchema,
-	phone: z.string(),
-	address: AddressSchema,
-	avatarImage: z.array(ImageFileSchema),
+	phone_number: PhoneSchema,
+	bus_id: BusSchema,
+	avatarImage: z.array(z.instanceof(File)),
 })
 
-const AddParent = () => {
+const DriverForm = () => {
 	const location = useLocation()
 
-	const isUpdating = location.state && location.state.parent;
+	const [isUpdating] = useState(location.state && location.state.driver)
 
+	const [buses, setBuses] = useState<{ label: string; value: string }[]>([])
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
+	const [driverId,setDriverId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -59,50 +73,53 @@ const AddParent = () => {
 		setAcceptedFiles(updatedAcceptedFiles)
 	}
 
-	const AddParentMutation = useAddParent()
+	const addDriverMutation = useAddDriver()
+	const updateDriverMutation = useUpdateDriver()
 
-	const { isLoading, isError, data, isSuccess } = AddParentMutation
 
-	// Create an object matching the schema
-	const fileData = {
-		name: 'example.jpg',
-		type: 'image/jpeg',
-		path: '/path/to/file.jpg',
-		lastModified: Date.now(),
-		lastModifiedDate: new Date(),
-		size: 1024, // Size in bytes
-		webkitRelativePath: '/path/to/file.jpg',
-	}
+	const { isLoading, isError, data, isSuccess } = addDriverMutation
 
-	// Convert the object to a File
-	const file = new File([JSON.stringify(fileData)], fileData.name, {
-		type: fileData.type,
-		lastModified: fileData.lastModified,
-	})
+	const { data: busesRaw } = useBuses()
 
-	const form = useForm<z.infer<typeof ParentFormSchema>>({
-		resolver: zodResolver(ParentFormSchema),
+	const form = useForm<z.infer<typeof DriversFormSchema>>({
+		resolver: zodResolver(DriversFormSchema),
 		defaultValues: {
 			firstName: '',
 			lastName: '',
-			email: '',
-			phone: '',
-			address: '',
-			avatarImage: [file],
+			phone_number: '',
+			bus_id: '',
+			avatarImage: undefined,
 		},
 	})
 
 	useEffect(() => {
 		if (isUpdating) {
-		  const parentData = location.state.parent;
-		  form.reset(parentData); 
+			const driverData = location.state.driver
+			setDriverId(driverData.id)
+			form.reset(driverData)
 		}
-	  }, [isUpdating, location.state, form]);
+	}, [isUpdating, location.state, form])
 
-	async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
-		await AddParentMutation.mutateAsync(values)
+	async function onSubmit(values: z.infer<typeof DriversFormSchema>) {
+		if (isUpdating) {
+			await updateDriverMutation.mutateAsync({
+				driverId: driverId,
+				updatedData: values,
+			})
+		} else {
+		await addDriverMutation.mutateAsync(values)
+		}
 	}
 
+	useEffect(() => {
+		if (Array.isArray(busesRaw) && busesRaw.length > 0) {
+			const fBuses = busesRaw.map(bus => ({
+				label: bus.reg_number,
+				value: bus.id,
+			}))
+			setBuses(fBuses)
+		}
+	}, [busesRaw])
 
 	return (
 		<div>
@@ -110,7 +127,7 @@ const AddParent = () => {
 				<Spacer size="3xs" />
 				<h4 className="font-semibold">Personal Info</h4>
 				<p className="text-muted-foreground">
-					Update parents photo and personal details here.
+					Update drivers photo and personal details here.
 				</p>
 			</div>
 			<Spacer size="4xs" />
@@ -162,35 +179,15 @@ const AddParent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Email</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="email"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="jdoe@gmail.com" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
 								<FormLabel>Phone Number</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="phone"
+								name="phone_number"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="+254710000000" {...field} />
+											<Input {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -202,16 +199,67 @@ const AddParent = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Address</FormLabel>
+								<FormLabel>Bus</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="address"
+								name="bus_id"
 								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="Kasuku Center" {...field} />
-										</FormControl>
+									<FormItem className="flex flex-col">
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant="outline"
+														role="combobox"
+														className={cn(
+															'w-[200px] justify-between',
+															!field.value && 'text-muted-foreground',
+														)}
+													>
+														{field.value
+															? buses.find(bus => bus.value === field.value)
+																	?.label
+															: 'Select bus'}
+														<Icon
+															name="caret-sort"
+															className="ml-2 h-4 w-4 shrink-0 opacity-50"
+														/>
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-[200px p-0">
+												<Command>
+													<CommandInput
+														placeholder="Search bus..."
+														className="h-9"
+													/>
+													<CommandEmpty>No bus found.</CommandEmpty>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
+														{buses.map(bus => (
+															<CommandItem
+																value={bus.label}
+																key={bus.value}
+																onSelect={() => {
+																	form.setValue('bus_id', bus.value)
+																}}
+															>
+																{bus.label}
+																<Icon
+																	name="check"
+																	className={cn(
+																		'ml-auto h-4 w-4',
+																		bus.value === field.value
+																			? 'opacity-100'
+																			: 'opacity-0',
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</Command>
+											</PopoverContent>
+										</Popover>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -250,7 +298,7 @@ const AddParent = () => {
 												}}
 												downloading={false}
 												acceptedFiles={acceptedFiles}
-												fileName="avatar" 
+												fileName="avatar" // Provide a file name if needed
 												delete={file => {
 													handleDeleteImage(file)
 												}}
@@ -277,4 +325,4 @@ const AddParent = () => {
 	)
 }
 
-export default AddParent
+export default DriverForm

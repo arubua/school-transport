@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import './App.css'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Splash from './features/Splash'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Login } from './features/Auth/Login'
 import { SignUp } from './features/Auth/Signup'
 
@@ -14,20 +13,19 @@ import AnalyticsView from './views/Home'
 import ParentsView from './views/Parents'
 import Auth from './features/Auth/Auth'
 import StudentsView from './views/Students'
-import AddStudent from './features/Students/add-student'
-import AddParent from './features/Parents/add-parent'
 import DriversView from './views/Drivers'
-import AddDriver from './features/Drivers/add-driver'
 import BusesView from './views/Buses'
-import AddBus from './features/Buses/add-bus'
 import ZonesView from './views/Zones'
 import AddZone from './features/Zones/add-zone'
+import ParentForm from './features/Parents/parent-form'
+import StudentForm from './features/Students/student-form'
+import DriverForm from './features/Drivers/driver-form'
+import BusForm from './features/Buses/bus-form'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
 })
 
-//initializing environment variables
 init()
 
 function App() {
@@ -61,14 +59,17 @@ function App() {
 						<Route path="" element={<AnalyticsView />} />
 						<Route path="home" element={<AnalyticsView />} />
 						<Route path="parents" element={<ParentsView />} />
-						<Route path="parents/addParent" element={<AddParent />} />
-						<Route path="parents/editParent" element={<AddParent />} />
+						<Route path="parents/addParent" element={<ParentForm />} />
+						<Route path="parents/editParent" element={<ParentForm />} />
 						<Route path="students" element={<StudentsView />} />
-						<Route path="students/addStudent" element={<AddStudent />} />
+						<Route path="students/addStudent" element={<StudentForm />} />
+						<Route path="students/editStudent" element={<StudentForm />} />
 						<Route path="drivers" element={<DriversView />} />
-						<Route path="drivers/addDriver" element={<AddDriver />} />
+						<Route path="drivers/addDriver" element={<DriverForm />} />
+						<Route path="drivers/editDriver" element={<DriverForm />} />
 						<Route path="buses" element={<BusesView />} />
-						<Route path="buses/addBus" element={<AddBus />} />
+						<Route path="buses/addBus" element={<BusForm />} />
+						<Route path="buses/editBus" element={<BusForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
 						{/* </Route> */}
