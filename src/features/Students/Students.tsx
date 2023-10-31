@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { useParents } from '../../hooks/api/parents'
+import { useStudents } from '../../hooks/api/students'
 import { Spinner } from '../../components/spinner'
 
 export default function Parents() {
-	const { data, error, isLoading } = useParents()
+	const { data, error, isLoading } = useStudents()
 
 	if (isLoading) {
 		return (

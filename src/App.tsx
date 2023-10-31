@@ -10,10 +10,18 @@ import { worker } from './tests/mocks/browser'
 import { TheToaster } from './components/toaster'
 import Home from './views'
 import { z } from 'zod'
-import AuthRoute from './features/Auth/AuthRoute'
 import AnalyticsView from './views/Home'
 import ParentsView from './views/Parents'
 import Auth from './features/Auth/Auth'
+import StudentsView from './views/Students'
+import AddStudent from './features/Students/add-student'
+import AddParent from './features/Parents/add-parent'
+import DriversView from './views/Drivers'
+import AddDriver from './features/Drivers/add-driver'
+import BusesView from './views/Buses'
+import AddBus from './features/Buses/add-bus'
+import ZonesView from './views/Zones'
+import AddZone from './features/Zones/add-zone'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -38,13 +46,11 @@ function App() {
 		}
 	}, [])
 
-	const token = sessionStorage.getItem('TOKEN') || ''
-
 	return (
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
-					{/* <Route path="" element={< />} /> */}
+					<Route path="" element={<Home />} />
 					<Route path="auth" element={<Auth />}>
 						<Route path="" element={<Login />} />
 						<Route path="login" element={<Login />} />
@@ -52,10 +58,19 @@ function App() {
 					</Route>
 					<Route path="app" element={<Home />}>
 						{/* <Route element={<AuthRoute token={token} />}> */}
-							<Route path="" element={<AnalyticsView />} />
-							<Route path="home" element={<AnalyticsView />} />
-							<Route path="parents" element={<ParentsView />} />
-							{/* <Route path="dashboard" element={<AnalyticsPage />} /> */}
+						<Route path="" element={<AnalyticsView />} />
+						<Route path="home" element={<AnalyticsView />} />
+						<Route path="parents" element={<ParentsView />} />
+						<Route path="parents/addParent" element={<AddParent />} />
+						<Route path="parents/editParent" element={<AddParent />} />
+						<Route path="students" element={<StudentsView />} />
+						<Route path="students/addStudent" element={<AddStudent />} />
+						<Route path="drivers" element={<DriversView />} />
+						<Route path="drivers/addDriver" element={<AddDriver />} />
+						<Route path="buses" element={<BusesView />} />
+						<Route path="buses/addBus" element={<AddBus />} />
+						<Route path="zones" element={<ZonesView />} />
+						<Route path="buses/addZone" element={<AddZone />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { useParents } from '../../hooks/api/parents'
 import { Spinner } from '../../components/spinner'
+import { useDrivers } from '../../hooks/api/drivers'
 
-export default function Parents() {
-	const { data, error, isLoading } = useParents()
+export default function Drivers() {
+	const { data, error, isLoading } = useDrivers()
 
 	if (isLoading) {
 		return (

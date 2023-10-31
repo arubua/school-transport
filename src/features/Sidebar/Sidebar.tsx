@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import Logo from '../../components/ui/logo'
-import { Icon } from '../../components/ui/icon'
-import {z} from 'zod'
+import { Icon, IconName } from '../../components/ui/icon'
+import { z } from 'zod'
 interface MenuItem {
 	title: string
 	route: string
-	icon?: string
+	icon?: IconName
 	menus?: MenuItem[]
 }
 
 interface SidebarProps {
 	pathname: string
-	onToggle: () => void
+	toggleSidebar: () => void
+	isSidebarVisible: boolean
 	hideSidebarOnMobile: () => void
 	app?: string
 	menus: MenuItem[]
@@ -20,7 +21,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({
 	pathname,
-	onToggle,
+	toggleSidebar,
+	isSidebarVisible,
 	hideSidebarOnMobile,
 	menus,
 }) => {
@@ -33,10 +35,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 	}
 
 	return (
-		<div id="sidebar" className="flex h-screen w-52 flex-col border">
+		<div
+			id="sidebar"
+			className={`${
+				isSidebarVisible ? '' : 'hidden'
+			} relative h-screen min-w-max w-52 flex-col border `}
+		>
+			<div className="absolute right-0 top-0 mt-4" onClick={toggleSidebar}>
+				<Icon name="hamburger" className="cursor-pointer" />
+			</div>
 			<div className="p-4">
 				<>
-					<div className="">
+					<div className="flex">
 						<Logo
 							src="/other/svg-icons/safiri-logo.svg"
 							alt="Safiri logo"
@@ -45,9 +55,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 					</div>
 					{/* <span className="text-xl font-semibold">{app}</span> */}
 				</>
-				<div className="btn-sm toggle mt-4" onClick={onToggle}>
-					<i className={'bx bx-x'}></i>
-				</div>
 			</div>
 			<div className="flex-1 overflow-y-auto p-4 ">
 				{menus.map((menu, index) => {
@@ -61,9 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 								} mb-4 flex items-center text-base font-medium hover:text-primary`
 							}
 						>
-							{menu.icon && menu.icon !== '' && (
-								<Icon className="mr-3" name={`${menu.icon}`} />
-							)}
+							{menu.icon && <Icon className="mr-3" name={`${menu.icon}`} />}
 							{menu.title && menu.title !== '' && <h1>{menu.title}</h1>}
 							{menu.menus &&
 								menu.menus.map((item, i) => (
@@ -76,9 +81,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 										} flex items-center rounded p-2 text-white hover:bg-blue-400`}
 										onClick={hideSidebarOnMobile}
 									>
-										<span className="mr-2">
-											<i className={item.icon}></i>
-										</span>
+										{/* <span className="mr-2">
+											<Icon name={`${item.icon}`} />
+										</span> */}
 										<span>{item.title}</span>
 									</Link>
 								))}
@@ -86,8 +91,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)
 				})}
 			</div>
-			<div className="p-4">
-				<ul className="sidebar-menu-bottom">
+			<div className="p-4 absolute bottom-2 ">
+				<ul>
 					<li>
 						<Link
 							to="#"
