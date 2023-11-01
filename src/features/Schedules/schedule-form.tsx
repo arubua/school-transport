@@ -24,104 +24,118 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { cn } from '../../utils/misc'
-import {
-	ImageFileSchema,
-	NameSchema,
-	SchoolNameSchema,
-} from '../../utils/user-validation'
 import { z } from 'zod'
-import { useAddStudent, useUpdateStudent } from '../../hooks/api/students'
+import { useStudents } from '../../hooks/api/students'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
-import { useParents } from '../../hooks/api/parents'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import FileUpload from '../../components/ui/file-input'
-import { FileRejection } from 'react-dropzone'
 import { useLocation } from 'react-router-dom'
+import { useRoutes } from '../../hooks/api/routes'
+import { useDrivers } from '../../hooks/api/drivers'
+import { useBuses } from '../../hooks/api/buses'
+import { MultiSelect } from '../../components/multiselect'
+import { useAddSchedule, useUpdateSchedule } from '../../hooks/api/schedules'
 
-const StudentFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	grade: z.string(),
-	school: SchoolNameSchema,
-	parentId: z.string(),
-	avatarImage: z.array(z.instanceof(File)),
+const ScheduleFormSchema = z.object({
+	start_time: z.string(),
+	route_id: z.string(),
+	driver_id: z.string(),
+	bus_id: z.string(),
+	students: z.array(z.record(z.string().trim())),
 })
 
 const ScheduleForm = () => {
 	const location = useLocation()
 
-	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
-	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
-	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
-	const [studentId, setStudentId] = useState('')
+	const [routes, setRoutes] = useState<{ label: string; value: string }[]>([])
+	const [drivers, setDrivers] = useState<{ label: string; value: string }[]>([])
+	const [buses, setBuses] = useState<{ label: string; value: string }[]>([])
+	const [students, setStudents] = useState<{ label: string; value: string }[]>(
+		[],
+	)
 
-	const [isUpdating] = useState(location.state && location.state.student)
+	const [scheduleId, setScheduleId] = useState('')
 
-	const handleDeleteImage = (fileToDelete: File) => {
-		const updatedAcceptedFiles = acceptedFiles.filter(
-			file => file !== fileToDelete,
-		)
-		setAcceptedFiles(updatedAcceptedFiles)
-	}
+	const [isUpdating] = useState(location.state && location.state.schedule)
 
-	const addStudentMutation = useAddStudent()
-	const updateStudentMutation = useUpdateStudent()
+	const addScheduleMutation = useAddSchedule()
+	const updateScheduleMutation = useUpdateSchedule()
 
-	const { isLoading, isError, data, isSuccess } = addStudentMutation
+	const { isLoading, isError, data, isSuccess } = addScheduleMutation
 
-	const { data: parentsRaw } = useParents()
+	const { data: routesRaw } = useRoutes()
+	const { data: driversRaw } = useDrivers()
+	const { data: busesRaw } = useBuses()
+	const { data: studentsRaw } = useStudents()
 
-	const form = useForm<z.infer<typeof StudentFormSchema>>({
-		resolver: zodResolver(StudentFormSchema),
+	const form = useForm<z.infer<typeof ScheduleFormSchema>>({
+		resolver: zodResolver(ScheduleFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
-			grade: '',
-			school: '',
-			parentId: '',
-			avatarImage: undefined,
+			start_time: '',
+			route_id: '',
+			driver_id: '',
+			bus_id: '',
+			students: [],
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+	async function onSubmit(values: z.infer<typeof ScheduleFormSchema>) {
 		if (isUpdating) {
-			await updateStudentMutation.mutateAsync({
-				studentId: studentId,
+			await updateScheduleMutation.mutateAsync({
+				scheduleId: scheduleId,
 				updatedData: values,
 			})
 		} else {
-			await addStudentMutation.mutateAsync(values)
+			await addScheduleMutation.mutateAsync(values)
 		}
 	}
 
 	useEffect(() => {
 		if (isUpdating) {
-			const studentData = location.state.student
-			setStudentId(studentData.id)
-			form.reset(studentData)
+			const scheduleData = location.state.schedule
+			setScheduleId(scheduleData.id)
+			form.reset(scheduleData)
 		}
 	}, [isUpdating, location.state, form])
 
 	useEffect(() => {
-		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
-			const fParents = parentsRaw.map(parent => ({
-				label: `${parent.firstName} ${parent.lastName}`,
-				value: parent.id,
+		if (Array.isArray(routesRaw) && routesRaw.length > 0) {
+			const fRoutes = routesRaw.map(route => ({
+				label: route.name,
+				value: route.id,
 			}))
-			setParents(fParents)
+			setRoutes(fRoutes)
 		}
-	}, [parentsRaw])
+		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
+			const fDrivers = driversRaw.map(driver => ({
+				label: `${driver.firstName} ${driver.lastName}`,
+				value: driver.id,
+			}))
+			setDrivers(fDrivers)
+		}
+		if (Array.isArray(busesRaw) && busesRaw.length > 0) {
+			const fBuses = busesRaw.map(bus => ({
+				label: bus.reg_number,
+				value: bus.id,
+			}))
+			setBuses(fBuses)
+		}
+		if (Array.isArray(studentsRaw) && studentsRaw.length > 0) {
+			const fStudents = studentsRaw.map(student => ({
+				label: `${student.firstName} ${student.lastName}`,
+				value: student.id,
+			}))
+			setStudents(fStudents)
+		}
+	}, [routesRaw, driversRaw, busesRaw, studentsRaw])
 
 	return (
 		<div>
 			<div className="flex flex-col items-start">
 				<Spacer size="3xs" />
-				<h4 className="font-semibold">Personal Info</h4>
-				<p className="text-muted-foreground">
-					Update students photo and personal details here.
-				</p>
+				<h4 className="font-semibold">Schedule Info</h4>
+				<p className="text-muted-foreground">Update schedule details here.</p>
 			</div>
 			<Spacer size="4xs" />
 
@@ -134,33 +148,17 @@ const ScheduleForm = () => {
 						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
 						<Spacer size="4xs" />
-						<div className="flex flex-col gap-2 md:flex-row md:gap-0">
+						<div className="flex flex-col md:flex-row ">
 							<div className="w-64">
-								<FormLabel>Name</FormLabel>
+								<FormLabel>Start Time</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="start_time"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className="w-60">
 										<FormControl>
-											<Input placeholder="First name" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="lastName"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input
-												className="ml-0 md:ml-2"
-												placeholder="Last name"
-												{...field}
-											/>
+											<Input type="datetime-local" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -172,53 +170,13 @@ const ScheduleForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Grade</FormLabel>
+								<FormLabel>Route</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="grade"
+								name="route_id"
 								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input type="number" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>School</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="school"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="NBBPS" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>Parent</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="parentId"
-								render={({ field }) => (
-									<FormItem className="flex flex-col">
+									<FormItem className="flex w-60 flex-col">
 										<Popover>
 											<PopoverTrigger asChild>
 												<FormControl>
@@ -226,15 +184,15 @@ const ScheduleForm = () => {
 														variant="outline"
 														role="combobox"
 														className={cn(
-															'w-[200px] justify-between',
+															'w-60 justify-between',
 															!field.value && 'text-muted-foreground',
 														)}
 													>
 														{field.value
-															? parents.find(
-																	parent => parent.value === field.value,
+															? routes.find(
+																	route => route.value === field.value,
 															  )?.label
-															: 'Select parent'}
+															: 'Select route'}
 														<Icon
 															name="caret-sort"
 															className="ml-2 h-4 w-4 shrink-0 opacity-50"
@@ -245,25 +203,25 @@ const ScheduleForm = () => {
 											<PopoverContent className="w-[200px p-0">
 												<Command>
 													<CommandInput
-														placeholder="Search parent..."
+														placeholder="Search route..."
 														className="h-9"
 													/>
-													<CommandEmpty>No parent found.</CommandEmpty>
+													<CommandEmpty>No route found.</CommandEmpty>
 													<CommandGroup className="max-h-[250px] overflow-y-scroll">
-														{parents.map(parent => (
+														{routes.map(route => (
 															<CommandItem
-																value={parent.value}
-																key={parent.value}
+																value={route.value}
+																key={route.value}
 																onSelect={() => {
-																	form.setValue('parentId', parent.value)
+																	form.setValue('route_id', route.value)
 																}}
 															>
-																{parent.label}
+																{route.label}
 																<Icon
 																	name="check"
 																	className={cn(
 																		'ml-auto h-4 w-4',
-																		parent.value === field.value
+																		route.value === field.value
 																			? 'opacity-100'
 																			: 'opacity-0',
 																	)}
@@ -284,50 +242,171 @@ const ScheduleForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Avatar</FormLabel>
+								<FormLabel>Driver</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="avatarImage"
-								render={({ field: { onChange } }) => (
-									<FormItem>
-										<FormControl>
-											<FileUpload
-												accept={{
-													'image/png': ['.png'],
-													'image/jpg': ['.jpg'],
-													'image/jpeg': ['.jpeg'],
-												}}
-												multiple={false} // Set this to true if you want to allow multiple files
-												onDrop={(acceptedFiles, rejectedFiles) => {
-													setAcceptedFiles(acceptedFiles)
-													setRejectedFiles(rejectedFiles)
-													onChange(acceptedFiles)
-												}}
-												// error={'upload files error'}
-												format="PNG JPG JPEG"
-												size={5}
-												onDownload={() => {
-													// Handle the download action here
-												}}
-												downloading={false}
-												acceptedFiles={acceptedFiles}
-												fileName="avatar" // Provide a file name if needed
-												delete={file => {
-													handleDeleteImage(file)
-												}}
-												rejectedFiles={rejectedFiles}
-												// {...field}
-											/>
-										</FormControl>
+								name="driver_id"
+								render={({ field }) => (
+									<FormItem className="flex w-60 flex-col">
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant="outline"
+														role="combobox"
+														className={cn(
+															'w-60 justify-between',
+															!field.value && 'text-muted-foreground',
+														)}
+													>
+														{field.value
+															? drivers.find(
+																	driver => driver.value === field.value,
+															  )?.label
+															: 'Select driver'}
+														<Icon
+															name="caret-sort"
+															className="ml-2 h-4 w-4 shrink-0 opacity-50"
+														/>
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-[200px p-0">
+												<Command>
+													<CommandInput
+														placeholder="Search driver..."
+														className="h-9"
+													/>
+													<CommandEmpty>No driver found.</CommandEmpty>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
+														{drivers.map(driver => (
+															<CommandItem
+																value={driver.value}
+																key={driver.value}
+																onSelect={() => {
+																	form.setValue('driver_id', driver.value)
+																}}
+															>
+																{driver.label}
+																<Icon
+																	name="check"
+																	className={cn(
+																		'ml-auto h-4 w-4',
+																		driver.value === field.value
+																			? 'opacity-100'
+																			: 'opacity-0',
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</Command>
+											</PopoverContent>
+										</Popover>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Bus</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="bus_id"
+								render={({ field }) => (
+									<FormItem className="flex w-60 flex-col">
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant="outline"
+														role="combobox"
+														className={cn(
+															'w-60 justify-between',
+															!field.value && 'text-muted-foreground',
+														)}
+													>
+														{field.value
+															? buses.find(bus => bus.value === field.value)
+																	?.label
+															: 'Select bus'}
+														<Icon
+															name="caret-sort"
+															className="ml-2 h-4 w-4 shrink-0 opacity-50"
+														/>
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-60 p-0">
+												<Command>
+													<CommandInput
+														placeholder="Search bus..."
+														className="h-9"
+													/>
+													<CommandEmpty>No bus found.</CommandEmpty>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
+														{buses.map(bus => (
+															<CommandItem
+																value={bus.value}
+																key={bus.value}
+																onSelect={() => {
+																	form.setValue('bus_id', bus.value)
+																}}
+															>
+																{bus.label}
+																<Icon
+																	name="check"
+																	className={cn(
+																		'ml-auto h-4 w-4',
+																		bus.value === field.value
+																			? 'opacity-100'
+																			: 'opacity-0',
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</Command>
+											</PopoverContent>
+										</Popover>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Students</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="students"
+								render={({ field: { ...field } }) => (
+									<FormItem className="w-60">
+										<MultiSelect
+											className="sm:w-60"
+											placeholder="Select students..."
+											selected={field.value}
+											options={students}
+											{...field}
+										/>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 						</div>
 						<Spacer size="3xs" />
-						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
+						<div className="flex max-w-lg justify-end pr-3">
+							<Button type="submit" disabled={isLoading}>
 								{isLoading && <Spinner showSpinner={isLoading} />}
 								Submit
 							</Button>

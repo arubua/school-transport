@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { useStudents } from '../../hooks/api/students'
 import { Spinner } from '../../components/spinner'
+import { useSchedules } from '../../hooks/api/schedules'
 
 export default function Schedules() {
-	const { data, error, isLoading } = useStudents()
+	const { data, error, isLoading } = useSchedules()
 
 	if (isLoading) {
 		return (

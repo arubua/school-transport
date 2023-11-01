@@ -47,6 +47,6 @@ export const menus = [
 	{
 		title: 'Settings',
 		icon: 'cog',
-		route: '/app/setings',
+		route: '/app/settings',
 	},
 ]

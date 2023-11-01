@@ -12,6 +12,14 @@ const loginRequestBodySchema = z.object({
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 
+const postRouteRequestBodySchema = z.object({
+	name: z.string(),
+	zone_id: z.string(),
+	stops: z.array(z.record(z.string().trim())),
+})
+
+type routeRequestBody = z.infer<typeof postRouteRequestBodySchema>
+
 const getStudentsSchema = z.array(
 	z.object({
 		id: z.string(),
@@ -129,6 +137,7 @@ export const handlers: Array<RequestHandler> = [
 					username: data.username,
 					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
 					token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
+					image: faker.image.avatar(),
 				}), // Customize the response data
 			)
 		}
@@ -231,7 +240,7 @@ export const handlers: Array<RequestHandler> = [
 		const routes = Array.from({ length: numberofRoutes }, () => ({
 			id: faker.string.uuid(),
 			name: faker.word.words(3),
-			zone_id: faker.string.uuid(),
+			zone: `Zone ${String.fromCharCode(65 + 1)}`,
 			stops: Array.from({ length: numberofStops }, () => ({
 				id: faker.string.uuid(),
 				latitude: faker.location.latitude(),
@@ -249,10 +258,10 @@ export const handlers: Array<RequestHandler> = [
 
 		const schedules = Array.from({ length: numberofSchedules }, () => ({
 			id: faker.string.uuid(),
-			route_id: faker.string.uuid(),
-			driver_id: faker.string.uuid(),
-			bus_id: faker.string.uuid(),
-			start_time: faker.date.soon({ days: 0.2 }),
+			route: faker.word.words(3),
+			driver: faker.person.fullName(),
+			bus: faker.vehicle.vrm(),
+			start_time: faker.date.soon({ days: 1 }),
 			students: Array.from({ length: numberofStudents }, () => ({
 				id: faker.string.uuid(),
 				firstName: faker.person.firstName('male'),
@@ -337,6 +346,30 @@ export const handlers: Array<RequestHandler> = [
 			ctx.delay(2000),
 			ctx.status(200),
 			ctx.json('Deleted zone successfuly'),
+		)
+	}),
+	rest.post<routeRequestBody>('/api/add-route', async (req, res, ctx) => {
+		const requestBody = await req.text()
+
+		const data = JSON.parse(requestBody)
+
+		// return res(
+		// 	ctx.delay(0),
+		// 	ctx.status(200),
+		// 	ctx.json({
+		// 		username: data.username,
+		// 		email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
+		// 		token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
+		// 	}), // Customize the response data
+		// )
+
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json({
+				data,
+				message: 'Successfully added route',
+			}), // Customize error response
 		)
 	}),
 ]
