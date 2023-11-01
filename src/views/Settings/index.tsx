@@ -1,9 +1,8 @@
 import React from 'react'
+import Settings from '../../features/Settings'
 
 const SettingsView = () => {
-  return (
-    <div>Settings View coming soon...</div>
-  )
+	return <Settings />
 }
 
 export default SettingsView
