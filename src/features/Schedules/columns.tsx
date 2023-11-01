@@ -24,26 +24,23 @@ import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
-import { useDeleteStudent } from '../../hooks/api/students'
+import { useDeleteSchedule } from '../../hooks/api/schedules'
 import { useForm } from 'react-hook-form'
 import { Form } from '../../components/form'
 import { Checkbox } from '../../components/ui/checkbox'
 import { toast } from 'sonner'
 import { Spinner } from '../../components/spinner'
 
-export type Student = {
+export type Schedule = {
 	id: string
-	firstName: string
-	lastName: string
-	grade: string
-	school: string
-	stop: string
-	parent_phone: number
-	parent: string
-	avatarImage: string
+	route: string
+	driver: string
+	bus: string
+	start_time: string
+	students: Array<string>
 }
 
-export const columns: ColumnDef<Student>[] = [
+export const columns: ColumnDef<Schedule>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -66,92 +63,64 @@ export const columns: ColumnDef<Student>[] = [
 		enableHiding: false,
 	},
 	{
-		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Student Name
-					<Icon name="arrow-up-down" className="ml-2 h-4 w-4" />
-				</Button>
-			)
-		},
+		accessorKey: 'route',
+		header: () => <div className="text-left">Route</div>,
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
-			let name = `${firstName} ${lastName}`
-			let image = row.original.avatarImage
-			let grade = row.original.grade
-			let school = row.original.school
+			let route = row.original.route
 
-			return (
-				<div className="flex items-center">
-					<Avatar>
-						<AvatarImage src={image} alt={name} />
-						<AvatarFallback>{getInitials(name)}</AvatarFallback>
-					</Avatar>
-					<div className="ml-1">
-						<div className=" text-left">{name}</div>
-						<div className="flex text-muted-foreground ">
-							<span>{`Grade ${grade}`}</span>
-							<span className="ml-2">{`${school} School`}</span>
-						</div>
-					</div>
-				</div>
-			)
+			return <div className="text-left">{route}</div>
 		},
 	},
 	{
-		accessorKey: 'parent',
-		header: () => <div className="text-left">Parent Details</div>,
+		accessorKey: 'start_time',
+		header: () => <div className="text-left">Time</div>,
 		cell: ({ row }) => {
-			let parentName = row.original.parent
-			let parentPhone = row.original.parent_phone
+			let start_time = row.original.start_time
 
-			return (
-				<div className="">
-					<div className="text-left">{parentName}</div>
-					<div className="text-left text-muted-foreground">{parentPhone}</div>
-				</div>
-			)
+			return <div className="text-left">{start_time}</div>
 		},
 	},
 	{
-		accessorKey: 'stop',
-		header: () => <div className="text-left">Pickup Stop</div>,
+		accessorKey: 'driver',
+		header: () => <div className="text-left">Driver</div>,
 		cell: ({ row }) => {
-			let stop = row.original.stop
-			return <div className="text-left">{stop}</div>
+			let driver = row.original.driver
+			return <div className="text-left">{driver}</div>
+		},
+	},
+	{
+		accessorKey: 'bus',
+		header: () => <div className="text-left">Bus</div>,
+		cell: ({ row }) => {
+			let bus = row.original.bus
+			return <div className="text-left">{bus}</div>
 		},
 	},
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const student = row.original
+			const schedule = row.original
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
 
-			const deleteStudentMutation = useDeleteStudent()
+			const deleteScheduleMutation = useDeleteSchedule()
 
-			const { isLoading, isError, data, isSuccess } = deleteStudentMutation
+			const { isLoading, isError, data, isSuccess } = deleteScheduleMutation
 
 			const form = useForm()
 
 			async function onSubmit() {
-				await deleteStudentMutation.mutateAsync(student.id)
+				await deleteScheduleMutation.mutateAsync(schedule.id)
 			}
 
 			useEffect(() => {
 				if (isSuccess) {
-					toast.success("Student deleted successfuly")
+					toast.success('Schedule deleted successfuly')
 					setOpen(false)
 				}
 				if (isError) {
-					toast.error('Failed to delete student!')
+					toast.error('Failed to delete schedule!')
 				}
 			}, [isSuccess, isLoading])
 
@@ -169,14 +138,14 @@ export const columns: ColumnDef<Student>[] = [
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
 									onClick={() =>
-										navigate(`editStudent`, { state: { student } })
+										navigate(`editSchedule`, { state: { schedule } })
 									}
 								>
-									Update Student
+									Update Schedule
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DialogTrigger>
-									<DropdownMenuItem>Delete student</DropdownMenuItem>
+									<DropdownMenuItem>Delete schedule</DropdownMenuItem>
 								</DialogTrigger>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -184,12 +153,11 @@ export const columns: ColumnDef<Student>[] = [
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(onSubmit)}>
 									<DialogHeader>
-										<DialogTitle>Delete Student</DialogTitle>
+										<DialogTitle>Delete Schedule</DialogTitle>
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {student.firstName}{' '}
-											{student.lastName} ?
+											Are you sure you want to delete this schedule ?
 										</div>
 									</div>
 									<DialogFooter>

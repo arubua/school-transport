@@ -27,32 +27,23 @@ export const useRouteById = (routeId: string) => {
 }
 
 const addRoute = async ({
-	firstName,
-	lastName,
-	email,
-	phone,
-	address,
-	avatarImage,
+	name,
+	zone_id,
+	stops,
 }: {
-	firstName: string
-	lastName: string
-	email: string
-	phone: string
-	address: string
-	avatarImage: File[] | undefined
+	name: string
+	zone_id: string
+	stops: Array<Object>
 }) => {
-	const response = await fetch('/api/route', {
+	const response = await fetch('/api/add-route', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
-			email,
-			phone,
-			address,
-			avatarImage,
+			name,
+			zone_id,
+			stops,
 		}),
 	})
 
@@ -98,8 +89,6 @@ const updateRouteById = async ({
 export const useUpdateRoute = () => {
 	return useMutation(updateRouteById)
 }
-
-
 
 const deleteRoute = async (id: string) => {
 	const response = await fetch(`/api/routes/${id}`, {

@@ -26,6 +26,8 @@ import StopsForm from './features/Stops/stops-form'
 import RoutesView from './views/Routes'
 import RouteForm from './features/Routes/route-form'
 import ScheduleForm from './features/Schedules/schedule-form'
+import SchedulesView from './views/Schedules'
+import SettingsView from './views/Settings'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -81,12 +83,12 @@ function App() {
 						<Route path="routes" element={<RoutesView />} />
 						<Route path="routes/addRoute" element={<RouteForm />} />
 						<Route path="routes/editRoute" element={<RouteForm />} />
-						<Route path="schedules" element={<RoutesView />} />
+						<Route path="schedules" element={<SchedulesView />} />
 						<Route path="schedules/addSchedule" element={<ScheduleForm />} />
 						<Route path="schedules/editSchedule" element={<ScheduleForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
-
+						<Route path="settings" element={<SettingsView />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

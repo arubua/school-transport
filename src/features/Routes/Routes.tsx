@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { useStudents } from '../../hooks/api/students'
 import { Spinner } from '../../components/spinner'
+import { useRoutes } from '../../hooks/api/routes'
 
 export default function Routes() {
-	const { data, error, isLoading } = useStudents()
+	const { data, error, isLoading } = useRoutes()
 
 	if (isLoading) {
 		return (

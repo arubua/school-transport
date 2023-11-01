@@ -27,19 +27,17 @@ export const useScheduleById = (scheduleId: string) => {
 }
 
 const addSchedule = async ({
-	firstName,
-	lastName,
-	email,
-	phone,
-	address,
-	avatarImage,
+	start_time,
+	route_id,
+	driver_id,
+	bus_id,
+	students,
 }: {
-	firstName: string
-	lastName: string
-	email: string
-	phone: string
-	address: string
-	avatarImage: File[] | undefined
+	start_time: string
+	route_id: string
+	driver_id: string
+	bus_id: string
+	students: Array<Object>
 }) => {
 	const response = await fetch('/api/schedule', {
 		method: 'POST',
@@ -47,12 +45,11 @@ const addSchedule = async ({
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
-			email,
-			phone,
-			address,
-			avatarImage,
+			start_time,
+			route_id,
+			driver_id,
+			bus_id,
+			students,
 		}),
 	})
 
@@ -98,8 +95,6 @@ const updateScheduleById = async ({
 export const useUpdateSchedule = () => {
 	return useMutation(updateScheduleById)
 }
-
-
 
 const deleteSchedule = async (id: string) => {
 	const response = await fetch(`/api/schedules/${id}`, {
