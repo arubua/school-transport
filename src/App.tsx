@@ -88,7 +88,7 @@ function App() {
 						<Route path="schedules/editSchedule" element={<ScheduleForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
-						<Route path="settings" element={<SettingsView />} />
+						<Route path="settings/*" element={<SettingsView />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>

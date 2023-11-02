@@ -1,4 +1,4 @@
-import { Spacer } from '../../components/spacer'
+import { Spacer } from '../../../components/spacer'
 import {
 	Form,
 	FormControl,
@@ -6,42 +6,42 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from '../../components/form'
+} from '../../../components/form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '../../components/ui/input'
-import { Button } from '../../components/ui/button'
+import { Input } from '../../../components/ui/input'
+import { Button } from '../../../components/ui/button'
 import { z } from 'zod'
-import { Separator } from '../../components/separator'
-import { Spinner } from '../../components/spinner'
-import { useAddZone } from '../../hooks/api/zones'
+import { Separator } from '../../../components/separator'
+import { Spinner } from '../../../components/spinner'
+import { useAddRole } from '../../../hooks/api/settings/roles'
 
-const ZoneFormSchema = z.object({
+const RoleFormSchema = z.object({
 	name: z.string(),
 })
 
-const AddZone = () => {
-	const addZoneMutation = useAddZone()
+const AddRole = () => {
+	const addRoleMutation = useAddRole()
 
-	const { isLoading, isError, data, isSuccess } = addZoneMutation
+	const { isLoading, isError, data, isSuccess } = addRoleMutation
 
 
-	const form = useForm<z.infer<typeof ZoneFormSchema>>({
-		resolver: zodResolver(ZoneFormSchema),
+	const form = useForm<z.infer<typeof RoleFormSchema>>({
+		resolver: zodResolver(RoleFormSchema),
 		defaultValues: {
 			name: '',
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof ZoneFormSchema>) {
-		await addZoneMutation.mutateAsync(values)
+	async function onSubmit(values: z.infer<typeof RoleFormSchema>) {
+		await addRoleMutation.mutateAsync(values)
 	}
 
 	return (
 		<div>
 			<div className="flex flex-col items-start">
 				<Spacer size="3xs" />
-				<h4 className="font-semibold">Zone Info</h4>
+				<h4 className="font-semibold">Role Info</h4>
 				<p className="text-muted-foreground">
 					Fill in the name of the zone below
 				</p>
@@ -67,7 +67,7 @@ const AddZone = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="Zone A" {...field} />
+											<Input placeholder="Role A" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -90,4 +90,4 @@ const AddZone = () => {
 	)
 }
 
-export default AddZone
+export default AddRole
