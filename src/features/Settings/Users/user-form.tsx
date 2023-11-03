@@ -118,7 +118,6 @@ const UserForm = () => {
 	return (
 		<div>
 			<div className="flex flex-col items-start">
-				<Spacer size="3xs" />
 				<h4 className="font-semibold">Personal Info</h4>
 				<p className="text-muted-foreground">
 					Update users photo and personal details here.

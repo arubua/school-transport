@@ -168,9 +168,7 @@ export const columns: ColumnDef<Student>[] = [
 							<DropdownMenuContent align="end">
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() =>
-										navigate(`editStudent`, { state: { student } })
-									}
+									
 								>
 									Update Student
 								</DropdownMenuItem>

@@ -20,11 +20,10 @@ const RoleFormSchema = z.object({
 	name: z.string(),
 })
 
-const AddRole = () => {
+const RoleForm = () => {
 	const addRoleMutation = useAddRole()
 
 	const { isLoading, isError, data, isSuccess } = addRoleMutation
-
 
 	const form = useForm<z.infer<typeof RoleFormSchema>>({
 		resolver: zodResolver(RoleFormSchema),
@@ -40,7 +39,6 @@ const AddRole = () => {
 	return (
 		<div>
 			<div className="flex flex-col items-start">
-				<Spacer size="3xs" />
 				<h4 className="font-semibold">Role Info</h4>
 				<p className="text-muted-foreground">
 					Fill in the name of the zone below
@@ -90,4 +88,4 @@ const AddRole = () => {
 	)
 }
 
-export default AddRole
+export default RoleForm

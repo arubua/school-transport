@@ -14,17 +14,32 @@ import { Button } from '../../components/ui/button'
 import { z } from 'zod'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
-import { useAddZone } from '../../hooks/api/zones'
+import { useAddZone, useUpdateZone } from '../../hooks/api/zones'
+import { DialogFooter } from '../../components/dialog'
+import { useEffect, useState } from 'react'
 
 const ZoneFormSchema = z.object({
 	name: z.string(),
 })
 
-const AddZone = () => {
+type Zone = {
+	id: string
+	name: string
+}
+
+type ZoneFormProps = {
+	zone?: Zone // Define the "zone" prop here
+	closeDialog?: () => void
+}
+
+const ZoneForm: React.FC<ZoneFormProps> = ({ zone, closeDialog }) => {
+	const [action, setAction] = useState('')
+	const [zoneId, setZoneId] = useState('')
+
 	const addZoneMutation = useAddZone()
+	const updateZoneMutation = useUpdateZone()
 
 	const { isLoading, isError, data, isSuccess } = addZoneMutation
-
 
 	const form = useForm<z.infer<typeof ZoneFormSchema>>({
 		resolver: zodResolver(ZoneFormSchema),
@@ -34,27 +49,33 @@ const AddZone = () => {
 	})
 
 	async function onSubmit(values: z.infer<typeof ZoneFormSchema>) {
-		await addZoneMutation.mutateAsync(values)
+		if (action === 'update') {
+			await updateZoneMutation.mutateAsync({
+				zoneId: zoneId,
+				updatedData: values,
+			})
+			// closeDialog()
+		} else {
+			await addZoneMutation.mutateAsync(values)
+		}
 	}
+
+	useEffect(() => {
+		if (zone) {
+			setAction('update')
+			setZoneId(zone.id)
+			form.reset(zone)
+		}
+	}, [zone])
 
 	return (
 		<div>
-			<div className="flex flex-col items-start">
-				<Spacer size="3xs" />
-				<h4 className="font-semibold">Zone Info</h4>
-				<p className="text-muted-foreground">
-					Fill in the name of the zone below
-				</p>
-			</div>
-			<Spacer size="4xs" />
-
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="m-4 space-y-8 md:m-0"
 				>
 					<div className=" text-left">
-						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col gap-2 md:flex-row md:gap-0">
@@ -76,12 +97,14 @@ const AddZone = () => {
 						</div>
 						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
-						<Spacer size="3xs" />
+						<Spacer size="4xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
-								{isLoading && <Spinner showSpinner={isLoading} />}
-								Submit
-							</Button>
+							<DialogFooter>
+								<Button disabled={isLoading} type="submit">
+									{isLoading && <Spinner showSpinner={isLoading} />}
+									Submit
+								</Button>
+							</DialogFooter>
 						</div>
 					</div>
 				</form>
@@ -90,4 +113,4 @@ const AddZone = () => {
 	)
 }
 
-export default AddZone
+export default ZoneForm

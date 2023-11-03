@@ -70,13 +70,9 @@ export function DataTable<TData, TValue>({
 					className="max-w-sm"
 				/>
 				<div className="flex gap-2">
-					<Button variant="outline" size={'sm'}>
-						<Icon name="download" className="mr-2" />
-						Export
-					</Button>
-					<Button size={'sm'} onClick={() => navigate('addParent')}>
+					<Button size={'sm'} onClick={() => navigate('addUser')}>
 						<Icon name="plus" className="mr-2" />
-						Add Parent
+						Add User
 					</Button>
 				</div>
 			</div>
