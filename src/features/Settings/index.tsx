@@ -1,48 +1,28 @@
 import React from 'react'
-import { Separator } from '../../components/separator'
-import { SidebarNav } from './SideNav'
+import SettingsLayout from './layout'
+import { Route, Routes } from 'react-router-dom'
+import ProfileForm from './profile-form'
+import SchoolForm from './school-form'
+import Users from './Users/Users'
+import { Roles } from './Roles'
+import UserForm from './Users/user-form'
+import RoleForm from './Roles/role-form'
 
-const sidebarNavItems = [
-	{
-		title: 'Profile',
-		href: 'settings/profile',
-	},
-	{
-		title: 'Account',
-		href: 'settings/account',
-	},
-	{
-		title: 'School',
-		href: 'settings/school',
-	},
-	{
-		title: 'Users',
-		href: 'settings/users',
-	},
-]
-
-interface SettingsLayoutProps {
-	children: React.ReactNode
-}
-
-const index = ({ children }: SettingsLayoutProps) => {
+const Settings = () => {
 	return (
-		<div className="hidden space-y-6 p-10 pb-16 md:block">
-			<div className="space-y-0.5">
-				<h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-				<p className="text-muted-foreground">
-					Manage your account settings and set e-mail preferences.
-				</p>
-			</div>
-			<Separator className="my-6" />
-			<div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-				<aside className="-mx-4 lg:w-1/5">
-					<SidebarNav items={sidebarNavItems} />
-				</aside>
-				<div className="flex-1 lg:max-w-2xl">{children}</div>
-			</div>
-		</div>
+		<SettingsLayout>
+			<Routes>
+				<Route path="profile" element={<ProfileForm />} />
+				<Route path="school" element={<SchoolForm />} />
+				<Route path="users" element={<Users />} />
+				<Route path="users/addUser" element={<UserForm />} />
+				<Route path="users/editUser" element={<UserForm />} />
+				<Route path="roles" element={<Roles />} />
+				<Route path="roles/addRole" element={<RoleForm />} />
+				<Route path="roles/editRole" element={<RoleForm />} />
+			</Routes>
+		</SettingsLayout>
 	)
 }
 
-export default index
+export default Settings

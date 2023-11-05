@@ -122,6 +122,51 @@ const getZonesSchema = z.array(
 
 type getZonesResponse = z.infer<typeof getZonesSchema>
 
+const getRolesSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+	}),
+)
+
+type getRolesResponse = z.infer<typeof getRolesSchema>
+
+const getUsersSchema = z.array(
+	z.object({
+		id: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
+		phone_number: z.string(),
+		email: z.string(),
+		role_id: z.string(),
+		school_id: z.string(),
+	}),
+)
+
+type getUsersResponse = z.infer<typeof getUsersSchema>
+
+const getSchoolByIdSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		address: z.string(),
+		phone_number: z.string(),
+		email: z.string(),
+		contact_person: z.string(),
+	}),
+)
+
+type getSchoolByIdResponse = z.infer<typeof getSchoolByIdSchema>
+
+const updateZoneById = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+	}),
+)
+
+type updateZoneByIdResponse = z.infer<typeof updateZoneById>
+
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
 		const requestBody = await req.text()
@@ -283,7 +328,7 @@ export const handlers: Array<RequestHandler> = [
 		const zones = []
 
 		for (let i = 0; i < numberOfZones; i++) {
-			const zoneName = `Zone ${String.fromCharCode(65 + i)}` // Convert ASCII value to letter (A, B, C, ...)
+			const zoneName = `Zone ${String.fromCharCode(65 + i)}`
 			zones.push({
 				id: faker.string.uuid(),
 				name: zoneName,
@@ -291,6 +336,51 @@ export const handlers: Array<RequestHandler> = [
 		}
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
+	}),
+	rest.get<getRolesResponse>('/api/roles', async (req, res, ctx) => {
+		const numberOfRoles = 1
+		const roles = []
+
+		for (let i = 0; i < numberOfRoles; i++) {
+			const roleName = 'SchoolAdmin'
+			roles.push({
+				id: faker.string.uuid(),
+				name: roleName,
+			})
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(roles))
+	}),
+	rest.get<getUsersResponse>('/api/users', async (req, res, ctx) => {
+		const numberOfUsers = 5
+		const users = []
+
+		for (let i = 0; i < numberOfUsers; i++) {
+			users.push({
+				id: faker.string.uuid(),
+				firstName: faker.person.firstName(),
+				lastName: faker.person.lastName(),
+				phone_number: faker.phone.number(),
+				email: faker.internet.email(),
+				role: 'School Admin',
+				school: 'City Primary',
+				status: 'Active',
+			})
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(users))
+	}),
+	rest.get<getSchoolByIdResponse>('/api/schools/:id', async (req, res, ctx) => {
+		const school = {
+			id: faker.string.uuid(),
+			name: 'City Primary',
+			address: '17 CBD,Nairobi',
+			email: faker.internet.email(),
+			contact_person: faker.person.fullName(),
+			contact_person_phone: faker.phone.number(),
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(school))
 	}),
 	rest.delete('/api/parents/:id', async (req, res, ctx) => {
 		return res(
@@ -348,20 +438,24 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json('Deleted zone successfuly'),
 		)
 	}),
+	rest.delete('/api/roles/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted role successfuly'),
+		)
+	}),
+	rest.delete('/api/users/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted user successfuly'),
+		)
+	}),
 	rest.post<routeRequestBody>('/api/add-route', async (req, res, ctx) => {
 		const requestBody = await req.text()
 
 		const data = JSON.parse(requestBody)
-
-		// return res(
-		// 	ctx.delay(0),
-		// 	ctx.status(200),
-		// 	ctx.json({
-		// 		username: data.username,
-		// 		email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
-		// 		token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
-		// 	}), // Customize the response data
-		// )
 
 		return res(
 			ctx.delay(2000),
@@ -369,7 +463,21 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json({
 				data,
 				message: 'Successfully added route',
-			}), // Customize error response
+			}),
+		)
+	}),
+	rest.patch<updateZoneByIdResponse>('/api/zones/:id', async (req, res, ctx) => {
+		const requestBody = await req.text()
+
+		const data = JSON.parse(requestBody)
+
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json({
+				data,
+				message: 'Successfully updated zone',
+			}),
 		)
 	}),
 ]

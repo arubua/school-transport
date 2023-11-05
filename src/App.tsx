@@ -16,7 +16,7 @@ import StudentsView from './views/Students'
 import DriversView from './views/Drivers'
 import BusesView from './views/Buses'
 import ZonesView from './views/Zones'
-import AddZone from './features/Zones/add-zone'
+import AddZone from './features/Zones/zone-form'
 import ParentForm from './features/Parents/parent-form'
 import StudentForm from './features/Students/student-form'
 import DriverForm from './features/Drivers/driver-form'
@@ -88,7 +88,7 @@ function App() {
 						<Route path="schedules/editSchedule" element={<ScheduleForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
-						<Route path="settings" element={<SettingsView />} />
+						<Route path="settings/*" element={<SettingsView />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>
