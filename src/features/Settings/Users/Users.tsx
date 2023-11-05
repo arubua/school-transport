@@ -1,10 +1,10 @@
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import { Spinner } from '../../components/spinner'
-import { useZones } from '../../hooks/api/zones'
+import { Spinner } from '../../../components/spinner'
+import { useUsers } from '../../../hooks/api/settings/users'
 
-export default function Zones() {
-	const { data, error, isLoading } = useZones()
+export default function Users() {
+	const { data, error, isLoading } = useUsers()
 
 	if (isLoading) {
 		return (
@@ -14,12 +14,12 @@ export default function Zones() {
 		)
 	}
 
-	// if (error) {
-	// 	return <p>Error</p>
-	// }
+	if (error) {
+		return <p>Error</p>
+	}
 
 	return (
-		<div className="container mx-auto py-10">
+		<div className="container mx-auto">
 			<DataTable columns={columns} data={data} />
 		</div>
 	)
