@@ -12,6 +12,7 @@ const Settings = () => {
 	return (
 		<SettingsLayout>
 			<Routes>
+				<Route path="/" element={<ProfileForm />} />
 				<Route path="profile" element={<ProfileForm />} />
 				<Route path="school" element={<SchoolForm />} />
 				<Route path="users" element={<Users />} />

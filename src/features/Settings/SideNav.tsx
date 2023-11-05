@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '../../utils/misc'
 import { Button, buttonVariants } from '../../components/ui/button'
 
@@ -24,21 +24,25 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
 		>
 			{items.map(item => {
 				const lastSegment = location.pathname.split('/').pop()
+				// const lastSegment = location.pathname
+
 				const isMatch = lastSegment === item.href
 				return (
-					<a
+					<NavLink
 						key={item.href}
-						href={item.href}
-						className={cn(
-							buttonVariants({ variant: 'ghost' }),
-							isMatch
-								? 'bg-muted hover:bg-muted'
-								: 'hover:bg-transparent hover:underline',
-							'justify-start',
-						)}
+						to={item.href}
+						className={({ isActive }) =>
+							cn(
+								buttonVariants({ variant: 'ghost' }),
+								isActive
+									? 'bg-muted hover:bg-muted'
+									: 'hover:bg-transparent hover:underline',
+								'justify-start',
+							)
+						}
 					>
 						{item.title}
-					</a>
+					</NavLink>
 				)
 			})}
 		</nav>

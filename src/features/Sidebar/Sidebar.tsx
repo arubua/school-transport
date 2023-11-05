@@ -3,6 +3,8 @@ import { Link, NavLink } from 'react-router-dom'
 import Logo from '../../components/ui/logo'
 import { Icon, IconName } from '../../components/ui/icon'
 import { z } from 'zod'
+import { Button } from '../../components/ui/button'
+import { clearUserSession } from '../../utils/storage'
 interface MenuItem {
 	title: string
 	route: string
@@ -39,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			id="sidebar"
 			className={`${
 				isSidebarVisible ? '' : 'hidden'
-			} relative h-screen min-w-max w-52 flex-col border `}
+			} relative h-screen w-52 min-w-max flex-col border `}
 		>
 			<div className="absolute right-0 top-0 mt-4" onClick={toggleSidebar}>
 				<Icon name="hamburger" className="cursor-pointer" />
@@ -91,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)
 				})}
 			</div>
-			<div className="p-4 absolute bottom-2 ">
+			<div className="absolute bottom-2 p-4 ">
 				<ul>
 					<li>
 						<Link
@@ -100,10 +102,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 							className="text-danger"
 							style={{ opacity: 1 }}
 						>
-							<div className="flex font-medium hover:text-primary">
+							<Button variant="ghost" onClick={() => clearUserSession()}>
 								<Icon className="mr-1" size="md" name="arrow-right-rec" />
-								<h1>Logout</h1>
-							</div>
+								Logout
+							</Button>
 						</Link>
 					</li>
 				</ul>

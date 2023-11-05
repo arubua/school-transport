@@ -6,7 +6,8 @@ import { Icon } from '../../components/ui/icon'
 interface SidebarProps {
 	title: string
 	user: {
-		username: string
+		firstName: string
+		lastName: string
 		email: string
 		image: string
 	}
@@ -14,12 +15,14 @@ interface SidebarProps {
 	isSidebarVisible: boolean
 }
 
-const index: React.FC<SidebarProps> = ({
+const NavBar: React.FC<SidebarProps> = ({
 	title,
 	user,
 	toggleSidebar,
 	isSidebarVisible,
 }) => {
+
+	const username = `${user.firstName} ${user.lastName}`
 	return (
 		<div className="flex w-full justify-between">
 			<div className="title my-4 flex">
@@ -38,7 +41,7 @@ const index: React.FC<SidebarProps> = ({
 					<AvatarFallback>TU</AvatarFallback>
 				</Avatar>
 				<div className="mt-1 flex flex-col">
-					<h2 className="text-left">{user.username}</h2>
+					<h2 className="text-left">{username}</h2>
 					<p>{user.email}</p>
 				</div>
 			</div>
@@ -46,4 +49,4 @@ const index: React.FC<SidebarProps> = ({
 	)
 }
 
-export default index
+export default NavBar
