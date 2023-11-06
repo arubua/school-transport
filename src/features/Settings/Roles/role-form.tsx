@@ -14,14 +14,25 @@ import { Button } from '../../../components/ui/button'
 import { z } from 'zod'
 import { Separator } from '../../../components/separator'
 import { Spinner } from '../../../components/spinner'
-import { useAddRole } from '../../../hooks/api/settings/roles'
+import { useAddRole, useUpdateRole } from '../../../hooks/api/settings/roles'
+import { Icon } from '../../../components/ui/icon'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 const RoleFormSchema = z.object({
 	name: z.string(),
 })
 
 const RoleForm = () => {
+	const location = useLocation()
+
+	const navigate = useNavigate()
+
+	const [isUpdating] = useState(location.state && location.state.role)
+	const [roleId, setRoleId] = useState('')
+
 	const addRoleMutation = useAddRole()
+	const updateRoleMutation = useUpdateRole()
 
 	const { isLoading, isError, data, isSuccess } = addRoleMutation
 
@@ -32,18 +43,33 @@ const RoleForm = () => {
 		},
 	})
 
+	useEffect(() => {
+		if (isUpdating) {
+			const roleData = location.state.role
+			setRoleId(roleData.id)
+			form.reset(roleData)
+		}
+	}, [isUpdating, location.state, form])
+
 	async function onSubmit(values: z.infer<typeof RoleFormSchema>) {
 		await addRoleMutation.mutateAsync(values)
 	}
 
 	return (
 		<div>
-			<div className="flex flex-col items-start">
-				<h4 className="font-semibold">Role Info</h4>
-				<p className="text-muted-foreground">
-					Fill in the name of the zone below
-				</p>
+			<div className="flex justify-between">
+				<div className="flex flex-col items-start">
+					<h4 className="font-semibold">Role Info</h4>
+					<p className="text-muted-foreground">
+						Update the role and click submit
+					</p>
+				</div>
+				<Button variant="link" onClick={() => navigate(-1)}>
+					<Icon name="arrow-left" className="mr-2" />
+					Back to Roles
+				</Button>
 			</div>
+
 			<Spacer size="4xs" />
 
 			<Form {...form}>

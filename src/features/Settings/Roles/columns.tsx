@@ -88,7 +88,7 @@ export const columns: ColumnDef<Role>[] = [
 			}, [isSuccess, isLoading])
 
 			return (
-				<div>
+				<div className="text-right">
 					<Dialog open={open} onOpenChange={setOpen}>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
