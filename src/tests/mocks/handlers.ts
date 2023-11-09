@@ -12,6 +12,17 @@ const loginRequestBodySchema = z.object({
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 
+const signUpRequestBodySchema = z.object({
+	name: z.string(),
+	address: z.string(),
+	phone_number: z.string(),
+	email: z.string(),
+	contact_person: z.string(),
+	contact_person_phone: z.string(),
+})
+
+type SignUpRequestBody = z.infer<typeof signUpRequestBodySchema>
+
 const postRouteRequestBodySchema = z.object({
 	name: z.string(),
 	zone_id: z.string(),
@@ -179,8 +190,11 @@ export const handlers: Array<RequestHandler> = [
 				ctx.delay(0),
 				ctx.status(200),
 				ctx.json({
-					username: data.username,
+					firstName: faker.person.firstName(),
+					lastName: faker.person.lastName(),
 					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
+					phone_number: faker.phone.number(),
+					role: 'School Admin',
 					token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
 					image: faker.image.avatar(),
 				}), // Customize the response data
@@ -192,6 +206,13 @@ export const handlers: Array<RequestHandler> = [
 			ctx.status(401),
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)
+	}),
+	rest.post<SignUpRequestBody>('/api/signup', async (req, res, ctx) => {
+		const requestBody = await req.text()
+
+		const data = JSON.parse(requestBody)
+
+		return res(ctx.delay(2000), ctx.status(401), ctx.json({ data }))
 	}),
 	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
 		const numberOfParents = 15
@@ -375,6 +396,7 @@ export const handlers: Array<RequestHandler> = [
 			id: faker.string.uuid(),
 			name: 'City Primary',
 			address: '17 CBD,Nairobi',
+			phone_number: faker.phone.number(),
 			email: faker.internet.email(),
 			contact_person: faker.person.fullName(),
 			contact_person_phone: faker.phone.number(),
@@ -466,18 +488,21 @@ export const handlers: Array<RequestHandler> = [
 			}),
 		)
 	}),
-	rest.patch<updateZoneByIdResponse>('/api/zones/:id', async (req, res, ctx) => {
-		const requestBody = await req.text()
+	rest.patch<updateZoneByIdResponse>(
+		'/api/zones/:id',
+		async (req, res, ctx) => {
+			const requestBody = await req.text()
 
-		const data = JSON.parse(requestBody)
+			const data = JSON.parse(requestBody)
 
-		return res(
-			ctx.delay(2000),
-			ctx.status(200),
-			ctx.json({
-				data,
-				message: 'Successfully updated zone',
-			}),
-		)
-	}),
+			return res(
+				ctx.delay(2000),
+				ctx.status(200),
+				ctx.json({
+					data,
+					message: 'Successfully updated zone',
+				}),
+			)
+		},
+	),
 ]

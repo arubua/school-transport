@@ -13,32 +13,14 @@ import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spinner } from '../../components/spinner'
 import { z } from 'zod'
-import { useAddParent, useUpdateParent } from '../../hooks/api/parents'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
-import { FileRejection } from 'react-dropzone'
-import FileUpload from '../../components/ui/file-input'
-import { useLocation } from 'react-router-dom'
+
 import {
 	useUpdateSchool,
 	useSchoolById,
 } from '../../hooks/api/settings/schools'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '../../components/popover'
-import { cn } from '../../utils/misc'
-import { Icon } from '../../components/ui/icon'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-} from '../../components/command'
-import { useRoles } from '../../hooks/api/settings/roles'
-import { useScheduleById } from '../../hooks/api/schedules'
+
 import {
 	AddressSchema,
 	EmailSchema,
@@ -52,7 +34,7 @@ export const SchoolFormSchema = z.object({
 	email: EmailSchema,
 	phone_number: z.string(),
 	contact_person: z.string(),
-	contact_person_email: z.string(),
+	contact_person_phone: z.string(),
 })
 
 type School = {
@@ -62,7 +44,7 @@ type School = {
 	email: string
 	phone_number: string
 	contact_person: string
-	contact_person_email: string
+	contact_person_phone: string
 }
 type User = {
 	id: string
@@ -77,11 +59,13 @@ type User = {
 const SchoolForm = () => {
 	const [user, setUser] = useState<User | null>(null)
 	const [school, setSchool] = useState<School | null>(null)
-	const [roles, setRoles] = useState<{ label: string; value: string }[]>([])
+	const [schoolId, setSchoolId] = useState('')
 
 	const updateSchoolMutation = useUpdateSchool()
 
 	const { isLoading, isError, data, isSuccess } = updateSchoolMutation
+
+	const { data: schoolData } = useSchoolById(schoolId)
 
 	const form = useForm<z.infer<typeof SchoolFormSchema>>({
 		resolver: zodResolver(SchoolFormSchema),
@@ -91,7 +75,7 @@ const SchoolForm = () => {
 			email: '',
 			phone_number: '',
 			contact_person: '',
-			contact_person_email: '',
+			contact_person_phone: '',
 		},
 	})
 
@@ -107,15 +91,20 @@ const SchoolForm = () => {
 	useEffect(() => {
 		async function init() {
 			let userData = await getUser()
-			const { data: school } = await useSchoolById(userData.school_id)
 
 			setUser(userData)
-			setSchool(school)
-			form.reset(school)
+			setSchoolId(userData.school_id)
 		}
 
 		init()
 	}, [])
+
+	useEffect(() => {
+		setSchool(schoolData)
+		form.reset(schoolData)
+	}, [schoolId])
+
+	console.log('school', school)
 
 	return (
 		<div>
@@ -207,12 +196,12 @@ const SchoolForm = () => {
 						<Spacer size="4xs" />
 						<FormField
 							control={form.control}
-							name="contact_person_email"
+							name="contact_person_phone"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Contact Person Email</FormLabel>
+									<FormLabel>Contact Person Phone Number</FormLabel>
 									<FormControl>
-										<Input placeholder="jdoe@gmail.com" {...field} />
+										<Input placeholder="(+254)700 000000" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

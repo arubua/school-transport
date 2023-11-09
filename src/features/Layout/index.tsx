@@ -13,7 +13,8 @@ import { z } from 'zod'
 // import axios from "axios";
 
 const UserSchema = z.object({
-	username: NameSchema,
+	firstName: NameSchema,
+	lastName: NameSchema,
 	token: z.string(),
 	email: EmailSchema,
 	image: z.string(),

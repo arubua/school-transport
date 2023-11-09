@@ -69,12 +69,6 @@ export function DataTable<TData, TValue>({
 					}
 					className="max-w-sm"
 				/>
-				<div className="flex gap-2">
-					<Button size={'sm'} onClick={() => navigate('addRole')}>
-						<Icon name="plus" className="mr-2" />
-						Add Role
-					</Button>
-				</div>
 			</div>
 			<div className="rounded-md border">
 				<Table>

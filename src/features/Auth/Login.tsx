@@ -171,7 +171,7 @@ export function Login() {
 						<div className="flex items-center justify-center gap-2 pt-6">
 							<span className="text-muted-foreground">New here ?</span>
 							<Button className="p-0" variant="link">
-								<Link to={'/signup'}>Create an account</Link>
+								<Link to={'/auth/signup'}>Create an account</Link>
 							</Button>
 						</div>
 					</div>

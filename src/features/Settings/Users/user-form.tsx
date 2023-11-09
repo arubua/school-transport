@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useEffect, useState } from 'react'
 import { FileRejection } from 'react-dropzone'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
 	Form,
 	FormControl,
@@ -18,6 +18,7 @@ import {
 	AddressSchema,
 	EmailSchema,
 	NameSchema,
+	PhoneSchema,
 } from '../../../utils/user-validation'
 import { Separator } from '../../../components/separator'
 import { Input } from '../../../components/ui/input'
@@ -45,13 +46,14 @@ export const UserFormSchema = z.object({
 	firstName: NameSchema,
 	lastName: NameSchema,
 	email: EmailSchema,
-	phone_number: z.string(),
-	role_id: z.string(),
+	phone_number: PhoneSchema,
+	role_id: z.string().min(3, { message: 'Please select a role' }),
 	avatarImage: z.array(z.instanceof(File)),
 })
 
 const UserForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [isUpdating] = useState(location.state && location.state.user)
 
@@ -117,12 +119,19 @@ const UserForm = () => {
 
 	return (
 		<div>
-			<div className="flex flex-col items-start">
-				<h4 className="font-semibold">Personal Info</h4>
-				<p className="text-muted-foreground">
-					Update users photo and personal details here.
-				</p>
+			<div className="flex justify-between">
+				<div className="flex flex-col items-start">
+					<h4 className="font-semibold">User Info</h4>
+					<p className="text-muted-foreground">
+						Update users photo and personal details here.
+					</p>
+				</div>
+				<Button variant="link" onClick={() => navigate(-1)}>
+					<Icon name="arrow-left" className='mr-2' />
+					Back to Users
+				</Button>
 			</div>
+
 			<Spacer size="4xs" />
 
 			<Form {...form}>
@@ -219,8 +228,6 @@ const UserForm = () => {
 								name="role_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
-										<FormLabel>Role</FormLabel>
-
 										<Popover>
 											<PopoverTrigger asChild>
 												<FormControl>

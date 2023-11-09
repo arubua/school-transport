@@ -103,6 +103,7 @@ const ProfileForm = () => {
 			let userData = await getUser()
 
 			setUser(userData)
+			form.reset(userData)
 		}
 
 		init()
