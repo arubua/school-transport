@@ -36,9 +36,9 @@ export function init() {
  */
 export function getEnv() {
 	return {
-		MODE: process.env.NODE_ENV,
-		SENTRY_DSN: process.env.SENTRY_DSN,
-		VITE_BASE_URL: process.env.VITE_BASE_URL
+		MODE: import.meta.env.NODE_ENV,
+		SENTRY_DSN: import.meta.env.SENTRY_DSN,
+		VITE_BASE_URL: import.meta.env.VITE_BASE_URL
 	}
 }
 
