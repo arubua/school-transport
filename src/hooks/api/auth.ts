@@ -63,14 +63,14 @@ const signUp = async ({
 	email,
 	phone_number,
 	contact_person,
-	contact_person_phone,
+	contact_person_phone_number,
 }: {
 	name: string
 	address: string
 	email: string
 	phone_number: string
 	contact_person: string
-	contact_person_phone: string
+	contact_person_phone_number: string
 }) => {
 	try {
 		const response = await axios.post(
@@ -81,7 +81,7 @@ const signUp = async ({
 			email,
 			phone_number,
 			contact_person,
-			contact_person_phone,
+			contact_person_phone_number,
 		},
 		  {
 			headers: {
