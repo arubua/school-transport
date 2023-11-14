@@ -39,7 +39,7 @@ const Home: React.FC = () => {
 		try {
 			const userData = UserSchema.parse(await getUser())
 
-			if (!userData.email || !userData.token || !userData.firstName || !userData.lastName) {
+			if (!userData) {
 				setLoading(false)
 
 				navigate('/auth/login')

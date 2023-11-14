@@ -10,6 +10,22 @@ export const UsernameSchema = z
 	// users can type the username in any case, but we store it in lowercase
 	.transform(value => value.toLowerCase())
 
+export const usernameSchema = z.string().refine(
+	value => {
+		// Regular expression for validating a phone number in the format +254710000000
+		const phoneRegex = /^\+\d{12}$/
+
+		// Regular expression for validating an email address
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+		return phoneRegex.test(value) || emailRegex.test(value)
+	},
+	{
+		message:
+			'Invalid username. Please enter a valid phone number (+254710000000) or email address.',
+	},
+)
+
 export const PasswordSchema = z
 	.string({ required_error: 'Password is required' })
 	.min(6, { message: 'Password is too short' })
@@ -56,9 +72,7 @@ export const SchoolNameSchema = z
 	.string()
 	.min(2, 'School name should be at least 2 characters long')
 
-	export const BusSchema = z
-	.string()
-	.min(1, 'Please select a bus')
+export const BusSchema = z.string().min(1, 'Please select a bus')
 
 export const CoordinatesSchema = z.object({
 	latitude: z.number(),
