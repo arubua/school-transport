@@ -2,14 +2,15 @@ import React from 'react'
 import { z } from 'zod'
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
 import { Icon } from '../../components/ui/icon'
+import { getInitials } from '../../utils/getInitials'
 
 interface SidebarProps {
 	title: string
 	user: {
-		firstName: string
-		lastName: string
+		firstname: string
+		lastname: string
 		email: string
-		image: string
+		// image: string
 	}
 	toggleSidebar: () => void
 	isSidebarVisible: boolean
@@ -21,8 +22,7 @@ const NavBar: React.FC<SidebarProps> = ({
 	toggleSidebar,
 	isSidebarVisible,
 }) => {
-
-	const username = `${user.firstName} ${user.lastName}`
+	const username = `${user.firstname} ${user.lastname}`
 	return (
 		<div className="flex w-full justify-between">
 			<div className="title my-4 flex">
@@ -37,8 +37,8 @@ const NavBar: React.FC<SidebarProps> = ({
 			</div>
 			<div className="max-md: flex">
 				<Avatar className="mr-1 mt-2">
-					<AvatarImage src={user.image} />
-					<AvatarFallback>TU</AvatarFallback>
+					{/* <AvatarImage src={user.image} /> */}
+					<AvatarFallback>{getInitials(username)}</AvatarFallback>
 				</Avatar>
 				<div className="mt-1 flex flex-col">
 					<h2 className="text-left">{username}</h2>

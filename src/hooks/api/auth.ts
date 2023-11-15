@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLocalStorage, useSessionStorage } from '../hooks'
 import { getSessionExpirationDate } from '../../utils/auth'
 import { User } from '../../features/Settings/Users/columns'
+import axiosInstance from '../axiosInstance'
 
 const envVars = getEnv()
 const BASE_URL = envVars.VITE_BASE_URL
@@ -14,48 +15,47 @@ const login = async ({
 	username,
 	password,
 	remember_user,
-  }: {
-	username: string;
-	password: string;
-	remember_user: boolean;
-  }) => {
-	const response = await fetch(`${BASE_URL}auth/login`, {
-	  method: 'POST',
-	  headers: {
-		'Content-Type': 'application/json',
-	  },
-	  body: JSON.stringify({ username, password, remember_user }),
-	});
+}: {
+	username: string
+	password: string
+	remember_user: boolean
+}) => {
+	const { res, status } = await axiosInstance({
+		url:'auth/login',
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		data: JSON.stringify({ username, password, remember_user }),
+	})
 
-	return response.json();
-  };
+	return res
+}
 
 export const useLogin = () => {
 	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
 	const [accessToken, setAccessToken] = useSessionStorage('TOKEN', null)
-	const [refreshToken, setRefreshToken] = useSessionStorage('REFRESH_TOKEN', null)
+	const [refreshToken, setRefreshToken] = useSessionStorage(
+		'REFRESH_TOKEN',
+		null,
+	)
 
 	const navigate = useNavigate()
-	return useMutation(
-	login,
-	{
-		onSuccess: (data) => {
-			// console.log({data})
-			toast.success('Login successful')
-			setStoredUser(data.data.user)
-			setAccessToken(data.data.accessToken)
-			setRefreshToken(data.data.refreshToken)
+	return useMutation(login, {
+		onSuccess: data => {
+			console.log({data})
+			// toast.success('Login successful')
+			setStoredUser(data.data.data.user)
+			setAccessToken(data.data.data.accessToken)
+			setRefreshToken(data.data.data.refreshToken)
 			navigate('/app/home')
 		},
-		onError: (error) => {
-		  // Handle authentication error
-		  console.error('Authentication error:', error);
+		onError: error => {
+			// Handle authentication error
+			console.error('Authentication error:', error)
 		},
-	  }
-	)
+	})
 }
-
-
 
 const signUp = async ({
 	name,
@@ -119,4 +119,43 @@ const signUp = async ({
 
 export const useSignUp = () => {
 	return useMutation(signUp)
+}
+
+const resetPassword = async ({
+	email,
+	current_password,
+	new_password,
+}: {
+	email: string
+	current_password: string
+	new_password: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/change-password',
+		method: 'POST',
+		data: {
+			username: email,
+			current_password,
+			new_password,
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to update password')
+	}
+
+	return res
+}
+
+export const useResetPassword = () => {
+	return useMutation(resetPassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success('Password updated successfuly')
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Authentication error:', error)
+		},
+	})
 }

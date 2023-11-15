@@ -104,7 +104,6 @@ const SchoolForm = () => {
 		form.reset(schoolData)
 	}, [schoolId])
 
-	console.log('school', school)
 
 	return (
 		<div>

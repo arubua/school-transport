@@ -15,7 +15,7 @@ export default function Roles() {
 	}
 
 	if (error) {
-		return <p>Error</p>
+		return <p>{error.message}</p>
 	}
 
 	return (

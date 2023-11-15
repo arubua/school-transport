@@ -14,7 +14,7 @@ import AuthRoute from '../features/Auth/AuthRoute'
 const UserSchema = z.object({
 	firstname: NameSchema,
 	lastname: NameSchema,
-	// token: z.string(),
+	changed_password: z.boolean(),
 	email: EmailSchema,
 	// image:z.string()
 })
@@ -37,12 +37,9 @@ const Home: React.FC = () => {
 	async function init() {
 		setLoading(true)
 		try {
-
 			let user = await getUser()
 
 			const userData = UserSchema.parse(user)
-
-			// console.log({userData})
 
 			if (!userData) {
 				setLoading(false)
@@ -60,10 +57,15 @@ const Home: React.FC = () => {
 				return
 			}
 
+			if (userData.changed_password === false) {
+				setLoading(false)
+
+				navigate('/auth/reset_password')
+				return
+			}
+
 			setUser(userData)
 			setLoading(false)
-			navigate('/app/home')
-
 		} catch (error) {
 			console.error('Error:', error)
 

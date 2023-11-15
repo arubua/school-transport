@@ -44,8 +44,8 @@ import {
 import { useRoles } from '../../hooks/api/settings/roles'
 
 export const ProfileFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
+	firstname: NameSchema,
+	lastname: NameSchema,
 	email: EmailSchema,
 	phone_number: z.string(),
 	role_id: z.string(),
@@ -53,16 +53,16 @@ export const ProfileFormSchema = z.object({
 
 // const UserSchema = z.object({
 // 	id: z.string(),
-// 	firstName: z.string(),
-// 	lastName: z.string(),
+// 	firstname: z.string(),
+// 	lastname: z.string(),
 // 	email: z.string(),
 // 	phone_number: z.string(),
 // 	role: z.string(),
 // })
 type User = {
 	id: string
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	email: string
 	phone_number: string
 	role: string
@@ -76,13 +76,13 @@ const ProfileForm = () => {
 
 	const { isLoading, isError, data, isSuccess } = updateUserMutation
 
-	const { data: rolesRaw } = useRoles()
+	// const { data: rolesRaw } = useRoles()
 
 	const form = useForm<z.infer<typeof ProfileFormSchema>>({
 		resolver: zodResolver(ProfileFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
+			firstname: '',
+			lastname: '',
 			email: '',
 			phone_number: '',
 			role_id: '',
@@ -109,15 +109,15 @@ const ProfileForm = () => {
 		init()
 	}, [])
 
-	useEffect(() => {
-		if (Array.isArray(rolesRaw) && rolesRaw.length > 0) {
-			const fRoles = rolesRaw.map(role => ({
-				label: role.name,
-				value: role.id,
-			}))
-			setRoles(fRoles)
-		}
-	}, [rolesRaw])
+	// useEffect(() => {
+	// 	if (Array.isArray(rolesRaw) && rolesRaw.length > 0) {
+	// 		const fRoles = rolesRaw.map(role => ({
+	// 			label: role.name,
+	// 			value: role.id,
+	// 		}))
+	// 		setRoles(fRoles)
+	// 	}
+	// }, [rolesRaw])
 
 	return (
 		<div>
@@ -139,7 +139,7 @@ const ProfileForm = () => {
 					<div className=" text-left">
 						<FormField
 							control={form.control}
-							name="firstName"
+							name="firstname"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>First Name</FormLabel>
@@ -153,7 +153,7 @@ const ProfileForm = () => {
 						<Spacer size="4xs" />
 						<FormField
 							control={form.control}
-							name="lastName"
+							name="lastname"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Last Name</FormLabel>
@@ -193,10 +193,13 @@ const ProfileForm = () => {
 							)}
 						/>
 						<Spacer size="4xs" />
-						<FormField
+						{/* <FormField
 							control={form.control}
 							name="role_id"
-							render={({ field }) => (
+							render={({ field }) => {
+								// console.log({field})
+								
+								return (
 								<FormItem className="flex flex-col">
 									<FormLabel>Role</FormLabel>
 
@@ -256,8 +259,8 @@ const ProfileForm = () => {
 									</Popover>
 									<FormMessage />
 								</FormItem>
-							)}
-						/>
+							)}}
+						/> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl">
 							<Button size="sm" type="submit" disabled={isLoading}>

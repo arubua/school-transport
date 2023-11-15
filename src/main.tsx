@@ -13,7 +13,6 @@ const queryClient = new QueryClient()
 // const envVars = getEnv()
 
 // const BASE_URL = envVars.VITE_BASE_URL
-// const BASE_URL = 'https://school.api.dev.mobitill.com/'
 
 // const queryClient = new QueryClient({
 // 	defaultOptions: {

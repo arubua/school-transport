@@ -15,7 +15,7 @@ export default function Users() {
 	}
 
 	if (error) {
-		return <p>Error</p>
+		return <p>{error.message}</p>
 	}
 
 	return (

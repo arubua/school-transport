@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../../axiosInstance'
 
 const getUsers = async () => {
-	const response = await fetch('/api/users')
-	if (!response.ok) {
+	const {res,status} = await axiosInstance({
+		url:'users',
+		method:'GET',
+	})
+	if (!res) {
 		throw new Error('Failed to fetch users data')
 	}
-	const data = await response.json()
-	return data
+	return res
 }
 
 export const useUsers = () => {

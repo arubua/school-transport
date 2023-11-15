@@ -57,8 +57,6 @@ export function Login() {
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
 
-	console.log({loginMutation})
-
 	// useEffect(() => {
 	// 	if (isSuccess) {
 	// 		toast.success('Login successful')

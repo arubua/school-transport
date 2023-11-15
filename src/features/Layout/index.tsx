@@ -13,11 +13,11 @@ import { z } from 'zod'
 // import axios from "axios";
 
 const UserSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	token: z.string(),
+	firstname: NameSchema,
+	lastname: NameSchema,
+	// token: z.string(),
 	email: EmailSchema,
-	image: z.string(),
+	// image: z.string(),
 })
 
 type User = z.infer<typeof UserSchema>
@@ -31,11 +31,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = props => {
 	const [title, setTitle] = useState<string>('')
-	const [isSidebarFullVisible, setSideBarVisibility] = useState<boolean>(true)
-	const [alerts, setAlerts] = useState<any[]>([])
-	const [isLoadingViolationNotification, setIsLoading] = useState<boolean>(true)
 
-	const navigate = useNavigate()
 	const location = useLocation()
 	const pathname = location.pathname
 
