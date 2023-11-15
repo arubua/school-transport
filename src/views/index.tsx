@@ -12,11 +12,11 @@ import AuthRoute from '../features/Auth/AuthRoute'
 
 // Define a Zod schema for user data
 const UserSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	token: z.string(),
+	firstname: NameSchema,
+	lastname: NameSchema,
+	// token: z.string(),
 	email: EmailSchema,
-	image:z.string()
+	// image:z.string()
 })
 
 type User = z.infer<typeof UserSchema>
@@ -37,9 +37,14 @@ const Home: React.FC = () => {
 	async function init() {
 		setLoading(true)
 		try {
-			const userData = UserSchema.parse(await getUser())
 
-			if (!userData.email || !userData.token || !userData.firstName || !userData.lastName) {
+			let user = await getUser()
+
+			const userData = UserSchema.parse(user)
+
+			// console.log({userData})
+
+			if (!userData) {
 				setLoading(false)
 
 				navigate('/auth/login')
@@ -57,6 +62,8 @@ const Home: React.FC = () => {
 
 			setUser(userData)
 			setLoading(false)
+			navigate('/app/home')
+
 		} catch (error) {
 			console.error('Error:', error)
 
