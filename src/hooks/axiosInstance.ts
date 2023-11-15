@@ -22,6 +22,8 @@ const accessToken = tokenString ? JSON.parse(tokenString) : null
 
 const api = axiosWithBearer(accessToken)
 
+console.log({ accessToken })
+
 const axiosInstance = async <T>(
 	config: AxiosRequestConfig,
 ): Promise<{ res: AxiosResponse<T>; status: number }> => {
@@ -29,7 +31,6 @@ const axiosInstance = async <T>(
 		const res = await api(config)
 		return { res, status: res.status }
 	} catch (error: any) {
-    console.log({error})
 		if (error.response) {
 			toast.error(error.response.data.message)
 			throw new Error(error.response.data.message)

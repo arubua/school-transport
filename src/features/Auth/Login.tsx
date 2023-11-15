@@ -57,6 +57,7 @@ export function Login() {
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
 
+
 	// useEffect(() => {
 	// 	if (isSuccess) {
 	// 		toast.success('Login successful')
@@ -102,7 +103,7 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Username</FormLabel>
 										<FormControl>
-											<Input placeholder="wazza" {...field} />
+											<Input placeholder="use email or phone number" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

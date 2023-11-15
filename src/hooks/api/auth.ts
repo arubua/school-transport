@@ -29,7 +29,7 @@ const login = async ({
 		data: JSON.stringify({ username, password, remember_user }),
 	})
 
-	return res
+	return res.data.data
 }
 
 export const useLogin = () => {
@@ -43,11 +43,9 @@ export const useLogin = () => {
 	const navigate = useNavigate()
 	return useMutation(login, {
 		onSuccess: data => {
-			console.log({data})
-			// toast.success('Login successful')
-			setStoredUser(data.data.data.user)
-			setAccessToken(data.data.data.accessToken)
-			setRefreshToken(data.data.data.refreshToken)
+			setStoredUser(data.user)
+			setAccessToken(data.accessToken)
+			setRefreshToken(data.refreshToken)
 			navigate('/app/home')
 		},
 		onError: error => {
