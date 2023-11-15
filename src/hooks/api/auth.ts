@@ -10,88 +10,52 @@ import { User } from '../../features/Settings/Users/columns'
 const envVars = getEnv()
 const BASE_URL = envVars.VITE_BASE_URL
 
-// const login = async ({
-// 	username,
-// 	password,
-// 	remember_user,
-//   }: {
-// 	username: string;
-// 	password: string;
-// 	remember_user: boolean;
-//   }) => {
-// 	const response = await fetch(`${BASE_URL}auth/login`, {
-// 	  method: 'POST',
-// 	  headers: {
-// 		'Content-Type': 'application/json',
-// 	  },
-// 	  body: JSON.stringify({ username, password, remember_user }),
-// 	});
+const login = async ({
+	username,
+	password,
+	remember_user,
+  }: {
+	username: string;
+	password: string;
+	remember_user: boolean;
+  }) => {
+	const response = await fetch(`${BASE_URL}auth/login`, {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json',
+	  },
+	  body: JSON.stringify({ username, password, remember_user }),
+	});
 
-// 	return response.json();
-//   };
+	return response.json();
+  };
 
-// export const useLogin = () => {
-// 	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
-// 	const [accessToken, setAccessToken] = useSessionStorage('TOKEN', null)
-// 	const [refreshToken, setRefreshToken] = useSessionStorage('REFRESH_TOKEN', null)
+export const useLogin = () => {
+	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
+	const [accessToken, setAccessToken] = useSessionStorage('TOKEN', null)
+	const [refreshToken, setRefreshToken] = useSessionStorage('REFRESH_TOKEN', null)
 
-// 	const navigate = useNavigate()
-// 	return useMutation(
-// 	login,
-// 	{
-// 		onSuccess: (data) => {
-// 			toast.success('Login successful')
-// 			setStoredUser(data.user)
-// 			setAccessToken(data.accessToken)
-// 			setRefreshToken(data.refreshToken)
-// 			navigate('/app/home')
-// 		},
-// 		onError: (error) => {
-// 		  // Handle authentication error
-// 		  console.error('Authentication error:', error);
-// 		},
-// 	  }
-// 	)
-// }
-
-async function signIn(email: string, password: string): Promise<User> {
-	const response = await fetch('/api/auth/signin', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ email, password }),
-	})
-	// if (!response.ok) {
-	// 	throw new ResponseError('Failed on sign in request', response)
-	// }
-
-	return await response.json()
-}
-
-
-export function useLogin(): IUseSignIn {
-	// const queryClient = useQueryClient();
 	const navigate = useNavigate()
-	// const { enqueueSnackbar } = useSnackbar();
-
-	const { mutate: signInMutation } = useMutation<
-		User,
-		unknown,
-		{ username: string; password: string },
-		unknown
-	>(({ username, password }) => signIn(username, password), {
-		onSuccess: data => {
-			// TODO: save the user in the state
+	return useMutation(
+	login,
+	{
+		onSuccess: (data) => {
+			// console.log({data})
+			toast.success('Login successful')
+			setStoredUser(data.data.user)
+			setAccessToken(data.data.accessToken)
+			setRefreshToken(data.data.refreshToken)
 			navigate('/app/home')
 		},
-		onError: error => {
-			toast.error('Ops.. Error on sign in. Try again!')
+		onError: (error) => {
+		  // Handle authentication error
+		  console.error('Authentication error:', error);
 		},
-	})
-
-	return signInMutation
+	  }
+	)
 }
+
+
 
 const signUp = async ({
 	name,
