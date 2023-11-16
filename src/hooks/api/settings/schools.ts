@@ -15,8 +15,19 @@ export const useSchools = () => {
 }
 
 const getSchoolById = async (schoolId: string) => {
-	const {res,status} = await axiosInstance({
-		url:`schools/${schoolId}`
+	const tokenString = sessionStorage.getItem('TOKEN')
+	if (!tokenString) {
+		throw new Error('Token not found in sessionStorage')
+	}
+
+	const token: string = JSON.parse(tokenString)
+
+	const { res, status } = await axiosInstance({
+		url: `schools/${schoolId}`,
+		headers: {
+			Authorization: `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
 	})
 
 	if (!res) {
@@ -28,8 +39,8 @@ const getSchoolById = async (schoolId: string) => {
 
 export const useSchoolById = (schoolId: string) => {
 	return useQuery({
-		queryKey:['school',schoolId], 
-		queryFn:() => getSchoolById(schoolId),
+		queryKey: ['school', schoolId],
+		queryFn: () => getSchoolById(schoolId),
 		staleTime: Infinity,
 	})
 }
@@ -86,9 +97,9 @@ const updateSchoolById = async ({
 	schoolId: string
 	updatedData: object
 }) => {
-	const {res,status} = await axiosInstance( {
+	const { res, status } = await axiosInstance({
 		method: 'PUT',
-		url:'',
+		url: '',
 		data: JSON.stringify(updatedData),
 	})
 

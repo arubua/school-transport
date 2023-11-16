@@ -14,7 +14,7 @@ import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spacer } from '../../components/spacer'
 import Logo from '../../components/ui/logo'
-import { useLogin, useResetPassword } from '../../hooks/api/auth'
+import { useChangePassword } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
 import { clearUserSession, getUser } from '../../utils/storage'
 import { useEffect, useState } from 'react'
@@ -39,7 +39,7 @@ export function ChangePassword() {
 	const navigate = useNavigate()
 	const [user, setUser] = useState<User | null>(null)
 
-	const passwordMutation = useResetPassword()
+	const passwordMutation = useChangePassword()
 
 	useEffect(() => {
 		async function init() {

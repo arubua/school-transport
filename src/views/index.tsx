@@ -60,7 +60,7 @@ const Home: React.FC = () => {
 			if (userData.changed_password === false) {
 				setLoading(false)
 
-				navigate('/auth/reset_password')
+				navigate('/auth/change_password')
 				return
 			}
 

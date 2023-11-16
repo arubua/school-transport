@@ -38,7 +38,6 @@ const LoginFormSchema = z.object({
 })
 
 export function Login() {
-	
 	const navigate = useNavigate() // Get the navigate function
 	const loginMutation = useLogin()
 
@@ -56,7 +55,6 @@ export function Login() {
 	}
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
-
 
 	// useEffect(() => {
 	// 	if (isSuccess) {
@@ -103,7 +101,10 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Username</FormLabel>
 										<FormControl>
-											<Input placeholder="use email or phone number" {...field} />
+											<Input
+												placeholder="use email or phone number"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -144,7 +145,10 @@ export function Login() {
 										</FormItem>
 									)}
 								/>
-								<Button variant="link">Forgot password ?</Button>
+								{/* <Button variant="link">Forgot password ?</Button> */}
+								<Button className="p-0" variant="link">
+									<Link to={'/auth/reset_password'}>Forgot Password ?</Link>
+								</Button>
 							</div>
 							<Button className="w-full" type="submit" disabled={isLoading}>
 								<Spinner showSpinner={isLoading} />

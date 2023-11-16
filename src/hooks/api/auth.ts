@@ -119,7 +119,7 @@ export const useSignUp = () => {
 	return useMutation(signUp)
 }
 
-const resetPassword = async ({
+const changePassword = async ({
 	email,
 	current_password,
 	new_password,
@@ -145,8 +145,8 @@ const resetPassword = async ({
 	return res
 }
 
-export const useResetPassword = () => {
-	return useMutation(resetPassword, {
+export const useChangePassword = () => {
+	return useMutation(changePassword, {
 		onSuccess: data => {
 			// console.log({data})
 			toast.success('Password updated successfuly')
@@ -154,6 +154,79 @@ export const useResetPassword = () => {
 		onError: error => {
 			// Handle authentication error
 			console.error('Authentication error:', error)
+		},
+	})
+}
+
+
+const requestResetPassword = async ({
+	email,
+}: {
+	email: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/request-password-reset',
+		method: 'POST',
+		data: {
+			email: email,
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to reset password')
+	}
+
+	return res
+}
+
+export const useRequestResetPassword = () => {
+	return useMutation(requestResetPassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success(data.data.message)
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Error, request failed:', error)
+		},
+	})
+}
+
+const resetPassword = async ({
+	email,
+	token,
+	new_password
+}: {
+	email: string,
+	token: string
+	new_password: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/request-password-reset',
+		method: 'POST',
+		data: {
+			email: email,
+			token,
+			new_password
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to reset password')
+	}
+
+	return res
+}
+
+export const useResetPassword = () => {
+	return useMutation(resetPassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success('Reset request successful')
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Error, request failed:', error)
 		},
 	})
 }

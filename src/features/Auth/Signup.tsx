@@ -67,7 +67,7 @@ export function SignUp() {
 			navigate('/auth/signup_confirmation')
 		}
 		if (isError) {
-			toast.error('Failed to login!')
+			toast.error('Oops!....SignUp failed, please try again')
 		}
 	}, [isSuccess, isLoading])
 
