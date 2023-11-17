@@ -6,6 +6,7 @@ import {
 	PasswordSchema,
 	RememberUser,
 	UsernameSchema,
+	usernameSchema,
 } from '../../utils/user-validation'
 import { useForm } from 'react-hook-form'
 import {
@@ -31,18 +32,12 @@ import { useLocalStorage, useSessionStorage } from '../../hooks/hooks'
 import { getSessionExpirationDate } from '../../utils/auth'
 
 const LoginFormSchema = z.object({
-	username: UsernameSchema,
+	username: usernameSchema,
 	password: PasswordSchema,
 	remember_user: RememberUser,
 })
 
 export function Login() {
-	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
-	const [storedToken, setStoredToken] = useSessionStorage('TOKEN', null)
-	const [tokenExpiry, setTokenExpiry] = useSessionStorage(
-		'TOKEN_EXPIRY',
-		new Date(),
-	)
 	const navigate = useNavigate() // Get the navigate function
 	const loginMutation = useLogin()
 
@@ -61,20 +56,20 @@ export function Login() {
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
 
-	useEffect(() => {
-		if (isSuccess) {
-			toast.success('Login successful')
-			setStoredUser(data)
-			setStoredToken(data.token)
-			form.reset()
+	// useEffect(() => {
+	// 	if (isSuccess) {
+	// 		toast.success('Login successful')
+	// 		setStoredUser(data)
+	// 		setStoredToken(data.token)
+	// 		form.reset()
 
-			setTokenExpiry(getSessionExpirationDate())
-			navigate('/app/home') // Redirect to /app on success
-		}
-		if (isError) {
-			toast.error('Failed to login!')
-		}
-	}, [isSuccess, isLoading])
+	// 		setTokenExpiry(getSessionExpirationDate())
+	// 		navigate('/app/home') // Redirect to /app on success
+	// 	}
+	// 	if (isError) {
+	// 		toast.error('Failed to login!')
+	// 	}
+	// }, [isSuccess, isLoading])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
@@ -106,7 +101,10 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Username</FormLabel>
 										<FormControl>
-											<Input placeholder="wazza" {...field} />
+											<Input
+												placeholder="use email or phone number"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -147,7 +145,10 @@ export function Login() {
 										</FormItem>
 									)}
 								/>
-								<Button variant="link">Forgot password ?</Button>
+								{/* <Button variant="link">Forgot password ?</Button> */}
+								<Button className="p-0" variant="link">
+									<Link to={'/auth/reset_password'}>Forgot Password ?</Link>
+								</Button>
 							</div>
 							<Button className="w-full" type="submit" disabled={isLoading}>
 								<Spinner showSpinner={isLoading} />

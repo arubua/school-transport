@@ -28,6 +28,9 @@ import RouteForm from './features/Routes/route-form'
 import ScheduleForm from './features/Schedules/schedule-form'
 import SchedulesView from './views/Schedules'
 import SettingsView from './views/Settings'
+import SignupConfirmation from './features/Auth/SignupConfirmation'
+import { ChangePassword } from './features/Auth/ChangePassword'
+import { PasswordReset } from './features/Auth/RequestPasswordReset'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -60,6 +63,12 @@ function App() {
 						<Route path="" element={<Login />} />
 						<Route path="login" element={<Login />} />
 						<Route path="signup" element={<SignUp />} />
+						<Route
+							path="signup_confirmation"
+							element={<SignupConfirmation />}
+						/>
+						<Route path="change_password" element={<ChangePassword />} />
+						<Route path="reset_password" element={<PasswordReset />} />
 					</Route>
 					<Route path="app" element={<Home />}>
 						{/* <Route element={<AuthRoute token={token} />}> */}

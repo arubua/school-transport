@@ -1,4 +1,15 @@
-import { useMutation } from '@tanstack/react-query'
+import { UseMutateFunction, useMutation } from '@tanstack/react-query'
+import { getEnv } from '../../utils/env.server'
+import axios, { AxiosError } from 'axios'
+import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
+import { useLocalStorage, useSessionStorage } from '../hooks'
+import { getSessionExpirationDate } from '../../utils/auth'
+import { User } from '../../features/Settings/Users/columns'
+import axiosInstance from '../axiosInstance'
+
+const envVars = getEnv()
+const BASE_URL = envVars.VITE_BASE_URL
 
 const login = async ({
 	username,
@@ -9,27 +20,39 @@ const login = async ({
 	password: string
 	remember_user: boolean
 }) => {
-	const response = await fetch('/api/login', {
+	const { res, status } = await axiosInstance({
+		url:'auth/login',
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ username, password, remember_user }),
+		data: JSON.stringify({ username, password, remember_user }),
 	})
 
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
-	}
-
-	const data = await response.json()
-
-	return data
+	return res.data.data
 }
 
 export const useLogin = () => {
-	return useMutation(login)
+	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
+	const [accessToken, setAccessToken] = useSessionStorage('TOKEN', null)
+	const [refreshToken, setRefreshToken] = useSessionStorage(
+		'REFRESH_TOKEN',
+		null,
+	)
+
+	const navigate = useNavigate()
+	return useMutation(login, {
+		onSuccess: data => {
+			setStoredUser(data.user)
+			setAccessToken(data.accessToken)
+			setRefreshToken(data.refreshToken)
+			navigate('/app/home')
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Authentication error:', error)
+		},
+	})
 }
 
 const signUp = async ({
@@ -38,41 +61,172 @@ const signUp = async ({
 	email,
 	phone_number,
 	contact_person,
-	contact_person_phone,
+	contact_person_phone_number,
 }: {
 	name: string
 	address: string
 	email: string
 	phone_number: string
 	contact_person: string
-	contact_person_phone: string
+	contact_person_phone_number: string
 }) => {
-	const response = await fetch('/api/signup', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			name,
-			address,
-			email,
-			phone_number,
-			contact_person,
-			contact_person_phone,
-		}),
-	})
+	try {
+		const response = await axios.post(
+			`${BASE_URL}auth/school-signup`,
+			{
+				name,
+				address,
+				email,
+				phone_number,
+				contact_person,
+				contact_person_phone_number,
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		)
 
-	if (!response.ok) {
-		const data = await response.json()
+		// Check if the response status is in the range 200-299
+		if (response.status < 200 || response.status >= 300) {
+			throw new Error(`Request failed with status ${response.status}`)
+		}
 
-		throw new Error(data.error)
+		// Access response data
+		const data = response.data
+
+		return data
+	} catch (error: any) {
+		// Handle errors
+		if (error.response) {
+			// The request was made and the server responded with a status code
+			// that falls out of the range of 2xx
+			console.error('Response error:', error.response.data)
+		} else if (error.request) {
+			// The request was made but no response was received
+			console.error('No response received:', error.request)
+		} else {
+			// Something happened in setting up the request that triggered an Error
+			console.error('Error setting up the request:', error.message)
+		}
+
+		throw error // Rethrow the error to propagate it up the call stack
 	}
-
-	const data = await response.json()
-
-	return data
 }
 
 export const useSignUp = () => {
 	return useMutation(signUp)
+}
+
+const changePassword = async ({
+	email,
+	current_password,
+	new_password,
+}: {
+	email: string
+	current_password: string
+	new_password: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/change-password',
+		method: 'POST',
+		data: {
+			username: email,
+			current_password,
+			new_password,
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to update password')
+	}
+
+	return res
+}
+
+export const useChangePassword = () => {
+	return useMutation(changePassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success('Password updated successfuly')
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Authentication error:', error)
+		},
+	})
+}
+
+
+const requestResetPassword = async ({
+	email,
+}: {
+	email: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/request-password-reset',
+		method: 'POST',
+		data: {
+			email: email,
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to reset password')
+	}
+
+	return res
+}
+
+export const useRequestResetPassword = () => {
+	return useMutation(requestResetPassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success(data.data.message)
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Error, request failed:', error)
+		},
+	})
+}
+
+const resetPassword = async ({
+	email,
+	token,
+	new_password
+}: {
+	email: string,
+	token: string
+	new_password: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'auth/request-password-reset',
+		method: 'POST',
+		data: {
+			email: email,
+			token,
+			new_password
+		},
+	})
+
+	if (!res) {
+		toast.error('Failed to reset password')
+	}
+
+	return res
+}
+
+export const useResetPassword = () => {
+	return useMutation(resetPassword, {
+		onSuccess: data => {
+			// console.log({data})
+			toast.success('Reset request successful')
+		},
+		onError: error => {
+			// Handle authentication error
+			console.error('Error, request failed:', error)
+		},
+	})
 }

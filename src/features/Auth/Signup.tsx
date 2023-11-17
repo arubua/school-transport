@@ -22,7 +22,7 @@ import {
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { Spacer } from '../../components/spacer'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useSignUp } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
 import { toast } from 'sonner'
@@ -33,10 +33,11 @@ const SignUpFormSchema = z.object({
 	email: EmailSchema,
 	phone_number: PhoneSchema,
 	contact_person: NameSchema,
-	contact_person_phone: PhoneSchema,
+	contact_person_phone_number: PhoneSchema,
 })
 
 export function SignUp() {
+	const navigate = useNavigate()
 	const signUpMutation = useSignUp()
 
 	// 1. Define your form.
@@ -48,7 +49,7 @@ export function SignUp() {
 			email: '',
 			phone_number: '',
 			contact_person: '',
-			contact_person_phone: '',
+			contact_person_phone_number: '',
 		},
 	})
 
@@ -61,11 +62,12 @@ export function SignUp() {
 
 	useEffect(() => {
 		if (isSuccess) {
-			toast.success('SignUp successful')
+			toast.success(`${data.message}`)
 			form.reset()
+			navigate('/auth/signup_confirmation')
 		}
 		if (isError) {
-			toast.error('Failed to login!')
+			toast.error('Oops!....SignUp failed, please try again')
 		}
 	}, [isSuccess, isLoading])
 
@@ -180,7 +182,7 @@ export function SignUp() {
 
 							<FormField
 								control={form.control}
-								name="contact_person_phone"
+								name="contact_person_phone_number"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Contact Person Phone</FormLabel>

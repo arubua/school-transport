@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const schema = z.object({
 	VITE_NODE_ENV: z.enum(['production', 'development', 'test'] as const),
-	
+	VITE_BASE_URL: z.string(),
   });
   
 
@@ -36,8 +36,9 @@ export function init() {
  */
 export function getEnv() {
 	return {
-		MODE: process.env.NODE_ENV,
-		SENTRY_DSN: process.env.SENTRY_DSN,
+		MODE: import.meta.env.NODE_ENV,
+		SENTRY_DSN: import.meta.env.SENTRY_DSN,
+		VITE_BASE_URL: import.meta.env.VITE_BASE_URL
 	}
 }
 

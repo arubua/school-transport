@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../../axiosInstance'
 
 const getSchools = async () => {
 	const response = await fetch('/api/schools')
@@ -14,16 +15,34 @@ export const useSchools = () => {
 }
 
 const getSchoolById = async (schoolId: string) => {
-	const response = await fetch(`/api/schools/${schoolId}`)
-	if (!response.ok) {
+	const tokenString = sessionStorage.getItem('TOKEN')
+	if (!tokenString) {
+		throw new Error('Token not found in sessionStorage')
+	}
+
+	const token: string = JSON.parse(tokenString)
+
+	const { res, status } = await axiosInstance({
+		url: `schools/${schoolId}`,
+		headers: {
+			Authorization: `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
+	})
+
+	if (!res) {
 		throw new Error('Failed to fetch school data')
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useSchoolById = (schoolId: string) => {
-	return useQuery(['school'], () => getSchoolById(schoolId))
+	return useQuery({
+		queryKey: ['school', schoolId],
+		queryFn: () => getSchoolById(schoolId),
+		staleTime: Infinity,
+	})
 }
 
 const addSchool = async ({
@@ -78,21 +97,17 @@ const updateSchoolById = async ({
 	schoolId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/schools/${schoolId}`, {
+	const { res, status } = await axiosInstance({
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
+		url: '',
+		data: JSON.stringify(updatedData),
 	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		throw new Error('Failed to fetch school')
 	}
 
-	const data = await response.json()
-	return data
+	return res
 }
 
 export const useUpdateSchool = () => {

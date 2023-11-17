@@ -1,12 +1,20 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { getEnv } from '../../../utils/env.server'
+import axiosInstance from '../../axiosInstance'
+import { toast } from 'sonner'
+
+
 
 const getRoles = async () => {
-	const response = await fetch('/api/roles')
-	if (!response.ok) {
-		throw new Error('Failed to fetch roles data')
+	const { res, status } = await axiosInstance({
+		url: 'roles',
+		method: 'GET',
+	})
+	if (!res) {
+		toast.error('Failed to fetch roles data')
 	}
-	const data = await response.json()
-	return data
+	// const data = await res.json()
+	return res
 }
 
 export const useRoles = () => {

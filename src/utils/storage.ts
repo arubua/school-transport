@@ -8,6 +8,8 @@ export function clearUserSession() {
 	localStorage.removeItem('USER')
 
 	sessionStorage.removeItem('TOKEN')
+	sessionStorage.removeItem('REFRESH_TOKEN')
+
 
 	sessionStorage.removeItem('TOKEN_EXPIRY')
 }

@@ -34,7 +34,7 @@ export const SchoolFormSchema = z.object({
 	email: EmailSchema,
 	phone_number: z.string(),
 	contact_person: z.string(),
-	contact_person_phone: z.string(),
+	contact_person_phone_number: z.string(),
 })
 
 type School = {
@@ -44,7 +44,7 @@ type School = {
 	email: string
 	phone_number: string
 	contact_person: string
-	contact_person_phone: string
+	contact_person_phone_number: string
 }
 type User = {
 	id: string
@@ -53,7 +53,10 @@ type User = {
 	email: string
 	phone_number: string
 	role: string
-	school_id: string
+	school: {
+		id:string
+		name:string
+	}
 }
 
 const SchoolForm = () => {
@@ -62,6 +65,8 @@ const SchoolForm = () => {
 	const [schoolId, setSchoolId] = useState('')
 
 	const updateSchoolMutation = useUpdateSchool()
+	const getSchoolByIdMutation = useUpdateSchool()
+
 
 	const { isLoading, isError, data, isSuccess } = updateSchoolMutation
 
@@ -75,14 +80,14 @@ const SchoolForm = () => {
 			email: '',
 			phone_number: '',
 			contact_person: '',
-			contact_person_phone: '',
+			contact_person_phone_number: '',
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof SchoolFormSchema>) {
 		if (user) {
 			await updateSchoolMutation.mutateAsync({
-				schoolId: user.school_id,
+				schoolId: user.school.id,
 				updatedData: values,
 			})
 		}
@@ -93,7 +98,7 @@ const SchoolForm = () => {
 			let userData = await getUser()
 
 			setUser(userData)
-			setSchoolId(userData.school_id)
+			setSchoolId(userData.school.id)
 		}
 
 		init()
@@ -104,7 +109,8 @@ const SchoolForm = () => {
 		form.reset(schoolData)
 	}, [schoolId])
 
-	console.log('school', school)
+	console.log({schoolData})
+
 
 	return (
 		<div>
@@ -196,7 +202,7 @@ const SchoolForm = () => {
 						<Spacer size="4xs" />
 						<FormField
 							control={form.control}
-							name="contact_person_phone"
+							name="contact_person_phone_number"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Contact Person Phone Number</FormLabel>

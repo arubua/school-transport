@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "vite",
+    "start": "vite --port 3000",
     "build": "tsc && vite build",
     "build:icons": "tsx ./other/build-icons.ts",
     "preview": "vite preview",
@@ -31,6 +31,7 @@
     "@tanstack/react-query": "^4.35.7",
     "@tanstack/react-query-devtools": "^4.35.7",
     "@tanstack/react-table": "^8.10.6",
+    "axios": "^1.6.1",
     "class-variance-authority": "^0.7.0",
     "cmdk": "^0.2.0",
     "execa": "^8.0.1",
