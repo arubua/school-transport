@@ -1,12 +1,25 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getParents = async () => {
-	const response = await fetch('/api/parents')
-	if (!response.ok) {
+	const tokenString = sessionStorage.getItem('TOKEN')
+	if (!tokenString) {
+		throw new Error('Token not found in sessionStorage')
+	}
+
+	const token: string = JSON.parse(tokenString)
+	const {res,status} = await axiosInstance({
+		url:'parents',
+		headers:{
+			Authorization:`Bearer ${token}`
+		}
+
+})
+	if (!res) {
 		throw new Error('Failed to fetch parents data')
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useParents = () => {

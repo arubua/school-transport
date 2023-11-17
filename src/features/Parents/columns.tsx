@@ -44,18 +44,20 @@ export type Student = {
 
 export type Parent = {
 	id: string
-	firstName: string
-	lastName: string
-	phone: number
-	email: string
-	image: string
-	students: Array<Student>
+	user: {
+		firstname: string
+		lastname: string
+		phone_number: number
+		email: string
+		image: string
+		students: Array<Student>
+	}
 }
 
 export const columns: ColumnDef<Parent>[] = [
 	{
 		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
+		accessorFn: row => `${row.user.firstname} ${row.user.lastname}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -68,15 +70,15 @@ export const columns: ColumnDef<Parent>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
+			let firstName = row.original.user.firstname
+			let lastName = row.original.user.lastname
 			let name = `${firstName} ${lastName}`
-			let image = row.original.image
+			// let image = row.original.image
 
 			return (
 				<div className="flex items-center">
 					<Avatar>
-						<AvatarImage src={image} alt={name} />
+						{/* <AvatarImage src={image} alt={name} /> */}
 						<AvatarFallback>{getInitials(name)}</AvatarFallback>
 					</Avatar>
 					<div className="ml-1 text-left">{name}</div>
@@ -84,40 +86,40 @@ export const columns: ColumnDef<Parent>[] = [
 			)
 		},
 	},
-	{
-		accessorKey: 'students',
-		header: ({ column }) => {
-			return <div className="text-left">Student(s)</div>
-		},
-		cell: ({ row }) => {
-			const students = row.original.students // Assuming 'students' is an array of student objects
+	// {
+	// 	accessorKey: 'students',
+	// 	header: ({ column }) => {
+	// 		return <div className="text-left">Student(s)</div>
+	// 	},
+	// 	cell: ({ row }) => {
+	// 		const students = row.original.students // Assuming 'students' is an array of student objects
 
-			return (
-				<div className="flex gap-1">
-					{students.map((student, index) => (
-						<TooltipProvider key={index}>
-							<Tooltip>
-								<TooltipTrigger>
-									<Avatar key={index} className="h-6 w-6">
-										<AvatarImage src={student.image} alt={student.name} />
-										<AvatarFallback>{getInitials(student.name)}</AvatarFallback>
-									</Avatar>
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>{student.name}</p>
-								</TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
-					))}
-				</div>
-			)
-		},
-	},
+	// 		return (
+	// 			<div className="flex gap-1">
+	// 				{students.map((student, index) => (
+	// 					<TooltipProvider key={index}>
+	// 						<Tooltip>
+	// 							<TooltipTrigger>
+	// 								<Avatar key={index} className="h-6 w-6">
+	// 									<AvatarImage src={student.image} alt={student.name} />
+	// 									<AvatarFallback>{getInitials(student.name)}</AvatarFallback>
+	// 								</Avatar>
+	// 							</TooltipTrigger>
+	// 							<TooltipContent>
+	// 								<p>{student.name}</p>
+	// 							</TooltipContent>
+	// 						</Tooltip>
+	// 					</TooltipProvider>
+	// 				))}
+	// 			</div>
+	// 		)
+	// 	},
+	// },
 	{
 		accessorKey: 'email',
 		header: () => <div className="text-left">Email</div>,
 		cell: ({ row }) => {
-			let email = row.original.email
+			let email = row.original.user.email
 			return <div className="text-left">{email}</div>
 		},
 	},
@@ -125,14 +127,14 @@ export const columns: ColumnDef<Parent>[] = [
 		accessorKey: 'phone',
 		header: () => <div className="text-left">Phone Number</div>,
 		cell: ({ row }) => {
-			let phone = row.original.phone
+			let phone = row.original.user.phone_number
 			return <div className="text-left">{phone}</div>
 		},
 	},
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const parent = row.original
+			const parent = row.original.user
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
@@ -140,16 +142,15 @@ export const columns: ColumnDef<Parent>[] = [
 			const deleteParentMutation = useDeleteParent()
 			const { isLoading, isError, data, isSuccess } = deleteParentMutation
 
-
 			const form = useForm()
 
 			async function onSubmit() {
-				await deleteParentMutation.mutateAsync(parent.id)
+				await deleteParentMutation.mutateAsync(row.original.id)
 			}
 
 			useEffect(() => {
 				if (isSuccess) {
-					toast.success("Parent deleted successfuly")
+					toast.success('Parent deleted successfuly')
 					setOpen(false)
 				}
 				if (isError) {
@@ -182,16 +183,14 @@ export const columns: ColumnDef<Parent>[] = [
 						</DropdownMenu>
 						<DialogContent className="sm:max-w-[425px]">
 							<Form {...form}>
-								<form
-									onSubmit={form.handleSubmit(onSubmit)}
-								>
+								<form onSubmit={form.handleSubmit(onSubmit)}>
 									<DialogHeader>
 										<DialogTitle>Delete Parent</DialogTitle>
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {parent.firstName}{' '}
-											{parent.lastName} ?
+											Are you sure you want to delete {parent.firstname}{' '}
+											{parent.lastname} ?
 										</div>
 									</div>
 									<DialogFooter>

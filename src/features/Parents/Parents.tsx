@@ -6,6 +6,8 @@ import { Spinner } from '../../components/spinner'
 export default function Parents() {
 	const { data, error, isLoading } = useParents()
 
+	console.log({ data })
+
 	if (isLoading) {
 		return (
 			<div className="mt-[30vh] flex justify-center">
@@ -14,9 +16,9 @@ export default function Parents() {
 		)
 	}
 
-	// if (error) {
-	// 	return <p>Error</p>
-	// }
+	if (error) {
+		return <p>Error</p>
+	}
 
 	return (
 		<div className="container mx-auto py-10">

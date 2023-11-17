@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 const envVars = getEnv()
 const BASE_URL = envVars.VITE_BASE_URL
 
+console.log({BASE_URL})
+
 const axiosWithBearer = (token: string | null) => {
 	const instance = axios.create({
 		baseURL: BASE_URL,
@@ -26,7 +28,7 @@ console.log({ accessToken })
 
 const axiosInstance = async <T>(
 	config: AxiosRequestConfig,
-): Promise<{ res: AxiosResponse<T>; status: number }> => {
+): Promise<{ res: AxiosResponse<any>; status: number }> => {
 	try {
 		const res = await api(config)
 		return { res, status: res.status }

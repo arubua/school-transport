@@ -21,7 +21,7 @@ const login = async ({
 	remember_user: boolean
 }) => {
 	const { res, status } = await axiosInstance({
-		url:'auth/login',
+		url: 'auth/login',
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ const login = async ({
 		data: JSON.stringify({ username, password, remember_user }),
 	})
 
-	return res.data.data
+	return res
 }
 
 export const useLogin = () => {
@@ -42,10 +42,10 @@ export const useLogin = () => {
 
 	const navigate = useNavigate()
 	return useMutation(login, {
-		onSuccess: data => {
-			setStoredUser(data.user)
-			setAccessToken(data.accessToken)
-			setRefreshToken(data.refreshToken)
+		onSuccess: (data: any) => {
+			setStoredUser(data.data.data.user)
+			setAccessToken(data.data.data.accessToken)
+			setRefreshToken(data.data.data.refreshToken)
 			navigate('/app/home')
 		},
 		onError: error => {
@@ -158,12 +158,7 @@ export const useChangePassword = () => {
 	})
 }
 
-
-const requestResetPassword = async ({
-	email,
-}: {
-	email: string
-}) => {
+const requestResetPassword = async ({ email }: { email: string }) => {
 	const { res, status } = await axiosInstance({
 		url: 'auth/request-password-reset',
 		method: 'POST',
@@ -181,7 +176,7 @@ const requestResetPassword = async ({
 
 export const useRequestResetPassword = () => {
 	return useMutation(requestResetPassword, {
-		onSuccess: data => {
+		onSuccess: (data: any) => {
 			// console.log({data})
 			toast.success(data.data.message)
 		},
@@ -195,9 +190,9 @@ export const useRequestResetPassword = () => {
 const resetPassword = async ({
 	email,
 	token,
-	new_password
+	new_password,
 }: {
-	email: string,
+	email: string
 	token: string
 	new_password: string
 }) => {
@@ -207,7 +202,7 @@ const resetPassword = async ({
 		data: {
 			email: email,
 			token,
-			new_password
+			new_password,
 		},
 	})
 
