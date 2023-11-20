@@ -31,13 +31,15 @@ export const PasswordSchema = z
 	.min(6, { message: 'Password is too short' })
 	.max(100, { message: 'Password is too long' })
 export const NameSchema = z
-	.string({ required_error: 'Name is required' })
-	.min(3, { message: 'Name is too short' })
-	.max(40, { message: 'Name is too long' })
-export const ResetTokenSchema = z
-	.string({ required_error: 'Code is required' })
-	// .min(3, { message: 'Name is too short' })
-	// .max(40, { message: 'Name is too long' })
+	.string()
+	.min(3, { message: 'Name should be at least 3 characters long' })
+	.max(40, { message: 'Name cannot exceed 40 characters' })
+	.refine(value => !!value.trim(), {
+		message: 'Please provide a valid Name',
+	})
+export const ResetTokenSchema = z.string({ required_error: 'Code is required' })
+// .min(3, { message: 'Name is too short' })
+// .max(40, { message: 'Name is too long' })
 export const EmailSchema = z
 	.string({ required_error: 'Email is required' })
 	.email({ message: 'Email is invalid' })
@@ -65,12 +67,18 @@ export const ErrorSchema = z.object({
 })
 //Student schemas
 export const GradeSchema = z
-	.number()
-	.int() // Ensure it's an integer
-	.min(1, 'Grade should be at least 1')
-	.max(8, 'Grade cannot be greater than 8')
-	.refine(grade => Number.isInteger(grade), {
-		message: 'Grade should be a whole number',
+	.string()
+	.regex(/^(Class|Grade)\s\d+(\s?[A-Za-z]+)?$/, {
+		message:
+			'Please enter a valid Grade in the format "Class [number] [section]" or "Grade [number]".',
+	})
+	.min(6, {
+		message:
+			'The Grade input is too short. Please follow the format "Class [number] [section]" or "Grade [number]".',
+	})
+	.max(15, {
+		message:
+			'The Grade input is too long. Please follow the format "Class [number] [section]" or "Grade [number]".',
 	})
 export const SchoolNameSchema = z
 	.string()

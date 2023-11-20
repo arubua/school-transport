@@ -1,32 +1,17 @@
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query'
 import axiosInstance from '../axiosInstance'
 import { clearUserSession } from '../../utils/storage'
-
-const tokenString = sessionStorage.getItem('TOKEN')
-if (!tokenString) {
-	console.log("Token not found in sessionStorage")
-	// throw new Error('Token not found in sessionStorage')
-}
-
-const token: string =""; //JSON.parse(tokenString);
-
-
+import { toast } from 'sonner'
 
 const getParents = async () => {
-	// const tokenString = sessionStorage.getItem('TOKEN')
-	// if (!tokenString) {
-	// 	throw new Error('Token not found in sessionStorage')
-	// }
-
-	// const token: string = JSON.parse(tokenString)
 	const { res, status } = await axiosInstance({
 		url: 'parents',
 		headers: {
-			Authorization: `Bearer ${token}`,
+			//
 		},
 	})
 	if (!res) {
-		throw new Error('Failed to fetch parents data')
+		return []
 	}
 
 	return res.data.data
@@ -37,20 +22,11 @@ export const useParents = () => {
 }
 
 const getParentById = async (parentId: string) => {
-	// const tokenString = sessionStorage.getItem('TOKEN')
-	// if (!tokenString) {
-	// 	throw new Error('Token not found in sessionStorage')
-	// }
-
-	// const token: string = JSON.parse(tokenString)
 	const { res, status } = await axiosInstance({
 		url: `parents/${parentId}`,
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
 	})
 	if (!res) {
-		throw new Error('Failed to get parent')
+		return {}
 	}
 
 	return res.data.data
@@ -77,9 +53,7 @@ const addParent = async ({
 	const { res, status } = await axiosInstance({
 		url: 'parents',
 		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
+
 		data: {
 			firstname,
 			lastname,
@@ -91,7 +65,7 @@ const addParent = async ({
 		},
 	})
 	if (!res) {
-		throw new Error('Failed to add parent')
+		return null
 	}
 
 	return res
@@ -111,13 +85,11 @@ const updateParentById = async ({
 	const { res, status } = await axiosInstance({
 		url: `parents/${parentId}`,
 		method: 'PUT',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
+
 		data: { ...updatedData },
 	})
 	if (!res) {
-		throw new Error('Failed to update parent')
+		return null
 	}
 
 	return res.data.data
@@ -131,12 +103,9 @@ const deleteParent = async (id: string) => {
 	const { res, status } = await axiosInstance({
 		url: `parents/${id}`,
 		method: 'DELETE',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
 	})
 	if (!res) {
-		throw new Error('Failed to delete parent')
+		return null
 	}
 
 	return res

@@ -1,49 +1,51 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { getEnv } from '../utils/env.server'
-import { toast } from 'sonner'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { getEnv } from '../utils/env.server';
+import { toast } from 'sonner';
+import { getAccessToken } from '../utils/storage';
 
-const envVars = getEnv()
-const BASE_URL = envVars.VITE_BASE_URL
-
+const envVars = getEnv();
+const BASE_URL = envVars.VITE_BASE_URL;
 
 const axiosWithBearer = (token: string | null) => {
-	const instance = axios.create({
-		baseURL: BASE_URL,
-		headers: {
-			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json',
-		},
-	})
+  const instance = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
+    },
+  });
 
-	return instance
-}
-
-const tokenString = sessionStorage.getItem('TOKEN')
-const accessToken = tokenString ? JSON.parse(tokenString) : null
-
-const api = axiosWithBearer(accessToken)
-
+  return instance;
+};
 
 const axiosInstance = async <T>(
-	config: AxiosRequestConfig,
+  config: AxiosRequestConfig
 ): Promise<{ res: AxiosResponse<any>; status: number }> => {
-	try {
-		const res = await api(config)
-		return { res, status: res.status }
-	} catch (error: any) {
-		if (error.response) {
-			toast.error(error.response.data.message)
-			throw new Error(error.response.data.message)
-		} else if (error.request) {
-			toast.error('Check your Network and try again')
+  try {
+    const accessToken = await getAccessToken();
 
-			throw new Error('Network error')
-		} else {
-			toast.error('An error occurred')
+    const instance = axiosWithBearer(accessToken);
+    const res = await instance.request(config);
 
-			throw new Error('An error occurred')
-		}
-	}
-}
+    return { res, status: res.status };
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+        throw new Error(error.response.data.message);
+      } else if (error.request) {
+        toast.error('Check your Network and try again');
+        throw new Error('Network error');
+      } else {
+        toast.error('An error occurred');
+        throw new Error('An error occurred');
+      }
+    } else {
+      // Handle non-Axios errors here
+      toast.error('An error occurred');
+      throw error;
+    }
+  }
+};
 
-export default axiosInstance
+export default axiosInstance;

@@ -29,6 +29,7 @@ export type IconName =
 	| 'pencil-2'
 	| 'plus'
 	| 'question-mark-circled'
+	| 'reload'
 	| 'reset'
 	| 'safiri-logo'
 	| 'school-bus'

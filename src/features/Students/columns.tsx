@@ -159,15 +159,14 @@ export const columns: ColumnDef<Student>[] = [
 				await deleteStudentMutation.mutateAsync(student.id)
 			}
 
-			useEffect(() => {
-				if (isSuccess) {
-					toast.success('Student deleted successfuly')
-					setOpen(false)
-				}
-				if (isError) {
-					toast.error('Failed to delete student!')
-				}
-			}, [isSuccess, isLoading])
+			// useEffect(() => {
+			// 	if (isSuccess) {
+			// 		setOpen(false)
+			// 	}
+			// 	if (isError) {
+			// 		toast.error('Failed to delete student!')
+			// 	}
+			// }, [isSuccess, isLoading])
 
 			return (
 				<div>
@@ -181,7 +180,13 @@ export const columns: ColumnDef<Student>[] = [
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
-								<DropdownMenuItem>Update Student</DropdownMenuItem>
+								<DropdownMenuItem
+									onClick={() =>
+										navigate(`editStudent`, { state: { student } })
+									}
+								>
+									Update Student
+								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DialogTrigger>
 									<DropdownMenuItem>Delete student</DropdownMenuItem>
@@ -201,7 +206,7 @@ export const columns: ColumnDef<Student>[] = [
 										</div>
 									</div>
 									<DialogFooter>
-										<DialogClose />
+										{/* <DialogClose /> */}
 										<Button
 											disabled={isLoading}
 											variant="destructive"

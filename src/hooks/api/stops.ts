@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getStops = async () => {
-	const response = await fetch('/api/stops')
-	if (!response.ok) {
-		throw new Error('Failed to fetch stops data')
+	const { res, status } = await axiosInstance({
+		url: 'stops',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useStops = () => {

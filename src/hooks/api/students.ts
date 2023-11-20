@@ -6,24 +6,14 @@ import {
 	UsernameSchema,
 } from '../../utils/user-validation'
 import axiosInstance from '../axiosInstance'
-const tokenString = sessionStorage.getItem('TOKEN')
-if (!tokenString) {
-	// throw new Error('Token not found in sessionStorage')
-	console.log("Token not found")
-}
-
-// const token: string = JSON.parse(tokenString)
-const token: string = ''
+import { toast } from 'sonner'
 
 const getStudents = async () => {
 	const { res, status } = await axiosInstance({
 		url: 'students',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
 	})
 	if (!res) {
-		throw new Error('Failed to fetch students data')
+		return []
 	}
 
 	return res.data.data
@@ -48,14 +38,12 @@ const addStudent = async ({
 	school_id: string
 	admission_no: string
 	parent_id: string
-	stop_id:string
+	stop_id: string
 }) => {
 	const { res, status } = await axiosInstance({
 		url: 'students',
 		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
+
 		data: {
 			firstname,
 			lastname,
@@ -67,7 +55,7 @@ const addStudent = async ({
 		},
 	})
 	if (!res) {
-		throw new Error('Failed to add student')
+		return null
 	}
 
 	return res
@@ -84,21 +72,17 @@ const updateStudentById = async ({
 	studentId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/students/${studentId}`, {
+	const { res, status } = await axiosInstance({
+		url: `students/${studentId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateStudent = () => {
@@ -106,19 +90,15 @@ export const useUpdateStudent = () => {
 }
 
 const deleteStudent = async (id: string) => {
-	const response = await fetch(`/api/students/${id}`, {
+	const { res, status } = await axiosInstance({
+		url: `students/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteStudent = () => {

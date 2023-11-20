@@ -14,6 +14,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -25,6 +26,7 @@ import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { cn } from '../../utils/misc'
 import {
+	GradeSchema,
 	ImageFileSchema,
 	NameSchema,
 	SchoolNameSchema,
@@ -38,15 +40,16 @@ import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection } from 'react-dropzone'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getUser } from '../../utils/storage'
 import { useStops } from '../../hooks/api/stops'
+import { toast } from 'sonner'
 
 const StudentFormSchema = z.object({
 	firstname: NameSchema,
 	lastname: NameSchema,
 	admission_no: z.string(),
-	class_name: z.string(),
+	class_name: GradeSchema,
 	school_id: z.string(),
 	parent_id: z.string(),
 	stop_id: z.string(),
@@ -67,10 +70,10 @@ type User = {
 
 const StudentForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
 	const [stops, setStops] = useState<{ label: string; value: string }[]>([])
-	// const [user, setUser] = useState<User | null>(null)
 
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
@@ -102,6 +105,7 @@ const StudentForm = () => {
 			class_name: '',
 			parent_id: '',
 			stop_id: '',
+			school_id:''
 		},
 	})
 
@@ -151,15 +155,12 @@ const StudentForm = () => {
 		}
 	}, [stopsRaw])
 
-	// useEffect(() => {
-	// 	async function init() {
-	// 		let userData = await getUser()
-
-	// 		setUser(userData)
-	// 	}
-
-	// 	init()
-	// }, [])
+	useEffect(() => {
+		if(isSuccess){
+			toast.success(`Student created successfuly`)
+			navigate('/app/students')
+		}
+	},[isSuccess])
 
 	return (
 		<div>
@@ -185,54 +186,36 @@ const StudentForm = () => {
 							<div className="w-64">
 								<FormLabel>Name</FormLabel>
 							</div>
-							<FormField
-								control={form.control}
-								name="firstname"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="First name" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="lastname"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input
-												className="ml-0 md:ml-2"
-												placeholder="Last name"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>Grade</FormLabel>
+							<div className="flex gap-2">
+								<FormField
+									control={form.control}
+									name="firstname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input placeholder="First name" {...field} />
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="lastname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input
+													className=""
+													placeholder="Last name"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
 							</div>
-							<FormField
-								control={form.control}
-								name="class_name"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input type="text" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
 						</div>
 						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
@@ -250,6 +233,31 @@ const StudentForm = () => {
 											<Input type="text" {...field} />
 										</FormControl>
 										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Grade/Class</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="class_name"
+								render={({ field }) => (
+									<FormItem className="max-w-[490px]">
+										<FormControl>
+											<Input type="text" {...field} />
+										</FormControl>
+										<FormMessage />
+										<FormDescription>
+											Please provide the academic level in the following format:
+											Class [number][stream] or Grade [number]. For example,
+											Class 5B or Grade 3.
+										</FormDescription>
 									</FormItem>
 								)}
 							/>

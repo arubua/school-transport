@@ -82,7 +82,7 @@ const ParentForm = () => {
 
 	useEffect(() => {
 		if(isSuccess){
-			toast.success(`${data.data.message}`)
+			toast.success(`Parent created successfuly`)
 			navigate('/app/parents')
 		}
 	},[isSuccess])

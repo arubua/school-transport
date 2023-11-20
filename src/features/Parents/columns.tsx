@@ -195,7 +195,7 @@ export const columns: ColumnDef<Parent>[] = [
 										</div>
 									</div>
 									<DialogFooter>
-										<DialogClose />
+										{/* <DialogClose /> */}
 										<Button variant="destructive" size="sm" type="submit">
 											Delete
 										</Button>
