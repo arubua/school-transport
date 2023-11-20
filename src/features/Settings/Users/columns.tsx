@@ -42,8 +42,8 @@ export type Student = {
 
 export type User = {
 	id: string
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	phone_number: string
 	email: string
 	role: string
@@ -52,7 +52,7 @@ export type User = {
 export const columns: ColumnDef<User>[] = [
 	{
 		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
+		accessorFn: row => `${row.firstname} ${row.lastname}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -65,9 +65,9 @@ export const columns: ColumnDef<User>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
-			let name = `${firstName} ${lastName}`
+			let firstname = row.original.firstname
+			let lastname = row.original.lastname
+			let name = `${firstname} ${lastname}`
 			// let image = row.original.image
 
 			return (
@@ -94,8 +94,8 @@ export const columns: ColumnDef<User>[] = [
 		accessorKey: 'phone_number',
 		header: () => <div className="text-left">Phone Number</div>,
 		cell: ({ row }) => {
-			let phone = row.original.phone_number
-			return <div className="text-left">{phone}</div>
+			let phone_number = row.original.phone_number
+			return <div className="text-left">{phone_number}</div>
 		},
 	},
 	{
@@ -164,8 +164,8 @@ export const columns: ColumnDef<User>[] = [
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {user.firstName}{' '}
-											{user.lastName} ?
+											Are you sure you want to delete {user.firstname}{' '}
+											{user.lastname} ?
 										</div>
 									</div>
 									<DialogFooter>

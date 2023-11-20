@@ -1,20 +1,30 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query'
 import axiosInstance from '../axiosInstance'
+import { clearUserSession } from '../../utils/storage'
+
+const tokenString = sessionStorage.getItem('TOKEN')
+if (!tokenString) {
+	console.log("Token not found in sessionStorage")
+	// throw new Error('Token not found in sessionStorage')
+}
+
+const token: string =""; //JSON.parse(tokenString);
+
+
 
 const getParents = async () => {
-	const tokenString = sessionStorage.getItem('TOKEN')
-	if (!tokenString) {
-		throw new Error('Token not found in sessionStorage')
-	}
+	// const tokenString = sessionStorage.getItem('TOKEN')
+	// if (!tokenString) {
+	// 	throw new Error('Token not found in sessionStorage')
+	// }
 
-	const token: string = JSON.parse(tokenString)
-	const {res,status} = await axiosInstance({
-		url:'parents',
-		headers:{
-			Authorization:`Bearer ${token}`
-		}
-
-})
+	// const token: string = JSON.parse(tokenString)
+	const { res, status } = await axiosInstance({
+		url: 'parents',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
 	if (!res) {
 		throw new Error('Failed to fetch parents data')
 	}
@@ -27,12 +37,23 @@ export const useParents = () => {
 }
 
 const getParentById = async (parentId: string) => {
-	const response = await fetch(`/api/parents/${parentId}`)
-	if (!response.ok) {
-		throw new Error('Failed to fetch parent data')
+	// const tokenString = sessionStorage.getItem('TOKEN')
+	// if (!tokenString) {
+	// 	throw new Error('Token not found in sessionStorage')
+	// }
+
+	// const token: string = JSON.parse(tokenString)
+	const { res, status } = await axiosInstance({
+		url: `parents/${parentId}`,
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+	if (!res) {
+		throw new Error('Failed to get parent')
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useParentById = (parentId: string) => {
@@ -40,44 +61,40 @@ export const useParentById = (parentId: string) => {
 }
 
 const addParent = async ({
-	firstName,
-	lastName,
+	firstname,
+	lastname,
 	email,
-	phone,
-	address,
-	avatarImage,
+	phone_number,
+	address, // avatarImage,
 }: {
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	email: string
-	phone: string
+	phone_number: string
 	address: string
-	avatarImage: File[] | undefined
+	// avatarImage: File[] | undefined
 }) => {
-	const response = await fetch('/api/parents', {
+	const { res, status } = await axiosInstance({
+		url: 'parents',
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
+		data: {
+			firstname,
+			lastname,
 			email,
-			phone,
+			phone_number,
 			address,
-			avatarImage,
-		}),
+			password: 'password',
+			// avatarImage,
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		throw new Error('Failed to add parent')
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddParent = () => {
@@ -91,45 +108,46 @@ const updateParentById = async ({
 	parentId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/parents/${parentId}`, {
+	const { res, status } = await axiosInstance({
+		url: `parents/${parentId}`,
 		method: 'PUT',
 		headers: {
-			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify(updatedData),
+		data: { ...updatedData },
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		throw new Error('Failed to update parent')
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateParent = () => {
 	return useMutation(updateParentById)
 }
 
-
-
 const deleteParent = async (id: string) => {
-	const response = await fetch(`/api/parents/${id}`, {
+	const { res, status } = await axiosInstance({
+		url: `parents/${id}`,
 		method: 'DELETE',
 		headers: {
-			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		throw new Error('Failed to delete parent')
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteParent = () => {
-	return useMutation(deleteParent)
+	const queryClient = new QueryClient()
+
+	return useMutation(deleteParent, {
+		onSuccess: async data => {
+			await queryClient.refetchQueries({ queryKey: ['parents'], exact: true })
+		},
+	})
 }

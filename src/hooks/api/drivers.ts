@@ -14,17 +14,17 @@ export const useDrivers = () => {
 }
 
 const addDriver = async ({
-	firstName,
-	lastName,
+	firstname,
+	lastname,
 	phone_number,
 	bus_id,
-    avatarImage
+	avatarImage,
 }: {
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	phone_number: string
 	bus_id: string
-    avatarImage: File[] | undefined
+	avatarImage: File[] | undefined
 }) => {
 	const response = await fetch('/api/driver', {
 		method: 'POST',
@@ -32,11 +32,11 @@ const addDriver = async ({
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
+			firstname,
+			lastname,
 			phone_number,
 			bus_id,
-            avatarImage
+			avatarImage,
 		}),
 	})
 

@@ -39,20 +39,39 @@ import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection } from 'react-dropzone'
 import { useLocation } from 'react-router-dom'
+import { getUser } from '../../utils/storage'
+import { useStops } from '../../hooks/api/stops'
 
 const StudentFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	grade: z.string(),
-	school: SchoolNameSchema,
-	parentId: z.string(),
-	avatarImage: z.array(z.instanceof(File)),
+	firstname: NameSchema,
+	lastname: NameSchema,
+	admission_no: z.string(),
+	class_name: z.string(),
+	school_id: z.string(),
+	parent_id: z.string(),
+	stop_id: z.string(),
 })
+
+type User = {
+	id: string
+	firstname: string
+	lastname: string
+	email: string
+	phone_number: string
+	role: string
+	school: {
+		id: string
+		name: string
+	}
+}
 
 const StudentForm = () => {
 	const location = useLocation()
 
 	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
+	const [stops, setStops] = useState<{ label: string; value: string }[]>([])
+	// const [user, setUser] = useState<User | null>(null)
+
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
 	const [studentId, setStudentId] = useState('')
@@ -72,16 +91,17 @@ const StudentForm = () => {
 	const { isLoading, isError, data, isSuccess } = addStudentMutation
 
 	const { data: parentsRaw } = useParents()
+	const { data: stopsRaw } = useStops()
 
 	const form = useForm<z.infer<typeof StudentFormSchema>>({
 		resolver: zodResolver(StudentFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
-			grade: '',
-			school: '',
-			parentId: '',
-			avatarImage: undefined,
+			firstname: '',
+			lastname: '',
+			admission_no: '',
+			class_name: '',
+			parent_id: '',
+			stop_id: '',
 		},
 	})
 
@@ -92,7 +112,14 @@ const StudentForm = () => {
 				updatedData: values,
 			})
 		} else {
-			await addStudentMutation.mutateAsync(values)
+			const user = await getUser()
+
+			if (user && 'school' in user) {
+				let valsWithSchoolId = values
+				valsWithSchoolId.school_id = user.school.id
+
+				addStudentMutation.mutateAsync(valsWithSchoolId)
+			}
 		}
 	}
 
@@ -102,17 +129,37 @@ const StudentForm = () => {
 			setStudentId(studentData.id)
 			form.reset(studentData)
 		}
-	}, [isUpdating, location.state, form])
+	}, [isUpdating, location.state])
 
 	useEffect(() => {
 		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
 			const fParents = parentsRaw.map(parent => ({
-				label: `${parent.firstName} ${parent.lastName}`,
+				label: `${parent.user.firstname} ${parent.user.lastname}`,
 				value: parent.id,
 			}))
 			setParents(fParents)
 		}
 	}, [parentsRaw])
+
+	useEffect(() => {
+		if (Array.isArray(stopsRaw) && stopsRaw.length > 0) {
+			const fStops = stopsRaw.map(stop => ({
+				label: stop.description,
+				value: stop.id,
+			}))
+			setStops(fStops)
+		}
+	}, [stopsRaw])
+
+	// useEffect(() => {
+	// 	async function init() {
+	// 		let userData = await getUser()
+
+	// 		setUser(userData)
+	// 	}
+
+	// 	init()
+	// }, [])
 
 	return (
 		<div>
@@ -140,7 +187,7 @@ const StudentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="firstname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -152,7 +199,7 @@ const StudentForm = () => {
 							/>
 							<FormField
 								control={form.control}
-								name="lastName"
+								name="lastname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -176,11 +223,11 @@ const StudentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="grade"
+								name="class_name"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input type="number" {...field} />
+											<Input type="text" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -192,16 +239,87 @@ const StudentForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>School</FormLabel>
+								<FormLabel>Admission Number</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="school"
+								name="admission_no"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="NBBPS" {...field} />
+											<Input type="text" {...field} />
 										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Stop</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="stop_id"
+								render={({ field }) => (
+									<FormItem className="flex flex-col">
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant="outline"
+														role="combobox"
+														className={cn(
+															'w-[200px] justify-between',
+															!field.value && 'text-muted-foreground',
+														)}
+													>
+														{field.value
+															? stops.find(stop => stop.value === field.value)
+																	?.label
+															: 'Select stop'}
+														<Icon
+															name="caret-sort"
+															className="ml-2 h-4 w-4 shrink-0 opacity-50"
+														/>
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-[200px p-0">
+												<Command>
+													<CommandInput
+														placeholder="Search stop..."
+														className="h-9"
+													/>
+													<CommandEmpty>No stop found.</CommandEmpty>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
+														{stops.map(stop => (
+															<CommandItem
+																value={stop.value}
+																key={stop.value}
+																onSelect={() => {
+																	form.setValue('stop_id', stop.value)
+																}}
+															>
+																{stop.label}
+																<Icon
+																	name="check"
+																	className={cn(
+																		'ml-auto h-4 w-4',
+																		stop.value === field.value
+																			? 'opacity-100'
+																			: 'opacity-0',
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</Command>
+											</PopoverContent>
+										</Popover>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -216,7 +334,7 @@ const StudentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="parentId"
+								name="parent_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -255,7 +373,7 @@ const StudentForm = () => {
 																value={parent.value}
 																key={parent.value}
 																onSelect={() => {
-																	form.setValue('parentId', parent.value)
+																	form.setValue('parent_id', parent.value)
 																}}
 															>
 																{parent.label}
@@ -280,7 +398,7 @@ const StudentForm = () => {
 							/>
 						</div>
 						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
+						{/* <Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
@@ -324,10 +442,10 @@ const StudentForm = () => {
 									</FormItem>
 								)}
 							/>
-						</div>
+						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
+							<Button className="w-5/6" type="submit" disabled={isLoading}>
 								{isLoading && <Spinner showSpinner={isLoading} />}
 								Submit
 							</Button>

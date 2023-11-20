@@ -43,8 +43,8 @@ import { useRoles } from '../../../hooks/api/settings/roles'
 import { Icon } from '../../../components/ui/icon'
 
 export const UserFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
+	firstname: NameSchema,
+	lastname: NameSchema,
 	email: EmailSchema,
 	phone_number: PhoneSchema,
 	role_id: z.string().min(3, { message: 'Please select a role' }),
@@ -79,8 +79,8 @@ const UserForm = () => {
 	const form = useForm<z.infer<typeof UserFormSchema>>({
 		resolver: zodResolver(UserFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
+			firstname: '',
+			lastname: '',
 			email: '',
 			phone_number: '',
 			role_id: '',
@@ -127,7 +127,7 @@ const UserForm = () => {
 					</p>
 				</div>
 				<Button variant="link" onClick={() => navigate(-1)}>
-					<Icon name="arrow-left" className='mr-2' />
+					<Icon name="arrow-left" className="mr-2" />
 					Back to Users
 				</Button>
 			</div>
@@ -149,7 +149,7 @@ const UserForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="firstname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -161,7 +161,7 @@ const UserForm = () => {
 							/>
 							<FormField
 								control={form.control}
-								name="lastName"
+								name="lastname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>

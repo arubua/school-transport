@@ -2,9 +2,9 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import axiosInstance from '../../axiosInstance'
 
 const getUsers = async () => {
-	const {res,status} = await axiosInstance({
-		url:'users',
-		method:'GET',
+	const { res, status } = await axiosInstance({
+		url: 'users',
+		method: 'GET',
 	})
 	if (!res) {
 		throw new Error('Failed to fetch users data')
@@ -30,14 +30,14 @@ export const useUserById = (userId: string) => {
 }
 
 const addUser = async ({
-	firstName,
-	lastName,
+	firstname,
+	lastname,
 	phone_number,
 	email,
 	role_id,
 }: {
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	phone_number: string
 	email: string
 	role_id: string
@@ -48,8 +48,8 @@ const addUser = async ({
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
+			firstname,
+			lastname,
 			phone_number,
 			email,
 			role_id,

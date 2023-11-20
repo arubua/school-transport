@@ -44,13 +44,17 @@ import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection, DropzoneInputProps } from 'react-dropzone'
-import { useAddDriver, useDrivers, useUpdateDriver } from '../../hooks/api/drivers'
+import {
+	useAddDriver,
+	useDrivers,
+	useUpdateDriver,
+} from '../../hooks/api/drivers'
 import { useBuses } from '../../hooks/api/buses'
 import { useLocation } from 'react-router-dom'
 
 const DriversFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
+	firstname: NameSchema,
+	lastname: NameSchema,
 	phone_number: PhoneSchema,
 	bus_id: BusSchema,
 	avatarImage: z.array(z.instanceof(File)),
@@ -64,7 +68,7 @@ const DriverForm = () => {
 	const [buses, setBuses] = useState<{ label: string; value: string }[]>([])
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
-	const [driverId,setDriverId] = useState('')
+	const [driverId, setDriverId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -76,7 +80,6 @@ const DriverForm = () => {
 	const addDriverMutation = useAddDriver()
 	const updateDriverMutation = useUpdateDriver()
 
-
 	const { isLoading, isError, data, isSuccess } = addDriverMutation
 
 	const { data: busesRaw } = useBuses()
@@ -84,8 +87,8 @@ const DriverForm = () => {
 	const form = useForm<z.infer<typeof DriversFormSchema>>({
 		resolver: zodResolver(DriversFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
+			firstname: '',
+			lastname: '',
 			phone_number: '',
 			bus_id: '',
 			avatarImage: undefined,
@@ -107,7 +110,7 @@ const DriverForm = () => {
 				updatedData: values,
 			})
 		} else {
-		await addDriverMutation.mutateAsync(values)
+			await addDriverMutation.mutateAsync(values)
 		}
 	}
 
@@ -147,7 +150,7 @@ const DriverForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="firstname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -159,7 +162,7 @@ const DriverForm = () => {
 							/>
 							<FormField
 								control={form.control}
-								name="lastName"
+								name="lastname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>

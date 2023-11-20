@@ -109,7 +109,7 @@ const ScheduleForm = () => {
 		}
 		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
 			const fDrivers = driversRaw.map(driver => ({
-				label: `${driver.firstName} ${driver.lastName}`,
+				label: `${driver.firstname} ${driver.lastname}`,
 				value: driver.id,
 			}))
 			setDrivers(fDrivers)
@@ -123,7 +123,7 @@ const ScheduleForm = () => {
 		}
 		if (Array.isArray(studentsRaw) && studentsRaw.length > 0) {
 			const fStudents = studentsRaw.map(student => ({
-				label: `${student.firstName} ${student.lastName}`,
+				label: `${student.firstname} ${student.lastname}`,
 				value: student.id,
 			}))
 			setStudents(fStudents)

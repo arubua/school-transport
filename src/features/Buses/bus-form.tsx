@@ -98,7 +98,7 @@ const BusForm = () => {
 	useEffect(() => {
 		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
 			const fDrivers = driversRaw.map(driver => ({
-				label: `${driver.firstName} ${driver.lastName}`,
+				label: `${driver.firstname} ${driver.lastname}`,
 				value: driver.id,
 			}))
 			setDrivers(fDrivers)

@@ -32,8 +32,8 @@ import { Form } from '../../components/form'
 // You can use a Zod schema here if you want.
 export type Driver = {
 	id: string
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	phone_number: string
 	bus: string
 	image: string
@@ -42,7 +42,7 @@ export type Driver = {
 export const columns: ColumnDef<Driver>[] = [
 	{
 		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
+		accessorFn: row => `${row.firstname} ${row.lastname}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -55,9 +55,9 @@ export const columns: ColumnDef<Driver>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
-			let name = `${firstName} ${lastName}`
+			let firstname = row.original.firstname
+			let lastname = row.original.lastname
+			let name = `${firstname} ${lastname}`
 			let image = row.original.image
 
 			return (
@@ -154,8 +154,8 @@ export const columns: ColumnDef<Driver>[] = [
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {driver.firstName}{' '}
-											{driver.lastName} ?
+											Are you sure you want to delete {driver.firstname}{' '}
+											{driver.lastname} ?
 										</div>
 									</div>
 									<DialogFooter>

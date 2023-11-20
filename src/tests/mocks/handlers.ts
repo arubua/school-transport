@@ -34,13 +34,25 @@ type routeRequestBody = z.infer<typeof postRouteRequestBodySchema>
 const getStudentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		class: z.string(),
-		stop: z.string(),
-		parent_name: z.string(),
-		parent_phone: z.number(),
-		image: z.string(),
+		stop: z.object({
+			id: z.string(),
+			description: z.string(),
+			latitude: z.string(),
+			longitude: z.string(),
+		}),
+		parent: z.object({
+			id: z.string(),
+			firstname: z.string(),
+			lastname: z.string(),
+		}),
+		// parent_phone: z.number(),
+		school: z.object({
+			id: z.string(),
+			name: z.string(),
+		}),
 	}),
 )
 
@@ -49,8 +61,8 @@ type getStudentsResponse = z.infer<typeof getStudentsSchema>
 const getParentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		email: z.string(),
 		phone: z.number(),
 		image: z.string(),
@@ -63,8 +75,8 @@ type getParentsResponse = z.infer<typeof getParentsSchema>
 const getDriversSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		phone_number: z.number(),
 		bus: z.string(),
 		image: z.string(),
@@ -145,8 +157,8 @@ type getRolesResponse = z.infer<typeof getRolesSchema>
 const getUsersSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		phone_number: z.string(),
 		email: z.string(),
 		role_id: z.string(),
@@ -190,8 +202,8 @@ export const handlers: Array<RequestHandler> = [
 				ctx.delay(0),
 				ctx.status(200),
 				ctx.json({
-					firstName: faker.person.firstName(),
-					lastName: faker.person.lastName(),
+					firstname: faker.person.firstName(),
+					lastname: faker.person.lastName(),
 					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
 					phone_number: faker.phone.number(),
 					role: 'School Admin',
@@ -221,8 +233,8 @@ export const handlers: Array<RequestHandler> = [
 		// Generate an array of parent objects using Faker and the schema
 		const parents = Array.from({ length: numberOfParents }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
 			address: faker.location.streetAddress(),
@@ -240,20 +252,31 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json(parents), // Respond with the generated parent objects
 		)
 	}),
-	rest.get<getStudentsResponse>('/api/students', async (req, res, ctx) => {
+	rest.get<getStudentsResponse>('/students', async (req, res, ctx) => {
 		const numberofStudents = 15
 
 		const students = Array.from({ length: numberofStudents }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
-			grade: faker.number.int({ min: 1, max: 7 }),
-			stop: faker.location.streetAddress(),
-			school: faker.company.name(),
-			parent: faker.person.fullName(),
-			parentId: faker.string.uuid(),
-			parent_phone: faker.phone.number(),
-			avatarImage: faker.image.avatar(),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
+			class_name: faker.number.int({ min: 1, max: 7 }),
+			stop: {
+				id: faker.string.uuid(),
+				description: faker.location.streetAddress(),
+				longitude: faker.location.longitude(),
+				latitude: faker.location.latitude(),
+			},
+			school: {
+				id: faker.string.uuid(),
+				name: faker.company.name(),
+			},
+			parent: {
+				id: faker.string.uuid(),
+				firstname: faker.person.firstName(),
+				lastname: faker.person.lastName(),
+				phone_number: faker.phone.number(),
+			},
+			// avatarImage: faker.image.avatar(),
 		}))
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
@@ -263,8 +286,8 @@ export const handlers: Array<RequestHandler> = [
 
 		const drivers = Array.from({ length: numberofDrivers }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
 			phone_number: faker.phone.number(),
 			bus: faker.vehicle.vrm(),
 			image: faker.image.avatar(),
@@ -330,8 +353,8 @@ export const handlers: Array<RequestHandler> = [
 			start_time: faker.date.soon({ days: 1 }),
 			students: Array.from({ length: numberofStudents }, () => ({
 				id: faker.string.uuid(),
-				firstName: faker.person.firstName('male'),
-				lastName: faker.person.lastName('male'),
+				firstname: faker.person.firstName('male'),
+				lastname: faker.person.lastName('male'),
 				grade: faker.number.int({ min: 1, max: 7 }),
 				stop: faker.location.streetAddress(),
 				school: faker.company.name(),
@@ -379,8 +402,8 @@ export const handlers: Array<RequestHandler> = [
 		for (let i = 0; i < numberOfUsers; i++) {
 			users.push({
 				id: faker.string.uuid(),
-				firstName: faker.person.firstName(),
-				lastName: faker.person.lastName(),
+				firstname: faker.person.firstName(),
+				lastname: faker.person.lastName(),
 				phone_number: faker.phone.number(),
 				email: faker.internet.email(),
 				role: 'School Admin',

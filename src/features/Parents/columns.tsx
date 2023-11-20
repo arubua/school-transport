@@ -70,9 +70,9 @@ export const columns: ColumnDef<Parent>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstName = row.original.user.firstname
-			let lastName = row.original.user.lastname
-			let name = `${firstName} ${lastName}`
+			let firstname = row.original.user.firstname
+			let lastname = row.original.user.lastname
+			let name = `${firstname} ${lastname}`
 			// let image = row.original.image
 
 			return (
@@ -124,17 +124,18 @@ export const columns: ColumnDef<Parent>[] = [
 		},
 	},
 	{
-		accessorKey: 'phone',
+		accessorKey: 'phone_number',
 		header: () => <div className="text-left">Phone Number</div>,
 		cell: ({ row }) => {
-			let phone = row.original.user.phone_number
-			return <div className="text-left">{phone}</div>
+			let phone_number = row.original.user.phone_number
+			return <div className="text-left">{phone_number}</div>
 		},
 	},
 	{
 		id: 'actions',
 		cell: ({ row }) => {
 			const parent = row.original.user
+			const parentId = row.original.id
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
@@ -171,7 +172,7 @@ export const columns: ColumnDef<Parent>[] = [
 							<DropdownMenuContent align="end">
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() => navigate(`editParent`, { state: { parent } })}
+									onClick={() => navigate(`editParent`, { state: { parent,parentId } })}
 								>
 									Update Parent
 								</DropdownMenuItem>

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import Splash from '../features/Splash'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-import { getUser } from '../utils/storage'
+import { clearUserSession, getUser } from '../utils/storage'
 import { EmailSchema, NameSchema } from '../utils/user-validation'
 import { getSessionExpirationDate, isUserTimedOut } from '../utils/auth'
 import AuthRoute from '../features/Auth/AuthRoute'
@@ -41,8 +41,9 @@ const Home: React.FC = () => {
 
 			const userData = UserSchema.parse(user)
 
-			if (!userData) {
+			if (!userData || !token || token === '') {
 				setLoading(false)
+				clearUserSession()
 
 				navigate('/auth/login')
 				return
@@ -52,6 +53,7 @@ const Home: React.FC = () => {
 
 			if (isTimedOut) {
 				setLoading(false)
+				clearUserSession()
 
 				navigate('/auth/login')
 				return

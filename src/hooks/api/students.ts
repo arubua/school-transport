@@ -5,14 +5,28 @@ import {
 	SchoolNameSchema,
 	UsernameSchema,
 } from '../../utils/user-validation'
+import axiosInstance from '../axiosInstance'
+const tokenString = sessionStorage.getItem('TOKEN')
+if (!tokenString) {
+	// throw new Error('Token not found in sessionStorage')
+	console.log("Token not found")
+}
+
+// const token: string = JSON.parse(tokenString)
+const token: string = ''
 
 const getStudents = async () => {
-	const response = await fetch('/api/students')
-	if (!response.ok) {
+	const { res, status } = await axiosInstance({
+		url: 'students',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+	if (!res) {
 		throw new Error('Failed to fetch students data')
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useStudents = () => {
@@ -20,44 +34,43 @@ export const useStudents = () => {
 }
 
 const addStudent = async ({
-	firstName,
-	lastName,
-	grade,
-	school,
-	avatarImage,
-	parentId,
+	firstname,
+	lastname,
+	admission_no,
+	class_name,
+	school_id,
+	parent_id,
+	stop_id,
 }: {
-	firstName: string
-	lastName: string
-	grade: string
-	school: string
-	avatarImage: File[] | undefined
-	parentId: string
+	firstname: string
+	lastname: string
+	class_name: string
+	school_id: string
+	admission_no: string
+	parent_id: string
+	stop_id:string
 }) => {
-	const response = await fetch('/api/student', {
+	const { res, status } = await axiosInstance({
+		url: 'students',
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
-			grade,
-			school,
-			avatarImage,
-			parentId,
-		}),
+		data: {
+			firstname,
+			lastname,
+			admission_no,
+			class_name,
+			school_id,
+			parent_id,
+			stop_id,
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		throw new Error('Failed to add student')
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddStudent = () => {
