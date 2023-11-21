@@ -1,16 +1,37 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getDrivers = async () => {
-	const response = await fetch('/api/drivers')
-	if (!response.ok) {
-		throw new Error('Failed to fetch drivers data')
+	const { res, status } = await axiosInstance({
+		url: 'drivers',
+		headers: {
+			//
+		},
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useDrivers = () => {
 	return useQuery(['drivers'], getDrivers)
+}
+
+const getDriverById = async (driverId: string) => {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${driverId}`,
+	})
+	if (!res) {
+		return {}
+	}
+
+	return res.data.data
+}
+
+export const useGetDriverById = (driverId: string) => {
+	return useQuery(['parent', driverId], () => getDriverById(driverId))
 }
 
 const addDriver = async ({
@@ -26,29 +47,23 @@ const addDriver = async ({
 	bus_id: string
 	avatarImage: File[] | undefined
 }) => {
-	const response = await fetch('/api/driver', {
+	const { res, status } = await axiosInstance({
+		url: 'parents',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
+
+		data: {
 			firstname,
 			lastname,
 			phone_number,
 			bus_id,
 			avatarImage,
-		}),
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddDriver = () => {
@@ -56,19 +71,15 @@ export const useAddDriver = () => {
 }
 
 const deleteDriver = async (id: string) => {
-	const response = await fetch(`/api/drivers/${id}`, {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteDriver = () => {
@@ -82,21 +93,17 @@ const updateDriver = async ({
 	driverId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/drivers/${driverId}`, {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${driverId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateDriver = () => {

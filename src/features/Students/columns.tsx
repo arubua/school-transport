@@ -36,6 +36,7 @@ export type Student = {
 	firstname: string
 	lastname: string
 	class_name: string
+	admission_no: string
 	school: {
 		id: string
 		name: string
@@ -112,6 +113,20 @@ export const columns: ColumnDef<Student>[] = [
 							<span className="ml-2">{`${school}`}</span>
 						</div>
 					</div>
+				</div>
+			)
+		},
+	},
+	{
+		accessorKey: 'admission_no',
+		header: () => <div className="text-left">Admission No.</div>,
+		cell: ({ row }) => {
+			let admission = row.original.admission_no
+
+			return (
+				<div className="">
+					<div className="text-left">{admission}</div>
+					{/* <div className="text-left text-muted-foreground">{parentPhone}</div> */}
 				</div>
 			)
 		},

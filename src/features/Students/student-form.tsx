@@ -92,6 +92,8 @@ const StudentForm = () => {
 	const updateStudentMutation = useUpdateStudent()
 
 	const { isLoading, isError, data, isSuccess } = addStudentMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateStudentMutation
 
 	const { data: parentsRaw } = useParents()
 	const { data: stopsRaw } = useStops()
@@ -105,19 +107,18 @@ const StudentForm = () => {
 			class_name: '',
 			parent_id: '',
 			stop_id: '',
-			school_id:''
+			school_id: '',
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+		const user = await getUser()
 		if (isUpdating) {
 			await updateStudentMutation.mutateAsync({
 				studentId: studentId,
 				updatedData: values,
 			})
 		} else {
-			const user = await getUser()
-
 			if (user && 'school' in user) {
 				let valsWithSchoolId = values
 				valsWithSchoolId.school_id = user.school.id
@@ -128,10 +129,20 @@ const StudentForm = () => {
 	}
 
 	useEffect(() => {
-		if (isUpdating) {
-			const studentData = location.state.student
-			setStudentId(studentData.id)
-			form.reset(studentData)
+		if (
+			isUpdating &&
+			location.state &&
+			location.state.student &&
+			location.state.student.parent
+		) {
+			const { student } = location.state
+			const parent_id = student.parent.id
+			const stop_id = student.stop.id
+			const school_id = student.school.id
+
+			const updatedStudentData = { ...student, parent_id, stop_id, school_id }
+			setStudentId(student.id)
+			form.reset(updatedStudentData)
 		}
 	}, [isUpdating, location.state])
 
@@ -156,11 +167,15 @@ const StudentForm = () => {
 	}, [stopsRaw])
 
 	useEffect(() => {
-		if(isSuccess){
+		if (isSuccess) {
 			toast.success(`Student created successfuly`)
 			navigate('/app/students')
 		}
-	},[isSuccess])
+		if (isSuccessUpdate) {
+			toast.success(`Student updated successfuly`)
+			navigate('/app/students')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -454,7 +469,10 @@ const StudentForm = () => {
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
 							<Button className="w-5/6" type="submit" disabled={isLoading}>
-								{isLoading && <Spinner showSpinner={isLoading} />}
+								{isLoading ||
+									(isLoadingUpdate && (
+										<Spinner showSpinner={isLoading || isLoadingUpdate} />
+									))}
 								Submit
 							</Button>
 						</div>

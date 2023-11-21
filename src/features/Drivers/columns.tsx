@@ -32,17 +32,21 @@ import { Form } from '../../components/form'
 // You can use a Zod schema here if you want.
 export type Driver = {
 	id: string
-	firstname: string
-	lastname: string
-	phone_number: string
-	bus: string
-	image: string
+	bus:string
+	user: {
+		firstname: string
+		lastname: string
+		phone_number: string
+		bus: string
+		image: string
+		status: string
+	}
 }
 
 export const columns: ColumnDef<Driver>[] = [
 	{
 		id: 'name',
-		accessorFn: row => `${row.firstname} ${row.lastname}`,
+		accessorFn: row => `${row.user.firstname} ${row.user.lastname}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -55,15 +59,15 @@ export const columns: ColumnDef<Driver>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstname = row.original.firstname
-			let lastname = row.original.lastname
+			let firstname = row.original.user.firstname
+			let lastname = row.original.user.lastname
 			let name = `${firstname} ${lastname}`
-			let image = row.original.image
+			// let image = row.original.image
 
 			return (
 				<div className="flex items-center">
 					<Avatar>
-						<AvatarImage src={image} alt={name} />
+						{/* <AvatarImage src={image} alt={name} /> */}
 						<AvatarFallback>{getInitials(name)}</AvatarFallback>
 					</Avatar>
 					<div className="ml-1">
@@ -77,7 +81,7 @@ export const columns: ColumnDef<Driver>[] = [
 		accessorKey: 'phone_number',
 		header: () => <div className="text-left">Phone Number</div>,
 		cell: ({ row }) => {
-			let phoneNumber = row.original.phone_number
+			let phoneNumber = row.original.user.phone_number
 
 			return (
 				<div className="">
@@ -97,7 +101,8 @@ export const columns: ColumnDef<Driver>[] = [
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const driver = row.original
+			const driver = row.original.user
+			const driverId = row.original.id
 
 			const navigate = useNavigate()
 
@@ -109,7 +114,7 @@ export const columns: ColumnDef<Driver>[] = [
 			const form = useForm()
 
 			async function onSubmit() {
-				await deleteDriverMutation.mutateAsync(driver.id)
+				await deleteDriverMutation.mutateAsync(driverId)
 			}
 
 			useEffect(() => {
@@ -137,9 +142,9 @@ export const columns: ColumnDef<Driver>[] = [
 								<DropdownMenuItem>Add to Schedule</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
-									onClick={() => navigate(`editDriver`, { state: { driver } })}
+									onClick={() => navigate(`editDriver`, { state: { driver,driverId } })}
 								>
-									Edit driver details
+									Update driver
 								</DropdownMenuItem>
 								<DialogTrigger>
 									<DropdownMenuItem>Delete Driver</DropdownMenuItem>
