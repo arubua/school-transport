@@ -124,3 +124,9 @@ export const ImageFileSchema = z.object({
 	size: z.number(),
 	webkitRelativePath: z.string(),
 })
+
+export const DriverStatusSchema = z.enum([
+	'active',
+	'inactive',
+	'suspended',
+] as const)

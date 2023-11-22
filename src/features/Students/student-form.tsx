@@ -468,7 +468,11 @@ const StudentForm = () => {
 						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button className="w-5/6" type="submit" disabled={isLoading}>
+							<Button
+								className="w-5/6"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
 								{isLoading ||
 									(isLoadingUpdate && (
 										<Spinner showSpinner={isLoading || isLoadingUpdate} />

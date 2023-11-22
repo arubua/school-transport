@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import axiosInstance from '../axiosInstance'
+import { z } from 'zod'
 
 const getDrivers = async () => {
 	const { res, status } = await axiosInstance({
@@ -34,29 +35,33 @@ export const useGetDriverById = (driverId: string) => {
 	return useQuery(['parent', driverId], () => getDriverById(driverId))
 }
 
+const DriverStatusSchema = z.enum(['active', 'inactive', 'suspended'] as const)
+type DriverStatus = z.infer<typeof DriverStatusSchema>
+
 const addDriver = async ({
 	firstname,
 	lastname,
 	phone_number,
-	bus_id,
-	avatarImage,
+	school_id,
+	status,
 }: {
 	firstname: string
 	lastname: string
 	phone_number: string
-	bus_id: string
-	avatarImage: File[] | undefined
+	school_id: string
+	status: DriverStatus
 }) => {
-	const { res, status } = await axiosInstance({
-		url: 'parents',
+	const { res } = await axiosInstance({
+		url: 'drivers',
 		method: 'POST',
 
 		data: {
 			firstname,
 			lastname,
 			phone_number,
-			bus_id,
-			avatarImage,
+			school_id,
+			status,
+			password: 'password',
 		},
 	})
 	if (!res) {
@@ -107,5 +112,29 @@ const updateDriver = async ({
 }
 
 export const useUpdateDriver = () => {
+	return useMutation(updateDriver)
+}
+
+const assignBus = async ({
+	driver_id,
+	bus_id,
+}: {
+	driver_id: string
+	bus_id: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${driver_id}`,
+		method: 'PUT',
+
+		data: { driver_id, bus_id },
+	})
+	if (!res) {
+		return null
+	}
+
+	return res.data.data
+}
+
+export const useAssignBus = () => {
 	return useMutation(updateDriver)
 }
