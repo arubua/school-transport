@@ -50,6 +50,7 @@ import {
 } from '../../components/command'
 import { useBuses } from '../../hooks/api/buses'
 import { Spacer } from '../../components/spacer'
+import { Spinner } from '../../components/spinner'
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Driver = {
@@ -157,10 +158,13 @@ export const columns: ColumnDef<Driver>[] = [
 			const form = useForm()
 
 			async function onSubmit(values: any) {
+				let valsWithDriverId = values
+				valsWithDriverId.driver_id = driverId
+
 				if (open === 'delete') {
 					await deleteDriverMutation.mutateAsync(driverId)
 				} else {
-					await assignBusMutation.mutateAsync(values)
+					await assignBusMutation.mutateAsync(valsWithDriverId)
 				}
 			}
 
@@ -243,7 +247,7 @@ export const columns: ColumnDef<Driver>[] = [
 																	variant="outline"
 																	role="combobox"
 																	className={cn(
-																		'w-[200px] justify-between',
+																		' w-5/6 justify-between',
 																		!field.value && 'text-muted-foreground',
 																	)}
 																>
@@ -259,7 +263,7 @@ export const columns: ColumnDef<Driver>[] = [
 																</Button>
 															</FormControl>
 														</PopoverTrigger>
-														<PopoverContent className="w-[200px] p-0">
+														<PopoverContent className="w-full p-2">
 															<Command>
 																<CommandInput
 																	placeholder="Search bus..."
@@ -269,7 +273,7 @@ export const columns: ColumnDef<Driver>[] = [
 																<CommandGroup className="max-h-[250px] overflow-y-scroll">
 																	{buses.map(bus => (
 																		<CommandItem
-																			className="mx-auto"
+																			className="mx-auto w-full"
 																			value={bus.value}
 																			key={bus.value}
 																			onSelect={() => {
@@ -300,7 +304,15 @@ export const columns: ColumnDef<Driver>[] = [
 								</div>
 								<DialogFooter>
 									{/* <DialogClose /> */}
-									<Button variant="default" size="sm" type="submit">
+									<Button
+										variant="default"
+										size="sm"
+										type="submit"
+										disabled={isLoading}
+									>
+										{isLoadingAssign && (
+											<Spinner showSpinner={isLoadingAssign} />
+										)}
 										Assign
 									</Button>
 								</DialogFooter>

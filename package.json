@@ -81,5 +81,8 @@
   },
   "msw": {
     "workerDirectory": "public"
-  }
+  },
+    "overrides": {
+      "@radix-ui/react-dismissable-layer": "1.0.5"
+    }
 }

@@ -140,7 +140,6 @@ const DriverForm = () => {
 	useEffect(() => {
 		if (isUpdating && user && location.state && location.state.driver) {
 			const { driver } = location.state
-			console.log({driver})
 			const school_id = user.school.id
 
 			const updatedDriverData = { ...driver, school_id }

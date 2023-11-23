@@ -123,7 +123,7 @@ const assignBus = async ({
 	bus_id: string
 }) => {
 	const { res, status } = await axiosInstance({
-		url: `drivers/${driver_id}`,
+		url: 'drivers/assign-bus',
 		method: 'PUT',
 
 		data: { driver_id, bus_id },
@@ -136,5 +136,5 @@ const assignBus = async ({
 }
 
 export const useAssignBus = () => {
-	return useMutation(updateDriver)
+	return useMutation(assignBus)
 }

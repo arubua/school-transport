@@ -33,17 +33,22 @@ import FileUpload from '../../components/ui/file-input'
 import { FileRejection } from 'react-dropzone'
 import { useDrivers } from '../../hooks/api/drivers'
 import { useAddBus, useUpdateBus } from '../../hooks/api/buses'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useUser } from '../../hooks/UserContext'
+import { toast } from 'sonner'
+import { getUser } from '../../utils/storage'
 
 const BusFormSchema = z.object({
 	reg_number: z.string(),
-	capacity: z.string(),
-	driverId: z.string(),
-	avatarImage: z.array(z.instanceof(File)),
+	capacity: z.union([z.number(), z.string()]),
+	school_id: z.string(),
+	// avatarImage: z.array(z.instanceof(File)),
 })
 
 const BusForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
+	const { user } = useUser()
 
 	const [isUpdating] = useState(location.state && location.state.bus)
 
@@ -63,6 +68,8 @@ const BusForm = () => {
 	const updateBusMutation = useUpdateBus()
 
 	const { isLoading, isError, data, isSuccess } = addBusMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateBusMutation
 
 	const { data: driversRaw } = useDrivers()
 
@@ -70,28 +77,29 @@ const BusForm = () => {
 		resolver: zodResolver(BusFormSchema),
 		defaultValues: {
 			reg_number: '',
-			capacity: '',
-			driverId: '',
-			avatarImage: undefined,
+			capacity: 0,
+			school_id: '',
+			// avatarImage: undefined,
 		},
 	})
 
-	useEffect(() => {
-		if (isUpdating) {
-			const busData = location.state.bus
-			setBusId(busData.id)
-			form.reset(busData)
-		}
-	}, [isUpdating, location.state, form])
-
 	async function onSubmit(values: z.infer<typeof BusFormSchema>) {
-		if (isUpdating) {
+		const user = await getUser()
+
+		if (isUpdating && user && 'school' in user) {
+			let valsWithSchoolId = values
+			valsWithSchoolId.school_id = user.school.id
 			await updateBusMutation.mutateAsync({
 				busId: busId,
-				updatedData: values,
+				updatedData: valsWithSchoolId,
 			})
 		} else {
-			await addBusMutation.mutateAsync(values)
+			if (user && 'school' in user) {
+				let valsWithSchoolId = values
+				valsWithSchoolId.school_id = user.school.id
+
+				await addBusMutation.mutateAsync(valsWithSchoolId)
+			}
 		}
 	}
 
@@ -104,6 +112,28 @@ const BusForm = () => {
 			setDrivers(fDrivers)
 		}
 	}, [driversRaw])
+
+	useEffect(() => {
+		if (isUpdating && user && location.state && location.state.bus) {
+			const { bus } = location.state
+			const school_id = user.school.id
+
+			const updatedBusData = { ...bus, school_id }
+			setBusId(location.state.busId)
+			form.reset(updatedBusData)
+		}
+	}, [isUpdating, location.state])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Bus created successfuly`)
+			navigate('/app/buses')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Bus updated successfuly`)
+			navigate('/app/buses')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -155,7 +185,7 @@ const BusForm = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="33" {...field} />
+											<Input placeholder="33" type="number" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -163,7 +193,7 @@ const BusForm = () => {
 							/>
 						</div>
 						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
+						{/* <Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
@@ -171,7 +201,7 @@ const BusForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="driverId"
+								name="school_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -210,7 +240,7 @@ const BusForm = () => {
 																value={driver.label}
 																key={driver.value}
 																onSelect={() => {
-																	form.setValue('driverId', driver.value)
+																	form.setValue('school_id', driver.value)
 																}}
 															>
 																{driver.label}
@@ -229,16 +259,13 @@ const BusForm = () => {
 												</Command>
 											</PopoverContent>
 										</Popover>
-										{/* <FormDescription>
-        This is the parent that will be used in the dashboard.
-      </FormDescription> */}
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
+						<Spacer size="4xs" /> */}
+						{/* <Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
@@ -282,11 +309,19 @@ const BusForm = () => {
 									</FormItem>
 								)}
 							/>
-						</div>
+						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
-								{isLoading && <Spinner showSpinner={isLoading} />}
+							<Button
+								className="w-4/6"
+								size="sm"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
+								{isLoading ||
+									(isLoadingUpdate && (
+										<Spinner showSpinner={isLoading || isLoadingUpdate} />
+									))}
 								Submit
 							</Button>
 						</div>
