@@ -318,10 +318,8 @@ const BusForm = () => {
 								type="submit"
 								disabled={isLoading || isLoadingUpdate}
 							>
-								{isLoading ||
-									(isLoadingUpdate && (
-										<Spinner showSpinner={isLoading || isLoadingUpdate} />
-									))}
+								{isLoading && <Spinner showSpinner={isLoading} />}
+								{isLoadingUpdate && <Spinner showSpinner={isLoadingUpdate} />}
 								Submit
 							</Button>
 						</div>

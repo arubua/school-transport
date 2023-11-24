@@ -47,26 +47,6 @@ export const useAddBus = () => {
 	return useMutation(addBus)
 }
 
-const deleteBus = async (id: string) => {
-	const response = await fetch(`/api/buses/${id}`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
-	}
-
-	return {}
-}
-
-export const useDeleteBus = () => {
-	return useMutation(deleteBus)
-}
-
 const updateBus = async ({
 	busId,
 	updatedData,
@@ -89,4 +69,20 @@ const updateBus = async ({
 
 export const useUpdateBus = () => {
 	return useMutation(updateBus)
+}
+
+const deleteBus = async (id: string) => {
+	const { res } = await axiosInstance({
+		url: `buses/${id}`,
+		method: 'DELETE',
+	})
+	if (!res) {
+		return null
+	}
+
+	return res
+}
+
+export const useDeleteBus = () => {
+	return useMutation(deleteBus)
 }

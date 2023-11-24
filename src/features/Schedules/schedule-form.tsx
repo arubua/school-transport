@@ -30,12 +30,13 @@ import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useRoutes } from '../../hooks/api/routes'
 import { useDrivers } from '../../hooks/api/drivers'
 import { useBuses } from '../../hooks/api/buses'
 import { MultiSelect } from '../../components/multiselect'
 import { useAddSchedule, useUpdateSchedule } from '../../hooks/api/schedules'
+import { toast } from 'sonner'
 
 const ScheduleFormSchema = z.object({
 	start_time: z.string(),
@@ -47,6 +48,7 @@ const ScheduleFormSchema = z.object({
 
 const ScheduleForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [routes, setRoutes] = useState<{ label: string; value: string }[]>([])
 	const [drivers, setDrivers] = useState<{ label: string; value: string }[]>([])
@@ -130,6 +132,17 @@ const ScheduleForm = () => {
 		}
 	}, [routesRaw, driversRaw, busesRaw, studentsRaw])
 
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Schedule created successfuly`)
+			navigate('/app/schedules')
+		}
+		// if (isSuccessUpdate) {
+		// 	toast.success(`Bus updated successfuly`)
+		// 	navigate('/app/buses')
+		// }
+	}, [isSuccess])
+
 	return (
 		<div>
 			<div className="flex flex-col items-start">
@@ -158,7 +171,7 @@ const ScheduleForm = () => {
 								render={({ field }) => (
 									<FormItem className="w-60">
 										<FormControl>
-											<Input type="datetime-local" {...field} />
+											<Input type="time" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

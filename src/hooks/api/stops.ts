@@ -17,12 +17,14 @@ export const useStops = () => {
 }
 
 const getStopById = async (stopId: string) => {
-	const response = await fetch(`/api/stops/${stopId}`)
-	if (!response.ok) {
-		throw new Error('Failed to fetch stop data')
+	const { res, status } = await axiosInstance({
+		url: `stops/${stopId}`,
+	})
+	if (!res) {
+		return null
 	}
-	const data = await response.json()
-	return data
+
+	return res
 }
 
 export const useStopById = (stopId: string) => {
@@ -35,33 +37,27 @@ const addStop = async ({
 	description,
 	zone_id,
 }: {
-	latitude: string
-	longitude: string
+	latitude: string | number
+	longitude: string | number
 	description: string
 	zone_id: string
 }) => {
-	const response = await fetch('/api/stop', {
+	const { res } = await axiosInstance({
+		url: 'stops',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			latitude,
-			longitude,
+
+		data: {
+			latitude: Number(latitude),
+			longitude: Number(longitude),
 			description,
 			zone_id,
-		}),
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddStop = () => {
@@ -75,21 +71,17 @@ const updateStopById = async ({
 	stopId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/stops/${stopId}`, {
+	const { res, status } = await axiosInstance({
+		url: `stops/${stopId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateStop = () => {
@@ -97,19 +89,15 @@ export const useUpdateStop = () => {
 }
 
 const deleteStop = async (id: string) => {
-	const response = await fetch(`/api/stops/${id}`, {
+	const { res } = await axiosInstance({
+		url: `stops/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteStop = () => {

@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getSchedules = async () => {
-	const response = await fetch('/api/schedules')
-	if (!response.ok) {
-		throw new Error('Failed to fetch schedules data')
+	const { res, status } = await axiosInstance({
+		url: 'schedules',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useSchedules = () => {
@@ -14,12 +17,14 @@ export const useSchedules = () => {
 }
 
 const getScheduleById = async (scheduleId: string) => {
-	const response = await fetch(`/api/schedules/${scheduleId}`)
-	if (!response.ok) {
-		throw new Error('Failed to fetch schedule data')
+	const { res, status } = await axiosInstance({
+		url: `schedule/${scheduleId}`,
+	})
+	if (!res) {
+		return null
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useScheduleById = (scheduleId: string) => {
@@ -39,29 +44,23 @@ const addSchedule = async ({
 	bus_id: string
 	students: Array<Object>
 }) => {
-	const response = await fetch('/api/schedule', {
+	const { res } = await axiosInstance({
+		url: 'schedules',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			start_time,
+
+		data: {
+			start_time:`${start_time}:00`,
 			route_id,
 			driver_id,
 			bus_id,
 			students,
-		}),
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddSchedule = () => {
@@ -75,21 +74,17 @@ const updateScheduleById = async ({
 	scheduleId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/schedules/${scheduleId}`, {
+	const { res, status } = await axiosInstance({
+		url: `schedules/${scheduleId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateSchedule = () => {
@@ -97,19 +92,15 @@ export const useUpdateSchedule = () => {
 }
 
 const deleteSchedule = async (id: string) => {
-	const response = await fetch(`/api/schedules/${id}`, {
+	const { res } = await axiosInstance({
+		url: `schedules/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteSchedule = () => {

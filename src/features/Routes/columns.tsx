@@ -32,8 +32,23 @@ import { useDeleteRoute } from './../../hooks/api/routes'
 export type Route = {
 	id: string
 	name: string
-	zone: string
-	stops: Array<string>
+	description: string
+	zone: {
+		id: string
+		name: string
+	}
+	stops: [
+		{
+			created_at: string
+			stop: {
+				id: string
+				name: string
+				description: string
+				latitude: string
+				longitude: string
+			}
+		},
+	]
 }
 
 export const columns: ColumnDef<Route>[] = [
@@ -41,7 +56,7 @@ export const columns: ColumnDef<Route>[] = [
 		id: 'select',
 		header: ({ table }) => (
 			<Checkbox
-				className="absolute left-7 top-3 h-[18px] w-[18px]"
+				className="absolute top-3 mx-auto h-[18px] w-[18px]"
 				checked={table.getIsAllPageRowsSelected()}
 				onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
@@ -71,8 +86,16 @@ export const columns: ColumnDef<Route>[] = [
 		accessorKey: 'zone',
 		header: () => <div className="text-left">Zone</div>,
 		cell: ({ row }) => {
-			let zone = row.original.zone
+			let zone = row.original.zone.name
 			return <div className="text-left">{zone}</div>
+		},
+	},
+	{
+		accessorKey: 'description',
+		header: () => <div className="text-left">Description</div>,
+		cell: ({ row }) => {
+			let description = row.original.description
+			return <div className="text-left">{description}</div>
 		},
 	},
 	{
