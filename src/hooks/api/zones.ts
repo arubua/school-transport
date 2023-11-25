@@ -16,13 +16,14 @@ export const useZones = () => {
 	return useQuery(['zones'], getZones)
 }
 
-const AddZone = async ({ name }: { name: string }) => {
+const AddZone = async ({ name,school_id }: { name: string,school_id:string }) => {
 	const { res } = await axiosInstance({
-		url: 'buses',
+		url: 'zones',
 		method: 'POST',
 
 		data: {
 			name,
+			school_id
 		},
 	})
 	if (!res) {
@@ -44,7 +45,7 @@ const updateZoneById = async ({
 	updatedData: object
 }) => {
 	const { res, status } = await axiosInstance({
-		url: `buses/${zoneId}`,
+		url: `zones/${zoneId}`,
 		method: 'PUT',
 
 		data: { ...updatedData },

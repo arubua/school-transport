@@ -55,6 +55,28 @@ const RouteFormSchema = z.object({
 	description: z.string(),
 })
 
+type Route = {
+	id: string
+	name: string
+	description: string
+	zone: {
+		id: string
+		name: string
+	}
+	stops: [
+		{
+			created_at: string
+			stop: {
+				id: string
+				name: string
+				description: string
+				latitude: string
+				longitude: string
+			}
+		},
+	]
+}
+
 const RouteForm = () => {
 	const location = useLocation()
 	const navigate = useNavigate()
@@ -102,9 +124,9 @@ const RouteForm = () => {
 
 	useEffect(() => {
 		if (isUpdating) {
-			const { route } = location.state
+			const { route } = location.state as { route: Route }
 			const zone_id = route.zone.id
-			const stop_ids = route.stops.map(stop => {
+			const stop_ids: { label: string; value: string }[]  = route.stops.map(stop => {
 				return {
 					label: stop.stop.description,
 					value: stop.stop.id,

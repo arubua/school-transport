@@ -17,14 +17,21 @@ import { Spinner } from '../../components/spinner'
 import { useAddZone, useUpdateZone } from '../../hooks/api/zones'
 import { DialogFooter } from '../../components/dialog'
 import { useEffect, useState } from 'react'
+import { useUser } from '../../hooks/UserContext'
+import { toast } from 'sonner'
 
 const ZoneFormSchema = z.object({
 	name: z.string(),
+	school_id:z.string()
 })
 
 type Zone = {
 	id: string
 	name: string
+	school:{
+		id:string 
+		name:string
+	}
 }
 
 type ZoneFormProps = {
@@ -33,6 +40,8 @@ type ZoneFormProps = {
 }
 
 const ZoneForm: React.FC<ZoneFormProps> = ({ zone, closeDialog }) => {
+	const {user} = useUser()
+
 	const [action, setAction] = useState('')
 	const [zoneId, setZoneId] = useState('')
 
@@ -40,11 +49,15 @@ const ZoneForm: React.FC<ZoneFormProps> = ({ zone, closeDialog }) => {
 	const updateZoneMutation = useUpdateZone()
 
 	const { isLoading, isError, data, isSuccess } = addZoneMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateZoneMutation
+
 
 	const form = useForm<z.infer<typeof ZoneFormSchema>>({
 		resolver: zodResolver(ZoneFormSchema),
 		defaultValues: {
 			name: '',
+			school_id:user ? user.school.id : ''
 		},
 	})
 
@@ -63,10 +76,24 @@ const ZoneForm: React.FC<ZoneFormProps> = ({ zone, closeDialog }) => {
 	useEffect(() => {
 		if (zone) {
 			setAction('update')
+			const school_id = zone?.school.id
+
+			let updatedData = {...zone, school_id}
 			setZoneId(zone.id)
-			form.reset(zone)
+			form.reset(updatedData)
 		}
 	}, [zone])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Zone created successfuly`)
+			form.reset()
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Zone updated successfuly`)
+			form.reset()
+		}
+	}, [isSuccess,isSuccessUpdate])
 
 	return (
 		<div>
@@ -100,8 +127,10 @@ const ZoneForm: React.FC<ZoneFormProps> = ({ zone, closeDialog }) => {
 						<Spacer size="4xs" />
 						<div className="flex max-w-xl justify-end">
 							<DialogFooter>
-								<Button disabled={isLoading} type="submit">
+								<Button disabled={isLoading || isLoadingUpdate} type="submit">
 									{isLoading && <Spinner showSpinner={isLoading} />}
+									{isLoadingUpdate && <Spinner showSpinner={isLoadingUpdate} />}
+
 									Submit
 								</Button>
 							</DialogFooter>

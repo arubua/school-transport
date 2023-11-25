@@ -108,7 +108,7 @@ export const columns: ColumnDef<Student>[] = [
 					</Avatar>
 					<div className="ml-1">
 						<div className=" text-left">{name}</div>
-						<div className="flex text-muted-foreground ">
+						<div className="flex text-muted-foreground text-body-2xs">
 							<span>{` ${class_name}`}</span>
 							<span className="ml-2">{`${school}`}</span>
 						</div>

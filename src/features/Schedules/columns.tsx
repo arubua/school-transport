@@ -76,7 +76,7 @@ export const columns: ColumnDef<Schedule>[] = [
 		enableHiding: false,
 	},
 	{
-		accessorKey: 'route',
+		accessorKey: 'route.name',
 		header: () => <div className="text-left">Route</div>,
 		cell: ({ row }) => {
 			let route = row.original.route.name

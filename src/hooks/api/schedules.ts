@@ -36,13 +36,13 @@ const addSchedule = async ({
 	route_id,
 	driver_id,
 	bus_id,
-	students,
+	student_ids,
 }: {
 	start_time: string
 	route_id: string
 	driver_id: string
 	bus_id: string
-	students: Array<Object>
+	student_ids: Array<Object>
 }) => {
 	const { res } = await axiosInstance({
 		url: 'schedules',
@@ -53,7 +53,7 @@ const addSchedule = async ({
 			route_id,
 			driver_id,
 			bus_id,
-			students,
+			// student_ids,
 		},
 	})
 	if (!res) {
@@ -72,8 +72,18 @@ const updateScheduleById = async ({
 	updatedData,
 }: {
 	scheduleId: string
-	updatedData: object
+	updatedData: {
+		start_time: string,
+	route_id: string,
+	driver_id: string,
+	bus_id: string,
+	student_ids?:Array<string>
+	}
 }) => {
+	if (updatedData.hasOwnProperty('student_ids')) {
+        delete updatedData['student_ids'];
+    }
+
 	const { res, status } = await axiosInstance({
 		url: `schedules/${scheduleId}`,
 		method: 'PUT',

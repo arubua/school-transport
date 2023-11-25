@@ -43,7 +43,7 @@ const ScheduleFormSchema = z.object({
 	route_id: z.string(),
 	driver_id: z.string(),
 	bus_id: z.string(),
-	students: z.array(z.record(z.string().trim())),
+	student_ids: z.array(z.record(z.string().trim())),
 })
 
 const ScheduleForm = () => {
@@ -78,15 +78,18 @@ const ScheduleForm = () => {
 			route_id: '',
 			driver_id: '',
 			bus_id: '',
-			students: [],
+			student_ids: [],
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof ScheduleFormSchema>) {
+		const student_ids = values.student_ids.map(student => student.value)
+
+		const updatedData = { ...values, student_ids }
 		if (isUpdating) {
 			await updateScheduleMutation.mutateAsync({
 				scheduleId: scheduleId,
-				updatedData: values,
+				updatedData: updatedData,
 			})
 		} else {
 			await addScheduleMutation.mutateAsync(values)
@@ -95,9 +98,16 @@ const ScheduleForm = () => {
 
 	useEffect(() => {
 		if (isUpdating) {
-			const scheduleData = location.state.schedule
-			setScheduleId(scheduleData.id)
-			form.reset(scheduleData)
+			const {schedule} = location.state
+
+			const route_id = schedule.route.id;
+			const driver_id= schedule.driver.id;
+			const bus_id = schedule.bus.id;
+
+			const updatedSchedule = {...schedule,route_id,driver_id,bus_id}
+
+			setScheduleId(schedule.id)
+			form.reset(updatedSchedule)
 		}
 	}, [isUpdating, location.state, form])
 
@@ -111,7 +121,7 @@ const ScheduleForm = () => {
 		}
 		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
 			const fDrivers = driversRaw.map(driver => ({
-				label: `${driver.firstname} ${driver.lastname}`,
+				label: `${driver.user.firstname} ${driver.user.lastname}`,
 				value: driver.id,
 			}))
 			setDrivers(fDrivers)
@@ -402,7 +412,7 @@ const ScheduleForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="students"
+								name="student_ids"
 								render={({ field: { ...field } }) => (
 									<FormItem className="w-60">
 										<MultiSelect
