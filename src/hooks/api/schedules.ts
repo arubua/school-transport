@@ -49,7 +49,7 @@ const addSchedule = async ({
 		method: 'POST',
 
 		data: {
-			start_time:`${start_time}:00`,
+			start_time: `${start_time}:00`,
 			route_id,
 			driver_id,
 			bus_id,
@@ -73,16 +73,16 @@ const updateScheduleById = async ({
 }: {
 	scheduleId: string
 	updatedData: {
-		start_time: string,
-	route_id: string,
-	driver_id: string,
-	bus_id: string,
-	student_ids?:Array<string>
+		start_time: string
+		route_id: string
+		driver_id: string
+		bus_id: string
+		student_ids?: Array<string>
 	}
 }) => {
 	if (updatedData.hasOwnProperty('student_ids')) {
-        delete updatedData['student_ids'];
-    }
+		delete updatedData['student_ids']
+	}
 
 	const { res, status } = await axiosInstance({
 		url: `schedules/${scheduleId}`,
@@ -115,4 +115,31 @@ const deleteSchedule = async (id: string) => {
 
 export const useDeleteSchedule = () => {
 	return useMutation(deleteSchedule)
+}
+
+const addStudentsToSchedule = async ({
+	student_ids,
+	schedule_id,
+}: {
+	schedule_id: string
+	student_ids: Array<String>
+}) => {
+	const { res } = await axiosInstance({
+		url: 'schedules/add-students',
+		method: 'POST',
+
+		data: {
+			student_ids,
+			schedule_id,
+		},
+	})
+	if (!res) {
+		return null
+	}
+
+	return res
+}
+
+export const useAddStudentsToSchedule = () => {
+	return useMutation(addStudentsToSchedule)
 }

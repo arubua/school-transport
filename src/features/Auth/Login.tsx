@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -38,8 +38,14 @@ const LoginFormSchema = z.object({
 })
 
 export function Login() {
-	const navigate = useNavigate() // Get the navigate function
+	const navigate = useNavigate()
 	const loginMutation = useLogin()
+
+	const [showPassword, setShowPassword] = useState(false)
+
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword)
+	}
 
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
@@ -118,11 +124,32 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input
+											{/* <Input
 												placeholder="********"
 												type="password"
 												{...field}
-											/>
+											/> */}
+											<div className="relative">
+												<Input
+													type={showPassword ? 'text' : 'password'}
+													placeholder="Password"
+													{...field}
+												/>
+												<div className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3">
+													{showPassword ? (
+														<Icon
+															name="eye-open"
+															// size=''
+															onClick={togglePasswordVisibility}
+														/>
+													) : (
+														<Icon
+															name="eye-closed"
+															onClick={togglePasswordVisibility}
+														/>
+													)}
+												</div>
+											</div>
 										</FormControl>
 										<FormMessage />
 									</FormItem>

@@ -5,19 +5,19 @@ import { SidebarNav } from './SideNav'
 const sidebarNavItems = [
 	{
 		title: 'Profile',
-		href: 'profile',
+		href: '/app/settings/profile',
 	},
 	{
 		title: 'School',
-		href: 'school',
+		href: '/app/settings/school',
 	},
 	{
 		title: 'Users',
-		href: 'users',
+		href: '/app/settings/users',
 	},
 	{
 		title: 'Roles',
-		href: 'roles',
+		href: '/app/settings/roles',
 	},
 ]
 

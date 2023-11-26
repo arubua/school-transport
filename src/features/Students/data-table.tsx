@@ -26,6 +26,15 @@ import { DataTablePagination } from '../../components/table/pagination'
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 import { useNavigate } from 'react-router-dom'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../../components/dialog'
+import AddToScheduleForm from './student-to-schedule-form'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -73,10 +82,23 @@ export function DataTable<TData, TValue>({
 					/>
 					{(table.getIsSomeRowsSelected() === true ||
 						table.getIsAllRowsSelected() === true) && (
-						<Button variant="link" size="sm" className="w-60">
-							<Icon name="plus" className="mr-2" />
-							Add to schedule
-						</Button>
+						<Dialog>
+							<DialogTrigger>
+								<Button
+									// onClick={handleAddToSchedule}
+									variant="link"
+									size="sm"
+									className="w-60"
+								>
+									<Icon name="plus" className="mr-2" />
+									Add to schedule
+								</Button>
+							</DialogTrigger>
+
+							<DialogContent className="sm:max-w-[425px]">
+								<AddToScheduleForm selected={selected} />
+							</DialogContent>
+						</Dialog>
 					)}
 				</div>
 				<div className="flex justify-between gap-2">

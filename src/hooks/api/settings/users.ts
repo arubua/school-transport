@@ -7,7 +7,7 @@ const getUsers = async () => {
 		method: 'GET',
 	})
 	if (!res) {
-		throw new Error('Failed to fetch users data')
+		return null
 	}
 	return res
 }
@@ -78,21 +78,15 @@ const updateUserById = async ({
 	userId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/users/${userId}`, {
+	const { res, status } = await axiosInstance({
+		url: 'users/update-profile',
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
+		data: { ...updatedData },
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
-
-	const data = await response.json()
-	return data
+	return res
 }
 
 export const useUpdateUser = () => {
