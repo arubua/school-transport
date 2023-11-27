@@ -48,14 +48,14 @@ type School = {
 }
 type User = {
 	id: string
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	email: string
 	phone_number: string
 	role: string
 	school: {
-		id:string
-		name:string
+		id: string
+		name: string
 	}
 }
 
@@ -66,7 +66,6 @@ const SchoolForm = () => {
 
 	const updateSchoolMutation = useUpdateSchool()
 	const getSchoolByIdMutation = useUpdateSchool()
-
 
 	const { isLoading, isError, data, isSuccess } = updateSchoolMutation
 
@@ -109,8 +108,7 @@ const SchoolForm = () => {
 		form.reset(schoolData)
 	}, [schoolId])
 
-	console.log({schoolData})
-
+	console.log({ schoolData })
 
 	return (
 		<div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { Login } from './features/Auth/Login'
 import { SignUp } from './features/Auth/Signup'
 
@@ -31,6 +31,7 @@ import SettingsView from './views/Settings'
 import SignupConfirmation from './features/Auth/SignupConfirmation'
 import { ChangePassword } from './features/Auth/ChangePassword'
 import { PasswordReset } from './features/Auth/RequestPasswordReset'
+import { clearUserSession } from './utils/storage'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -40,6 +41,7 @@ init()
 
 function App() {
 	useEffect(() => {
+	
 		// Start MSW worker
 		if (
 			import.meta.env.MODE === 'development' ||

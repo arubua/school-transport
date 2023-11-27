@@ -57,14 +57,22 @@ export function DataTable<TData, TValue>({
 		},
 	})
 
+	// const exp = table.getColumn('start_time')?.getFilterValue
+	const column = table.getAllColumns()
+
+
+	// console.log({exp})
+	console.log({column})
+
+
 	return (
 		<div>
 			<div className="flex justify-between py-4">
 				<Input
 					placeholder="Filter by route..."
-					value={(table.getColumn('route')?.getFilterValue() as string) ?? ''}
+					value={(table.getColumn('route_name')?.getFilterValue() as string) ?? ''}
 					onChange={event =>
-						table.getColumn('route')?.setFilterValue(event.target.value)
+						table.getColumn('route_name')?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>

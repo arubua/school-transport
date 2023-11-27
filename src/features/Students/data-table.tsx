@@ -26,6 +26,15 @@ import { DataTablePagination } from '../../components/table/pagination'
 import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 import { useNavigate } from 'react-router-dom'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../../components/dialog'
+import AddToScheduleForm from './student-to-schedule-form'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -57,22 +66,42 @@ export function DataTable<TData, TValue>({
 		},
 	})
 
+	const selected = table.getSelectedRowModel()
+
 	return (
 		<div>
 			<div className="flex justify-between py-4">
-				<Input
-					placeholder="Filter names..."
-					value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-					onChange={event =>
-						table.getColumn('name')?.setFilterValue(event.target.value)
-					}
-					className="max-w-sm"
-				/>
-				<div className="flex gap-2">
-					<Button variant="outline" size={'sm'}>
-						<Icon name="download" className="mr-2" />
-						Export
-					</Button>
+				<div className="flex">
+					<Input
+						placeholder="Filter names..."
+						value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+						onChange={event =>
+							table.getColumn('name')?.setFilterValue(event.target.value)
+						}
+						className="max-w-sm"
+					/>
+					{(table.getIsSomeRowsSelected() === true ||
+						table.getIsAllRowsSelected() === true) && (
+						<Dialog>
+							<DialogTrigger>
+								<Button
+									// onClick={handleAddToSchedule}
+									variant="link"
+									size="sm"
+									className="w-60"
+								>
+									<Icon name="plus" className="mr-2" />
+									Add to schedule
+								</Button>
+							</DialogTrigger>
+
+							<DialogContent className="sm:max-w-[425px]">
+								<AddToScheduleForm selected={selected} />
+							</DialogContent>
+						</Dialog>
+					)}
+				</div>
+				<div className="flex justify-between gap-2">
 					<Button size={'sm'} onClick={() => navigate('addStudent')}>
 						<Icon name="plus" className="mr-2" />
 						Add Student
@@ -129,7 +158,12 @@ export function DataTable<TData, TValue>({
 					</TableBody>
 				</Table>
 			</div>
-			<DataTablePagination table={table} />
+			<div className="relative flex justify-center">
+				<div className="absolute left-2 pt-2 text-body-xs text-muted-foreground ">{`${
+					selected.rows.length
+				} out of ${table.getRowModel().rows.length} selected`}</div>
+				<DataTablePagination table={table} />
+			</div>
 		</div>
 	)
 }

@@ -1,54 +1,74 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
+import { z } from 'zod'
 
 const getDrivers = async () => {
-	const response = await fetch('/api/drivers')
-	if (!response.ok) {
-		throw new Error('Failed to fetch drivers data')
+	const { res, status } = await axiosInstance({
+		url: 'drivers',
+		headers: {
+			//
+		},
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useDrivers = () => {
 	return useQuery(['drivers'], getDrivers)
 }
 
-const addDriver = async ({
-	firstName,
-	lastName,
-	phone_number,
-	bus_id,
-    avatarImage
-}: {
-	firstName: string
-	lastName: string
-	phone_number: string
-	bus_id: string
-    avatarImage: File[] | undefined
-}) => {
-	const response = await fetch('/api/driver', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
-			phone_number,
-			bus_id,
-            avatarImage
-		}),
+const getDriverById = async (driverId: string) => {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${driverId}`,
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return {}
 	}
 
-	const data = await response.json()
+	return res.data.data
+}
 
-	return data
+export const useGetDriverById = (driverId: string) => {
+	return useQuery(['parent', driverId], () => getDriverById(driverId))
+}
+
+const DriverStatusSchema = z.enum(['active', 'inactive', 'suspended'] as const)
+type DriverStatus = z.infer<typeof DriverStatusSchema>
+
+const addDriver = async ({
+	firstname,
+	lastname,
+	phone_number,
+	school_id,
+	status,
+}: {
+	firstname: string
+	lastname: string
+	phone_number: string
+	school_id: string
+	status: DriverStatus
+}) => {
+	const { res } = await axiosInstance({
+		url: 'drivers',
+		method: 'POST',
+
+		data: {
+			firstname,
+			lastname,
+			phone_number,
+			school_id,
+			status,
+			password: 'password',
+		},
+	})
+	if (!res) {
+		return null
+	}
+
+	return res
 }
 
 export const useAddDriver = () => {
@@ -56,19 +76,15 @@ export const useAddDriver = () => {
 }
 
 const deleteDriver = async (id: string) => {
-	const response = await fetch(`/api/drivers/${id}`, {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteDriver = () => {
@@ -82,23 +98,43 @@ const updateDriver = async ({
 	driverId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/drivers/${driverId}`, {
+	const { res, status } = await axiosInstance({
+		url: `drivers/${driverId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateDriver = () => {
 	return useMutation(updateDriver)
+}
+
+const assignBus = async ({
+	driver_id,
+	bus_id,
+}: {
+	driver_id: string
+	bus_id: string
+}) => {
+	const { res, status } = await axiosInstance({
+		url: 'drivers/assign-bus',
+		method: 'PUT',
+
+		data: { driver_id, bus_id },
+	})
+	if (!res) {
+		return null
+	}
+
+	return res.data.data
+}
+
+export const useAssignBus = () => {
+	return useMutation(assignBus)
 }

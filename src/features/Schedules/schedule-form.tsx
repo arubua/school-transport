@@ -30,23 +30,25 @@ import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useRoutes } from '../../hooks/api/routes'
 import { useDrivers } from '../../hooks/api/drivers'
 import { useBuses } from '../../hooks/api/buses'
 import { MultiSelect } from '../../components/multiselect'
 import { useAddSchedule, useUpdateSchedule } from '../../hooks/api/schedules'
+import { toast } from 'sonner'
 
 const ScheduleFormSchema = z.object({
 	start_time: z.string(),
 	route_id: z.string(),
 	driver_id: z.string(),
 	bus_id: z.string(),
-	students: z.array(z.record(z.string().trim())),
+	student_ids: z.array(z.record(z.string().trim())),
 })
 
 const ScheduleForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [routes, setRoutes] = useState<{ label: string; value: string }[]>([])
 	const [drivers, setDrivers] = useState<{ label: string; value: string }[]>([])
@@ -76,15 +78,18 @@ const ScheduleForm = () => {
 			route_id: '',
 			driver_id: '',
 			bus_id: '',
-			students: [],
+			student_ids: [],
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof ScheduleFormSchema>) {
+		const student_ids = values.student_ids.map(student => student.value)
+
+		const updatedData = { ...values, student_ids }
 		if (isUpdating) {
 			await updateScheduleMutation.mutateAsync({
 				scheduleId: scheduleId,
-				updatedData: values,
+				updatedData: updatedData,
 			})
 		} else {
 			await addScheduleMutation.mutateAsync(values)
@@ -93,9 +98,16 @@ const ScheduleForm = () => {
 
 	useEffect(() => {
 		if (isUpdating) {
-			const scheduleData = location.state.schedule
-			setScheduleId(scheduleData.id)
-			form.reset(scheduleData)
+			const {schedule} = location.state
+
+			const route_id = schedule.route.id;
+			const driver_id= schedule.driver.id;
+			const bus_id = schedule.bus.id;
+
+			const updatedSchedule = {...schedule,route_id,driver_id,bus_id}
+
+			setScheduleId(schedule.id)
+			form.reset(updatedSchedule)
 		}
 	}, [isUpdating, location.state, form])
 
@@ -109,7 +121,7 @@ const ScheduleForm = () => {
 		}
 		if (Array.isArray(driversRaw) && driversRaw.length > 0) {
 			const fDrivers = driversRaw.map(driver => ({
-				label: `${driver.firstName} ${driver.lastName}`,
+				label: `${driver.user.firstname} ${driver.user.lastname}`,
 				value: driver.id,
 			}))
 			setDrivers(fDrivers)
@@ -123,12 +135,23 @@ const ScheduleForm = () => {
 		}
 		if (Array.isArray(studentsRaw) && studentsRaw.length > 0) {
 			const fStudents = studentsRaw.map(student => ({
-				label: `${student.firstName} ${student.lastName}`,
+				label: `${student.firstname} ${student.lastname}`,
 				value: student.id,
 			}))
 			setStudents(fStudents)
 		}
 	}, [routesRaw, driversRaw, busesRaw, studentsRaw])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Schedule created successfuly`)
+			navigate('/app/schedules')
+		}
+		// if (isSuccessUpdate) {
+		// 	toast.success(`Bus updated successfuly`)
+		// 	navigate('/app/buses')
+		// }
+	}, [isSuccess])
 
 	return (
 		<div>
@@ -158,7 +181,7 @@ const ScheduleForm = () => {
 								render={({ field }) => (
 									<FormItem className="w-60">
 										<FormControl>
-											<Input type="datetime-local" {...field} />
+											<Input type="time" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -389,7 +412,7 @@ const ScheduleForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="students"
+								name="student_ids"
 								render={({ field: { ...field } }) => (
 									<FormItem className="w-60">
 										<MultiSelect

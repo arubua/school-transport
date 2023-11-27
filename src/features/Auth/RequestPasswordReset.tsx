@@ -24,7 +24,7 @@ import { useRequestResetPassword, useResetPassword } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
 import { clearUserSession, getUser } from '../../utils/storage'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 const RequestResetSchema = z.object({
@@ -32,7 +32,7 @@ const RequestResetSchema = z.object({
 })
 
 const ResetSchema = z.object({
-	email: EmailSchema,
+	// email: EmailSchema,
 	token: ResetTokenSchema,
 	new_password: PasswordSchema,
 })
@@ -76,7 +76,7 @@ export function PasswordReset() {
 	const resetForm = useForm<z.infer<typeof ResetSchema>>({
 		resolver: zodResolver(ResetSchema),
 		defaultValues: {
-			email: email,
+			// email: email,
 			token: '',
 			new_password: '',
 		},
@@ -88,10 +88,20 @@ export function PasswordReset() {
 	}
 
 	async function onSubmitReset(values: z.infer<typeof ResetSchema>) {
-		await resetPasswordMutation.mutateAsync(values)
+		const resetValues = {
+			...values,
+			email: email,
+		}
+		await resetPasswordMutation.mutateAsync(resetValues)
 	}
 
-	const { isLoading, data, isError, error, isSuccess } = requestResetMutation
+	const { isLoading, isError, error, isSuccess } = requestResetMutation
+	const {
+		isLoading: isLoadingReset,
+		isError: isErrorReset,
+		error: errorReset,
+		isSuccess: isSuccessReset,
+	} = resetPasswordMutation
 
 	useEffect(() => {
 		if (isSuccess) {
@@ -102,6 +112,16 @@ export function PasswordReset() {
 			toast.error(`${error}`)
 		}
 	}, [isSuccess, isLoading])
+
+	useEffect(() => {
+		if (isSuccessReset) {
+			// toast.success(`${data.message}`)
+			navigate('/app/home')
+		}
+		if (isSuccessReset) {
+			toast.error(`${errorReset}`)
+		}
+	}, [isSuccessReset, isLoadingReset])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
@@ -114,7 +134,7 @@ export function PasswordReset() {
 					/>
 				</div>
 				<div className="flex flex-col gap-3 text-center">
-					<h2 className="text-h2">Reset Password!</h2>
+					<h4 className="text-h2">Reset Password!</h4>
 					{/* <p className="text-body-sm text-muted-foreground">
 						Update your password below to continue...
 					</p> */}
@@ -210,8 +230,12 @@ export function PasswordReset() {
 								/>
 								<Spacer size="3xs" />
 
-								<Button className="w-full" type="submit" disabled={isLoading}>
-									<Spinner showSpinner={isLoading} />
+								<Button
+									className="w-full"
+									type="submit"
+									disabled={isLoadingReset}
+								>
+									<Spinner showSpinner={isLoadingReset} />
 									Submit
 								</Button>
 								<Spacer size="4xs" />
@@ -219,6 +243,9 @@ export function PasswordReset() {
 						</form>
 					</Form>
 				)}
+				<Button className="p-0" variant="link">
+					<Link to={'/auth/login'}>Login with your credentials.</Link>
+				</Button>
 			</div>
 		</div>
 	)

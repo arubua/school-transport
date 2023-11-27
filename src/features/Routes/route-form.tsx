@@ -36,19 +36,50 @@ import { useEffect, useState } from 'react'
 import { useZones } from '../../hooks/api/zones'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAddRoute, useUpdateRoute } from '../../hooks/api/routes'
 import { MultiSelect } from '../../components/multiselect'
 import { useStops } from '../../hooks/api/stops'
+import { toast } from 'sonner'
 
 const RouteFormSchema = z.object({
 	name: z.string(),
-	stops: z.array(z.record(z.string().trim())),
+	stop_ids: z.array(
+		z.object({
+			label: z.string(),
+			value: z.string(),
+		}),
+	),
+	// stop_ids: z.array(z.string().trim()),
 	zone_id: z.string(),
+	description: z.string(),
 })
+
+type Route = {
+	id: string
+	name: string
+	description: string
+	zone: {
+		id: string
+		name: string
+	}
+	stops: [
+		{
+			created_at: string
+			stop: {
+				id: string
+				name: string
+				description: string
+				latitude: string
+				longitude: string
+			}
+		},
+	]
+}
 
 const RouteForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [zones, setZones] = useState<{ label: string; value: string }[]>([])
 	const [stops, setStops] = useState<{ label: string; value: string }[]>([])
@@ -61,6 +92,8 @@ const RouteForm = () => {
 	const updateRouteMutation = useUpdateRoute()
 
 	const { isLoading, isError, data, isSuccess } = addRouteMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateRouteMutation
 
 	const { data: zonesRaw } = useZones()
 	const { data: stopsRaw } = useStops()
@@ -69,16 +102,20 @@ const RouteForm = () => {
 		resolver: zodResolver(RouteFormSchema),
 		defaultValues: {
 			name: '',
-			stops: [],
+			stop_ids: [],
 			zone_id: '',
+			description: '',
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof RouteFormSchema>) {
+		const stop_ids = values.stop_ids.map(stop => stop.value)
+
+		const updatedData = { ...values, stop_ids }
 		if (isUpdating) {
 			await updateRouteMutation.mutateAsync({
 				routeId: routeId,
-				updatedData: values,
+				updatedData,
 			})
 		} else {
 			await addRouteMutation.mutateAsync(values)
@@ -87,9 +124,19 @@ const RouteForm = () => {
 
 	useEffect(() => {
 		if (isUpdating) {
-			const routeData = location.state.route
-			setRouteId(routeData.id)
-			form.reset(routeData)
+			const { route } = location.state as { route: Route }
+			const zone_id = route.zone.id
+			const stop_ids: { label: string; value: string }[]  = route.stops.map(stop => {
+				return {
+					label: stop.stop.description,
+					value: stop.stop.id,
+				}
+			})
+
+			setRouteId(route.id)
+			const updatedRouteData = { ...route, zone_id, stop_ids }
+
+			form.reset(updatedRouteData)
 		}
 	}, [isUpdating, location.state, form])
 
@@ -112,6 +159,17 @@ const RouteForm = () => {
 			setStops(fStops)
 		}
 	}, [stopsRaw])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Route created successfuly`)
+			navigate('/app/routes')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Route updated successfuly`)
+			navigate('/app/routes')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -153,23 +211,45 @@ const RouteForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
+								<FormLabel>Description</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<FormItem className="w-60">
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
 								<FormLabel>Stops</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="stops"
-								render={({ field: { ...field } }) => (
-									<FormItem>
-										<MultiSelect
-											className="sm:w-60"
-											placeholder="Select stops..."
-											selected={field.value}
-											options={stops}
-											{...field}
-										/>
-										<FormMessage />
-									</FormItem>
-								)}
+								name="stop_ids"
+								render={({ field: { ...field } }) => {
+									return (
+										<FormItem>
+											<MultiSelect
+												className="sm:w-60"
+												placeholder="Select stops..."
+												selected={field.value}
+												options={stops}
+												{...field}
+											/>
+											<FormMessage />
+										</FormItem>
+									)
+								}}
 							/>
 						</div>
 						<Spacer size="4xs" />
@@ -245,8 +325,14 @@ const RouteForm = () => {
 						</div>
 						<Spacer size="3xs" />
 						<div className="flex max-w-lg justify-end  pr-3">
-							<Button type="submit" disabled={isLoading}>
+							<Button
+								className="w-4/6"
+								size="sm"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
 								{isLoading && <Spinner showSpinner={isLoading} />}
+								{isLoadingUpdate && <Spinner showSpinner={isLoadingUpdate} />}
 								Submit
 							</Button>
 						</div>

@@ -14,6 +14,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -25,6 +26,7 @@ import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { cn } from '../../utils/misc'
 import {
+	GradeSchema,
 	ImageFileSchema,
 	NameSchema,
 	SchoolNameSchema,
@@ -38,21 +40,41 @@ import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection } from 'react-dropzone'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { getUser } from '../../utils/storage'
+import { useStops } from '../../hooks/api/stops'
+import { toast } from 'sonner'
 
 const StudentFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	grade: z.string(),
-	school: SchoolNameSchema,
-	parentId: z.string(),
-	avatarImage: z.array(z.instanceof(File)),
+	firstname: NameSchema,
+	lastname: NameSchema,
+	admission_no: z.string(),
+	class_name: GradeSchema,
+	school_id: z.string(),
+	parent_id: z.string(),
+	stop_id: z.string(),
 })
+
+type User = {
+	id: string
+	firstname: string
+	lastname: string
+	email: string
+	phone_number: string
+	role: string
+	school: {
+		id: string
+		name: string
+	}
+}
 
 const StudentForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
+	const [stops, setStops] = useState<{ label: string; value: string }[]>([])
+
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
 	const [studentId, setStudentId] = useState('')
@@ -70,49 +92,90 @@ const StudentForm = () => {
 	const updateStudentMutation = useUpdateStudent()
 
 	const { isLoading, isError, data, isSuccess } = addStudentMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateStudentMutation
 
 	const { data: parentsRaw } = useParents()
+	const { data: stopsRaw } = useStops()
 
 	const form = useForm<z.infer<typeof StudentFormSchema>>({
 		resolver: zodResolver(StudentFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
-			grade: '',
-			school: '',
-			parentId: '',
-			avatarImage: undefined,
+			firstname: '',
+			lastname: '',
+			admission_no: '',
+			class_name: '',
+			parent_id: '',
+			stop_id: '',
+			school_id: '',
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+		const user = await getUser()
 		if (isUpdating) {
 			await updateStudentMutation.mutateAsync({
 				studentId: studentId,
 				updatedData: values,
 			})
 		} else {
-			await addStudentMutation.mutateAsync(values)
+			if (user && 'school' in user) {
+				let valsWithSchoolId = values
+				valsWithSchoolId.school_id = user.school.id
+
+				addStudentMutation.mutateAsync(valsWithSchoolId)
+			}
 		}
 	}
 
 	useEffect(() => {
-		if (isUpdating) {
-			const studentData = location.state.student
-			setStudentId(studentData.id)
-			form.reset(studentData)
+		if (
+			isUpdating &&
+			location.state &&
+			location.state.student &&
+			location.state.student.parent
+		) {
+			const { student } = location.state
+			const parent_id = student.parent.id
+			const stop_id = student.stop.id
+			const school_id = student.school.id
+
+			const updatedStudentData = { ...student, parent_id, stop_id, school_id }
+			setStudentId(student.id)
+			form.reset(updatedStudentData)
 		}
-	}, [isUpdating, location.state, form])
+	}, [isUpdating, location.state])
 
 	useEffect(() => {
 		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
 			const fParents = parentsRaw.map(parent => ({
-				label: `${parent.firstName} ${parent.lastName}`,
+				label: `${parent.user.firstname} ${parent.user.lastname}`,
 				value: parent.id,
 			}))
 			setParents(fParents)
 		}
 	}, [parentsRaw])
+
+	useEffect(() => {
+		if (Array.isArray(stopsRaw) && stopsRaw.length > 0) {
+			const fStops = stopsRaw.map(stop => ({
+				label: stop.description,
+				value: stop.id,
+			}))
+			setStops(fStops)
+		}
+	}, [stopsRaw])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Student created successfuly`)
+			navigate('/app/students')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Student updated successfuly`)
+			navigate('/app/students')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -138,29 +201,51 @@ const StudentForm = () => {
 							<div className="w-64">
 								<FormLabel>Name</FormLabel>
 							</div>
+							<div className="flex gap-2">
+								<FormField
+									control={form.control}
+									name="firstname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input placeholder="First name" {...field} />
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="lastname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input
+													className=""
+													placeholder="Last name"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
+							</div>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Admission Number</FormLabel>
+							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="admission_no"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<Input placeholder="First name" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="lastName"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input
-												className="ml-0 md:ml-2"
-												placeholder="Last name"
-												{...field}
-											/>
+											<Input type="text" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -172,17 +257,22 @@ const StudentForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Grade</FormLabel>
+								<FormLabel>Grade/Class</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="grade"
+								name="class_name"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className="max-w-[490px]">
 										<FormControl>
-											<Input type="number" {...field} />
+											<Input type="text" {...field} />
 										</FormControl>
 										<FormMessage />
+										<FormDescription>
+											Please provide the academic level in the following format:
+											Class [number][stream] or Grade [number]. For example,
+											Class 5B or Grade 3.
+										</FormDescription>
 									</FormItem>
 								)}
 							/>
@@ -192,16 +282,67 @@ const StudentForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>School</FormLabel>
+								<FormLabel>Stop</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="school"
+								name="stop_id"
 								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="NBBPS" {...field} />
-										</FormControl>
+									<FormItem className="flex flex-col">
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant="outline"
+														role="combobox"
+														className={cn(
+															'w-[200px] justify-between',
+															!field.value && 'text-muted-foreground',
+														)}
+													>
+														{field.value
+															? stops.find(stop => stop.value === field.value)
+																	?.label
+															: 'Select stop'}
+														<Icon
+															name="caret-sort"
+															className="ml-2 h-4 w-4 shrink-0 opacity-50"
+														/>
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-[200px p-0">
+												<Command>
+													<CommandInput
+														placeholder="Search stop..."
+														className="h-9"
+													/>
+													<CommandEmpty>No stop found.</CommandEmpty>
+													<CommandGroup className="max-h-[250px] overflow-y-scroll">
+														{stops.map(stop => (
+															<CommandItem
+																value={stop.value}
+																key={stop.value}
+																onSelect={() => {
+																	form.setValue('stop_id', stop.value)
+																}}
+															>
+																{stop.label}
+																<Icon
+																	name="check"
+																	className={cn(
+																		'ml-auto h-4 w-4',
+																		stop.value === field.value
+																			? 'opacity-100'
+																			: 'opacity-0',
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</Command>
+											</PopoverContent>
+										</Popover>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -216,7 +357,7 @@ const StudentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="parentId"
+								name="parent_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -255,7 +396,7 @@ const StudentForm = () => {
 																value={parent.value}
 																key={parent.value}
 																onSelect={() => {
-																	form.setValue('parentId', parent.value)
+																	form.setValue('parent_id', parent.value)
 																}}
 															>
 																{parent.label}
@@ -280,7 +421,7 @@ const StudentForm = () => {
 							/>
 						</div>
 						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
+						{/* <Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
@@ -324,11 +465,16 @@ const StudentForm = () => {
 									</FormItem>
 								)}
 							/>
-						</div>
+						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
+							<Button
+								className="w-5/6"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
 								{isLoading && <Spinner showSpinner={isLoading} />}
+								{isLoadingUpdate && <Spinner showSpinner={isLoadingUpdate} />}
 								Submit
 							</Button>
 						</div>

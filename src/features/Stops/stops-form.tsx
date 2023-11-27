@@ -31,17 +31,19 @@ import { useEffect, useState } from 'react'
 import { useZones } from '../../hooks/api/zones'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 const StopFormSchema = z.object({
-	latitude: z.string(),
-	longitude: z.string(),
+	latitude: z.union([z.number(), z.string()]),
+	longitude: z.union([z.number(), z.string()]),
 	description: z.string(),
 	zone_id: z.string(),
 })
 
 const StopsForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [stopId, setStopId] = useState('')
 	const [zones, setZones] = useState<{ label: string; value: string }[]>([])
@@ -52,6 +54,8 @@ const StopsForm = () => {
 	const updateStopMutation = useUpdateStop()
 
 	const { isLoading, isError, data, isSuccess } = addStopMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateStopMutation
 
 	const { data: zonesRaw } = useZones()
 
@@ -78,11 +82,15 @@ const StopsForm = () => {
 
 	useEffect(() => {
 		if (isUpdating) {
-			const stopData = location.state.stop
-			setStopId(stopData.id)
-			form.reset(stopData)
+			const { stop } = location.state
+
+			const zone_id = stop.zone.id
+			setStopId(stop.id)
+
+			const updatedStopData = { ...stop, zone_id }
+			form.reset(updatedStopData)
 		}
-	}, [isUpdating, location.state, form])
+	}, [isUpdating, location.state])
 
 	useEffect(() => {
 		if (Array.isArray(zonesRaw) && zonesRaw.length > 0) {
@@ -93,6 +101,17 @@ const StopsForm = () => {
 			setZones(fZones)
 		}
 	}, [zonesRaw])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Stop created successfuly`)
+			navigate('/app/stops')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Stop updated successfuly`)
+			navigate('/app/stops')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -242,9 +261,17 @@ const StopsForm = () => {
 						</div>
 
 						<Spacer size="3xs" />
-						<div className="flex max-w-lg pr-4 justify-end">
-							<Button  type="submit" disabled={isLoading}>
-								{isLoading && <Spinner showSpinner={isLoading} />}
+						<div className="flex max-w-lg justify-end pr-4">
+							<Button
+								className="w-4/6"
+								size="sm"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
+								{isLoading ||
+									(isLoadingUpdate && (
+										<Spinner showSpinner={isLoading || isLoadingUpdate} />
+									))}
 								Submit
 							</Button>
 						</div>

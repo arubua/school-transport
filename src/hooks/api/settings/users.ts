@@ -2,12 +2,12 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import axiosInstance from '../../axiosInstance'
 
 const getUsers = async () => {
-	const {res,status} = await axiosInstance({
-		url:'users',
-		method:'GET',
+	const { res, status } = await axiosInstance({
+		url: 'users',
+		method: 'GET',
 	})
 	if (!res) {
-		throw new Error('Failed to fetch users data')
+		return null
 	}
 	return res
 }
@@ -30,14 +30,14 @@ export const useUserById = (userId: string) => {
 }
 
 const addUser = async ({
-	firstName,
-	lastName,
+	firstname,
+	lastname,
 	phone_number,
 	email,
 	role_id,
 }: {
-	firstName: string
-	lastName: string
+	firstname: string
+	lastname: string
 	phone_number: string
 	email: string
 	role_id: string
@@ -48,8 +48,8 @@ const addUser = async ({
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			firstName,
-			lastName,
+			firstname,
+			lastname,
 			phone_number,
 			email,
 			role_id,
@@ -78,21 +78,15 @@ const updateUserById = async ({
 	userId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/users/${userId}`, {
+	const { res, status } = await axiosInstance({
+		url: 'users/update-profile',
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
+		data: { ...updatedData },
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
-
-	const data = await response.json()
-	return data
+	return res
 }
 
 export const useUpdateUser = () => {

@@ -33,9 +33,22 @@ import { Spinner } from '../../components/spinner'
 
 export type Schedule = {
 	id: string
-	route: string
-	driver: string
-	bus: string
+	route: {
+		id: string
+		name: string
+		description: string
+	}
+	driver: {
+		id: string
+		user: {
+			firstname: string
+			lastname: string
+		}
+	}
+	bus: {
+		id: string
+		reg_number: string
+	}
 	start_time: string
 	students: Array<string>
 }
@@ -63,17 +76,17 @@ export const columns: ColumnDef<Schedule>[] = [
 		enableHiding: false,
 	},
 	{
-		accessorKey: 'route',
+		accessorKey: 'route.name',
 		header: () => <div className="text-left">Route</div>,
 		cell: ({ row }) => {
-			let route = row.original.route
+			let route = row.original.route.name
 
 			return <div className="text-left">{route}</div>
 		},
 	},
 	{
 		accessorKey: 'start_time',
-		header: () => <div className="text-left">Time</div>,
+		header: () => <div className="text-left">Start Time</div>,
 		cell: ({ row }) => {
 			let start_time = row.original.start_time
 
@@ -84,15 +97,19 @@ export const columns: ColumnDef<Schedule>[] = [
 		accessorKey: 'driver',
 		header: () => <div className="text-left">Driver</div>,
 		cell: ({ row }) => {
-			let driver = row.original.driver
-			return <div className="text-left">{driver}</div>
+			let driverFirstname = row.original.driver.user.firstname
+			let driverLastname = row.original.driver.user.lastname
+
+			return (
+				<div className="text-left">{`${driverFirstname} ${driverLastname}`}</div>
+			)
 		},
 	},
 	{
 		accessorKey: 'bus',
 		header: () => <div className="text-left">Bus</div>,
 		cell: ({ row }) => {
-			let bus = row.original.bus
+			let bus = row.original.bus.reg_number
 			return <div className="text-left">{bus}</div>
 		},
 	},
