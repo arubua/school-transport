@@ -1,13 +1,17 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import axiosInstance from '../../axiosInstance'
+import { toast } from 'sonner'
 
 const getSchools = async () => {
-	const response = await fetch('/api/schools')
-	if (!response.ok) {
-		throw new Error('Failed to fetch schools data')
+	const { res, status } = await axiosInstance({
+		url: 'schools',
+		method: 'GET',
+	})
+	if (!res) {
+		toast.error('Failed to fetch roles data')
 	}
-	const data = await response.json()
-	return data
+	// const data = await res.json()
+	return res
 }
 
 export const useSchools = () => {
@@ -15,23 +19,12 @@ export const useSchools = () => {
 }
 
 const getSchoolById = async (schoolId: string) => {
-	const tokenString = sessionStorage.getItem('TOKEN')
-	if (!tokenString) {
-		throw new Error('Token not found in sessionStorage')
-	}
-
-	const token: string = JSON.parse(tokenString)
-
 	const { res, status } = await axiosInstance({
 		url: `schools/${schoolId}`,
-		headers: {
-			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json',
-		},
 	})
 
 	if (!res) {
-		throw new Error('Failed to fetch school data')
+		return null
 	}
 
 	return res.data.data
@@ -60,30 +53,23 @@ const addSchool = async ({
 	contact_person: string
 	contact_person_phone: string
 }) => {
-	const response = await fetch('/api/schools', {
+	const { res, status } = await axiosInstance({
+		url: 'schools',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
+		data: {
 			name,
 			address,
 			email,
 			phone_number,
 			contact_person,
 			contact_person_phone,
-		}),
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		toast.error('Failed to fetch roles data')
 	}
-
-	const data = await response.json()
-
-	return data
+	// const data = await res.json()
+	return res
 }
 
 export const useAddSchool = () => {
@@ -98,13 +84,13 @@ const updateSchoolById = async ({
 	updatedData: object
 }) => {
 	const { res, status } = await axiosInstance({
+		url:`/schools/${schoolId}`,
 		method: 'PUT',
-		url: '',
 		data: JSON.stringify(updatedData),
 	})
 
 	if (!res) {
-		throw new Error('Failed to fetch school')
+		return null
 	}
 
 	return res

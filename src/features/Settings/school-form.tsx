@@ -27,6 +27,7 @@ import {
 	NameSchema,
 } from '../../utils/user-validation'
 import { getUser } from '../../utils/storage'
+import { toast } from 'sonner'
 
 export const SchoolFormSchema = z.object({
 	name: NameSchema,
@@ -59,8 +60,10 @@ type User = {
 	}
 }
 
+type UserJson = User | {}
+
 const SchoolForm = () => {
-	const [user, setUser] = useState<User | null>(null)
+	const [user, setUser] = useState<UserJson>({})
 	const [school, setSchool] = useState<School | null>(null)
 	const [schoolId, setSchoolId] = useState('')
 
@@ -84,7 +87,7 @@ const SchoolForm = () => {
 	})
 
 	async function onSubmit(values: z.infer<typeof SchoolFormSchema>) {
-		if (user) {
+		if (user && user.school) {
 			await updateSchoolMutation.mutateAsync({
 				schoolId: user.school.id,
 				updatedData: values,
@@ -96,8 +99,10 @@ const SchoolForm = () => {
 		async function init() {
 			let userData = await getUser()
 
-			setUser(userData)
-			setSchoolId(userData.school.id)
+			if (userData && userData.school) {
+				setUser(userData)
+				setSchoolId(userData.school.id)
+			}
 		}
 
 		init()
@@ -108,7 +113,14 @@ const SchoolForm = () => {
 		form.reset(schoolData)
 	}, [schoolId])
 
-	console.log({ schoolData })
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(
+				`School updated successfuly.Your changes will be visible on the next login`,
+			)
+			// navigate('/app/stops')
+		}
+	}, [isSuccess])
 
 	return (
 		<div>

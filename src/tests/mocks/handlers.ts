@@ -253,7 +253,7 @@ export const handlers: Array<RequestHandler> = [
 		)
 	}),
 	rest.get<getStudentsResponse>('/students', async (req, res, ctx) => {
-		const numberofStudents = 15
+		const numberofStudents = 1500
 
 		const students = Array.from({ length: numberofStudents }, () => ({
 			id: faker.string.uuid(),
@@ -279,7 +279,7 @@ export const handlers: Array<RequestHandler> = [
 			// avatarImage: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
+		return res(ctx.delay(0), ctx.status(200), ctx.json({data:students}))
 	}),
 	rest.get<getDriversResponse>('/api/drivers', async (req, res, ctx) => {
 		const numberofDrivers = 15
