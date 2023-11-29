@@ -2,9 +2,10 @@ import { columns } from './columns'
 import { DataTable } from './data-table'
 import { useStudents } from '../../hooks/api/students'
 import { Spinner } from '../../components/spinner'
+import ErrorDisplay from '../../components/error-view'
 
 export default function Parents() {
-	const { data, error, isLoading } = useStudents()
+	const { data, isError,error, isLoading, refetch } = useStudents()
 
 	if (isLoading) {
 		return (
@@ -15,7 +16,13 @@ export default function Parents() {
 	}
 
 	// if (error) {
-	// 	return <p>Error</p>
+	// 	return (
+	// 		<ErrorDisplay
+	// 			message="Oops! Something went wrong while fetching the data. Please check your internet connection and try again."
+	// 			actionText="Retry"
+	// 			onActionClick={() => refetch} // Trigger refetch on button click
+	// 		/>
+	// 	)
 	// }
 
 	return (

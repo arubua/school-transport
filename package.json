@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "vite --port 3000",
+    "start": "vite --port 3401",
     "build": "tsc && vite build",
     "build:icons": "tsx ./other/build-icons.ts",
     "preview": "vite preview",
