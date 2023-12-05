@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -6,6 +6,7 @@ import {
 	PasswordSchema,
 	RememberUser,
 	UsernameSchema,
+	usernameSchema,
 } from '../../utils/user-validation'
 import { useForm } from 'react-hook-form'
 import {
@@ -31,20 +32,20 @@ import { useLocalStorage, useSessionStorage } from '../../hooks/hooks'
 import { getSessionExpirationDate } from '../../utils/auth'
 
 const LoginFormSchema = z.object({
-	username: UsernameSchema,
+	username: usernameSchema,
 	password: PasswordSchema,
 	remember_user: RememberUser,
 })
 
 export function Login() {
-	const [storedUser, setStoredUser] = useLocalStorage('USER', null)
-	const [storedToken, setStoredToken] = useSessionStorage('TOKEN', null)
-	const [tokenExpiry, setTokenExpiry] = useSessionStorage(
-		'TOKEN_EXPIRY',
-		new Date(),
-	)
-	const navigate = useNavigate() // Get the navigate function
+	const navigate = useNavigate()
 	const loginMutation = useLogin()
+
+	const [showPassword, setShowPassword] = useState(false)
+
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword)
+	}
 
 	const form = useForm<z.infer<typeof LoginFormSchema>>({
 		resolver: zodResolver(LoginFormSchema),
@@ -61,20 +62,20 @@ export function Login() {
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
 
-	useEffect(() => {
-		if (isSuccess) {
-			toast.success('Login successful')
-			setStoredUser(data)
-			setStoredToken(data.token)
-			form.reset()
+	// useEffect(() => {
+	// 	if (isSuccess) {
+	// 		toast.success('Login successful')
+	// 		setStoredUser(data)
+	// 		setStoredToken(data.token)
+	// 		form.reset()
 
-			setTokenExpiry(getSessionExpirationDate())
-			navigate('/app/home') // Redirect to /app on success
-		}
-		if (isError) {
-			toast.error('Failed to login!')
-		}
-	}, [isSuccess, isLoading])
+	// 		setTokenExpiry(getSessionExpirationDate())
+	// 		navigate('/app/home') // Redirect to /app on success
+	// 	}
+	// 	if (isError) {
+	// 		toast.error('Failed to login!')
+	// 	}
+	// }, [isSuccess, isLoading])
 
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
@@ -106,7 +107,10 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Username</FormLabel>
 										<FormControl>
-											<Input placeholder="wazza" {...field} />
+											<Input
+												placeholder="use email or phone number"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -120,11 +124,32 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input
+											{/* <Input
 												placeholder="********"
 												type="password"
 												{...field}
-											/>
+											/> */}
+											<div className="relative">
+												<Input
+													type={showPassword ? 'text' : 'password'}
+													placeholder="Password"
+													{...field}
+												/>
+												<div className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3">
+													{showPassword ? (
+														<Icon
+															name="eye-open"
+															// size=''
+															onClick={togglePasswordVisibility}
+														/>
+													) : (
+														<Icon
+															name="eye-closed"
+															onClick={togglePasswordVisibility}
+														/>
+													)}
+												</div>
+											</div>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -147,7 +172,10 @@ export function Login() {
 										</FormItem>
 									)}
 								/>
-								<Button variant="link">Forgot password ?</Button>
+								{/* <Button variant="link">Forgot password ?</Button> */}
+								<Button className="p-0" variant="link">
+									<Link to={'/auth/reset_password'}>Forgot Password ?</Link>
+								</Button>
 							</div>
 							<Button className="w-full" type="submit" disabled={isLoading}>
 								<Spinner showSpinner={isLoading} />
@@ -171,7 +199,7 @@ export function Login() {
 						<div className="flex items-center justify-center gap-2 pt-6">
 							<span className="text-muted-foreground">New here ?</span>
 							<Button className="p-0" variant="link">
-								<Link to={'/signup'}>Create an account</Link>
+								<Link to={'/auth/signup'}>Create an account</Link>
 							</Button>
 						</div>
 					</div>

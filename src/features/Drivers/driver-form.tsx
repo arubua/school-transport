@@ -28,6 +28,7 @@ import { cn } from '../../utils/misc'
 import {
 	BusSchema,
 	BusStopSchema,
+	DriverStatusSchema,
 	GradeSchema,
 	ImageFileSchema,
 	NameSchema,
@@ -44,27 +45,52 @@ import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
 import FileUpload from '../../components/ui/file-input'
 import { FileRejection, DropzoneInputProps } from 'react-dropzone'
-import { useAddDriver, useDrivers, useUpdateDriver } from '../../hooks/api/drivers'
-import { useBuses } from '../../hooks/api/buses'
-import { useLocation } from 'react-router-dom'
+import {
+	useAddDriver,
+	useDrivers,
+	useUpdateDriver,
+} from '../../hooks/api/drivers'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { getUser } from '../../utils/storage'
+import { toast } from 'sonner'
+import { useUser } from '../../hooks/UserContext'
+
+type DriverStatus = z.infer<typeof DriverStatusSchema>
 
 const DriversFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
+	firstname: NameSchema,
+	lastname: NameSchema,
 	phone_number: PhoneSchema,
-	bus_id: BusSchema,
-	avatarImage: z.array(z.instanceof(File)),
+	school_id: z.string(),
+	status: DriverStatusSchema,
 })
 
 const DriverForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
+	const { user } = useUser()
 
 	const [isUpdating] = useState(location.state && location.state.driver)
 
-	const [buses, setBuses] = useState<{ label: string; value: string }[]>([])
+	const [statusOptions, setStatusOptions] = useState<
+		{ label: string; value: DriverStatus }[]
+	>([
+		{
+			label: 'Active',
+			value: 'active',
+		},
+		{
+			label: 'Inactive',
+			value: 'inactive',
+		},
+		{
+			label: 'Suspended',
+			value: 'suspended',
+		},
+	])
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
-	const [driverId,setDriverId] = useState('')
+	const [driverId, setDriverId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -76,50 +102,62 @@ const DriverForm = () => {
 	const addDriverMutation = useAddDriver()
 	const updateDriverMutation = useUpdateDriver()
 
-
 	const { isLoading, isError, data, isSuccess } = addDriverMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateDriverMutation
 
-	const { data: busesRaw } = useBuses()
+	// const { data: statusOptionsRaw } = useBuses()
 
 	const form = useForm<z.infer<typeof DriversFormSchema>>({
 		resolver: zodResolver(DriversFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
+			firstname: '',
+			lastname: '',
 			phone_number: '',
-			bus_id: '',
-			avatarImage: undefined,
+			school_id: '',
+			status: 'active',
 		},
 	})
 
-	useEffect(() => {
-		if (isUpdating) {
-			const driverData = location.state.driver
-			setDriverId(driverData.id)
-			form.reset(driverData)
-		}
-	}, [isUpdating, location.state, form])
-
 	async function onSubmit(values: z.infer<typeof DriversFormSchema>) {
+		const user = await getUser()
+
 		if (isUpdating) {
 			await updateDriverMutation.mutateAsync({
 				driverId: driverId,
 				updatedData: values,
 			})
 		} else {
-		await addDriverMutation.mutateAsync(values)
+			if (user && 'school' in user) {
+				let valsWithSchoolId = values
+				valsWithSchoolId.school_id = user.school.id
+
+				addDriverMutation.mutateAsync(valsWithSchoolId)
+			}
 		}
 	}
 
 	useEffect(() => {
-		if (Array.isArray(busesRaw) && busesRaw.length > 0) {
-			const fBuses = busesRaw.map(bus => ({
-				label: bus.reg_number,
-				value: bus.id,
-			}))
-			setBuses(fBuses)
+		if (isUpdating && user && location.state && location.state.driver) {
+			const { driver } = location.state
+			const school_id = user.school.id
+
+			const updatedDriverData = { ...driver, school_id }
+			setDriverId(location.state.driverId)
+			form.reset(updatedDriverData)
 		}
-	}, [busesRaw])
+	}, [isUpdating, location.state])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Driver created successfuly`)
+			navigate('/app/drivers')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Driver updated successfuly`)
+			navigate('/app/drivers')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
@@ -145,34 +183,36 @@ const DriverForm = () => {
 							<div className="w-64">
 								<FormLabel>Name</FormLabel>
 							</div>
-							<FormField
-								control={form.control}
-								name="firstName"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="First name" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="lastName"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input
-												className="ml-0 md:ml-2"
-												placeholder="Last name"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							<div className="flex gap-2">
+								<FormField
+									control={form.control}
+									name="firstname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input placeholder="First name" {...field} />
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="lastname"
+									render={({ field }) => (
+										<FormItem>
+											<FormControl>
+												<Input
+													className=""
+													placeholder="Last name"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage className="max-w-[250px]" />
+										</FormItem>
+									)}
+								/>
+							</div>
 						</div>
 						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
@@ -199,11 +239,11 @@ const DriverForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Bus</FormLabel>
+								<FormLabel>Status</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="bus_id"
+								name="status"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -218,8 +258,9 @@ const DriverForm = () => {
 														)}
 													>
 														{field.value
-															? buses.find(bus => bus.value === field.value)
-																	?.label
+															? statusOptions.find(
+																	option => option.value === field.value,
+															  )?.label
 															: 'Select bus'}
 														<Icon
 															name="caret-sort"
@@ -231,25 +272,25 @@ const DriverForm = () => {
 											<PopoverContent className="w-[200px p-0">
 												<Command>
 													<CommandInput
-														placeholder="Search bus..."
+														placeholder="Search status..."
 														className="h-9"
 													/>
-													<CommandEmpty>No bus found.</CommandEmpty>
+													<CommandEmpty>No option found.</CommandEmpty>
 													<CommandGroup className="max-h-[250px] overflow-y-scroll">
-														{buses.map(bus => (
+														{statusOptions.map(option => (
 															<CommandItem
-																value={bus.label}
-																key={bus.value}
+																value={option.label}
+																key={option.value}
 																onSelect={() => {
-																	form.setValue('bus_id', bus.value)
+																	form.setValue('status', option.value)
 																}}
 															>
-																{bus.label}
+																{option.label}
 																<Icon
 																	name="check"
 																	className={cn(
 																		'ml-auto h-4 w-4',
-																		bus.value === field.value
+																		option.value === field.value
 																			? 'opacity-100'
 																			: 'opacity-0',
 																	)}
@@ -266,7 +307,7 @@ const DriverForm = () => {
 							/>
 						</div>
 						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
+						{/* <Separator orientation="horizontal" />
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
@@ -310,11 +351,19 @@ const DriverForm = () => {
 									</FormItem>
 								)}
 							/>
-						</div>
+						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
-								{isLoading && <Spinner showSpinner={isLoading} />}
+							<Button
+								className="w-4/6"
+								size="sm"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
+								{isLoading ||
+									(isLoadingUpdate && (
+										<Spinner showSpinner={isLoading || isLoadingUpdate} />
+									))}
 								Submit
 							</Button>
 						</div>

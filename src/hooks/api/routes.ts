@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getRoutes = async () => {
-	const response = await fetch('/api/routes')
-	if (!response.ok) {
-		throw new Error('Failed to fetch routes data')
+	const { res, status } = await axiosInstance({
+		url: 'routes',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useRoutes = () => {
@@ -14,12 +17,14 @@ export const useRoutes = () => {
 }
 
 const getRouteById = async (routeId: string) => {
-	const response = await fetch(`/api/routes/${routeId}`)
-	if (!response.ok) {
-		throw new Error('Failed to fetch route data')
+	const { res, status } = await axiosInstance({
+		url: `buses/${routeId}`,
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useRouteById = (routeId: string) => {
@@ -27,44 +32,32 @@ export const useRouteById = (routeId: string) => {
 }
 
 const addRoute = async ({
-	firstName,
-	lastName,
-	email,
-	phone,
-	address,
-	avatarImage,
+	name,
+	zone_id,
+	stop_ids,
+	description
 }: {
-	firstName: string
-	lastName: string
-	email: string
-	phone: string
-	address: string
-	avatarImage: File[] | undefined
+	name: string
+	zone_id: string
+	description:string
+	stop_ids: Array<{ label: string; value: string }>
 }) => {
-	const response = await fetch('/api/route', {
+	const { res } = await axiosInstance({
+		url: 'routes',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
+
+		data: {
+			name,
+			zone_id,
+			stop_ids: stop_ids.map(stop => stop.value),
+			description
 		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
-			email,
-			phone,
-			address,
-			avatarImage,
-		}),
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddRoute = () => {
@@ -78,43 +71,33 @@ const updateRouteById = async ({
 	routeId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/routes/${routeId}`, {
+	const { res, status } = await axiosInstance({
+		url: `routes/${routeId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateRoute = () => {
 	return useMutation(updateRouteById)
 }
 
-
-
 const deleteRoute = async (id: string) => {
-	const response = await fetch(`/api/routes/${id}`, {
+	const { res } = await axiosInstance({
+		url: `routes/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteRoute = () => {

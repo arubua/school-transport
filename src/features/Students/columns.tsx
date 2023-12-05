@@ -33,13 +33,26 @@ import { Spinner } from '../../components/spinner'
 
 export type Student = {
 	id: string
-	firstName: string
-	lastName: string
-	grade: string
-	school: string
-	stop: string
+	firstname: string
+	lastname: string
+	class_name: string
+	admission_no: string
+	school: {
+		id: string
+		name: string
+	}
+	stop: {
+		id: string
+		description: string
+		latitude: string
+		longitude: string
+	}
 	parent_phone: number
-	parent: string
+	parent: {
+		id: string
+		firstname: string
+		lastname: string
+	}
 	avatarImage: string
 }
 
@@ -67,7 +80,7 @@ export const columns: ColumnDef<Student>[] = [
 	},
 	{
 		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
+		accessorFn: row => `${row.firstname} ${row.lastname}`,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -80,12 +93,12 @@ export const columns: ColumnDef<Student>[] = [
 			)
 		},
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
-			let name = `${firstName} ${lastName}`
+			let firstname = row.original.firstname
+			let lastname = row.original.lastname
+			let name = `${firstname} ${lastname}`
 			let image = row.original.avatarImage
-			let grade = row.original.grade
-			let school = row.original.school
+			let class_name = row.original.class_name
+			let school = row.original.school.name
 
 			return (
 				<div className="flex items-center">
@@ -95,11 +108,25 @@ export const columns: ColumnDef<Student>[] = [
 					</Avatar>
 					<div className="ml-1">
 						<div className=" text-left">{name}</div>
-						<div className="flex text-muted-foreground ">
-							<span>{`Grade ${grade}`}</span>
-							<span className="ml-2">{`${school} School`}</span>
+						<div className="flex text-muted-foreground text-body-2xs">
+							<span>{` ${class_name}`}</span>
+							<span className="ml-2">{`${school}`}</span>
 						</div>
 					</div>
+				</div>
+			)
+		},
+	},
+	{
+		accessorKey: 'admission_no',
+		header: () => <div className="text-left">Admission No.</div>,
+		cell: ({ row }) => {
+			let admission = row.original.admission_no
+
+			return (
+				<div className="">
+					<div className="text-left">{admission}</div>
+					{/* <div className="text-left text-muted-foreground">{parentPhone}</div> */}
 				</div>
 			)
 		},
@@ -108,13 +135,15 @@ export const columns: ColumnDef<Student>[] = [
 		accessorKey: 'parent',
 		header: () => <div className="text-left">Parent Details</div>,
 		cell: ({ row }) => {
-			let parentName = row.original.parent
-			let parentPhone = row.original.parent_phone
+			let firstname = row.original.parent.firstname
+			let lastname = row.original.parent.lastname
+			let parentName = `${firstname} ${lastname}`
+			// let parentPhone = row.original.parent_phone
 
 			return (
 				<div className="">
 					<div className="text-left">{parentName}</div>
-					<div className="text-left text-muted-foreground">{parentPhone}</div>
+					{/* <div className="text-left text-muted-foreground">{parentPhone}</div> */}
 				</div>
 			)
 		},
@@ -123,7 +152,7 @@ export const columns: ColumnDef<Student>[] = [
 		accessorKey: 'stop',
 		header: () => <div className="text-left">Pickup Stop</div>,
 		cell: ({ row }) => {
-			let stop = row.original.stop
+			let stop = row.original.stop.description
 			return <div className="text-left">{stop}</div>
 		},
 	},
@@ -145,15 +174,14 @@ export const columns: ColumnDef<Student>[] = [
 				await deleteStudentMutation.mutateAsync(student.id)
 			}
 
-			useEffect(() => {
-				if (isSuccess) {
-					toast.success("Student deleted successfuly")
-					setOpen(false)
-				}
-				if (isError) {
-					toast.error('Failed to delete student!')
-				}
-			}, [isSuccess, isLoading])
+			// useEffect(() => {
+			// 	if (isSuccess) {
+			// 		setOpen(false)
+			// 	}
+			// 	if (isError) {
+			// 		toast.error('Failed to delete student!')
+			// 	}
+			// }, [isSuccess, isLoading])
 
 			return (
 				<div>
@@ -188,12 +216,12 @@ export const columns: ColumnDef<Student>[] = [
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {student.firstName}{' '}
-											{student.lastName} ?
+											Are you sure you want to delete {student.firstname}{' '}
+											{student.lastname} ?
 										</div>
 									</div>
 									<DialogFooter>
-										<DialogClose />
+										{/* <DialogClose /> */}
 										<Button
 											disabled={isLoading}
 											variant="destructive"

@@ -12,16 +12,47 @@ const loginRequestBodySchema = z.object({
 
 type LoginRequestBody = z.infer<typeof loginRequestBodySchema>
 
+const signUpRequestBodySchema = z.object({
+	name: z.string(),
+	address: z.string(),
+	phone_number: z.string(),
+	email: z.string(),
+	contact_person: z.string(),
+	contact_person_phone: z.string(),
+})
+
+type SignUpRequestBody = z.infer<typeof signUpRequestBodySchema>
+
+const postRouteRequestBodySchema = z.object({
+	name: z.string(),
+	zone_id: z.string(),
+	stops: z.array(z.record(z.string().trim())),
+})
+
+type routeRequestBody = z.infer<typeof postRouteRequestBodySchema>
+
 const getStudentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		class: z.string(),
-		stop: z.string(),
-		parent_name: z.string(),
-		parent_phone: z.number(),
-		image: z.string(),
+		stop: z.object({
+			id: z.string(),
+			description: z.string(),
+			latitude: z.string(),
+			longitude: z.string(),
+		}),
+		parent: z.object({
+			id: z.string(),
+			firstname: z.string(),
+			lastname: z.string(),
+		}),
+		// parent_phone: z.number(),
+		school: z.object({
+			id: z.string(),
+			name: z.string(),
+		}),
 	}),
 )
 
@@ -30,8 +61,8 @@ type getStudentsResponse = z.infer<typeof getStudentsSchema>
 const getParentsSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		email: z.string(),
 		phone: z.number(),
 		image: z.string(),
@@ -44,8 +75,8 @@ type getParentsResponse = z.infer<typeof getParentsSchema>
 const getDriversSchema = z.array(
 	z.object({
 		id: z.string(),
-		firstName: z.string(),
-		lastName: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
 		phone_number: z.number(),
 		bus: z.string(),
 		image: z.string(),
@@ -114,6 +145,51 @@ const getZonesSchema = z.array(
 
 type getZonesResponse = z.infer<typeof getZonesSchema>
 
+const getRolesSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+	}),
+)
+
+type getRolesResponse = z.infer<typeof getRolesSchema>
+
+const getUsersSchema = z.array(
+	z.object({
+		id: z.string(),
+		firstname: z.string(),
+		lastname: z.string(),
+		phone_number: z.string(),
+		email: z.string(),
+		role_id: z.string(),
+		school_id: z.string(),
+	}),
+)
+
+type getUsersResponse = z.infer<typeof getUsersSchema>
+
+const getSchoolByIdSchema = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+		address: z.string(),
+		phone_number: z.string(),
+		email: z.string(),
+		contact_person: z.string(),
+	}),
+)
+
+type getSchoolByIdResponse = z.infer<typeof getSchoolByIdSchema>
+
+const updateZoneById = z.array(
+	z.object({
+		id: z.string(),
+		name: z.string(),
+	}),
+)
+
+type updateZoneByIdResponse = z.infer<typeof updateZoneById>
+
 export const handlers: Array<RequestHandler> = [
 	rest.post<LoginRequestBody>('/api/login', async (req, res, ctx) => {
 		const requestBody = await req.text()
@@ -126,9 +202,13 @@ export const handlers: Array<RequestHandler> = [
 				ctx.delay(0),
 				ctx.status(200),
 				ctx.json({
-					username: data.username,
+					firstname: faker.person.firstName(),
+					lastname: faker.person.lastName(),
 					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
+					phone_number: faker.phone.number(),
+					role: 'School Admin',
 					token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
+					image: faker.image.avatar(),
 				}), // Customize the response data
 			)
 		}
@@ -139,6 +219,13 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json({ error: 'Invalid credentials' }), // Customize error response
 		)
 	}),
+	rest.post<SignUpRequestBody>('/api/signup', async (req, res, ctx) => {
+		const requestBody = await req.text()
+
+		const data = JSON.parse(requestBody)
+
+		return res(ctx.delay(2000), ctx.status(401), ctx.json({ data }))
+	}),
 	rest.get<getParentsResponse>('/api/parents', async (req, res, ctx) => {
 		const numberOfParents = 15
 		const numberOfStudents = 3
@@ -146,8 +233,8 @@ export const handlers: Array<RequestHandler> = [
 		// Generate an array of parent objects using Faker and the schema
 		const parents = Array.from({ length: numberOfParents }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
 			email: faker.internet.email(),
 			phone: faker.phone.number(),
 			address: faker.location.streetAddress(),
@@ -165,31 +252,42 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json(parents), // Respond with the generated parent objects
 		)
 	}),
-	rest.get<getStudentsResponse>('/api/students', async (req, res, ctx) => {
-		const numberofStudents = 15
+	rest.get<getStudentsResponse>('/students', async (req, res, ctx) => {
+		const numberofStudents = 1500
 
 		const students = Array.from({ length: numberofStudents }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
-			grade: faker.number.int({ min: 1, max: 7 }),
-			stop: faker.location.streetAddress(),
-			school: faker.company.name(),
-			parent: faker.person.fullName(),
-			parentId: faker.string.uuid(),
-			parent_phone: faker.phone.number(),
-			avatarImage: faker.image.avatar(),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
+			class_name: faker.number.int({ min: 1, max: 7 }),
+			stop: {
+				id: faker.string.uuid(),
+				description: faker.location.streetAddress(),
+				longitude: faker.location.longitude(),
+				latitude: faker.location.latitude(),
+			},
+			school: {
+				id: faker.string.uuid(),
+				name: faker.company.name(),
+			},
+			parent: {
+				id: faker.string.uuid(),
+				firstname: faker.person.firstName(),
+				lastname: faker.person.lastName(),
+				phone_number: faker.phone.number(),
+			},
+			// avatarImage: faker.image.avatar(),
 		}))
 
-		return res(ctx.delay(0), ctx.status(200), ctx.json(students))
+		return res(ctx.delay(0), ctx.status(200), ctx.json({data:students}))
 	}),
 	rest.get<getDriversResponse>('/api/drivers', async (req, res, ctx) => {
 		const numberofDrivers = 15
 
 		const drivers = Array.from({ length: numberofDrivers }, () => ({
 			id: faker.string.uuid(),
-			firstName: faker.person.firstName('male'),
-			lastName: faker.person.lastName('male'),
+			firstname: faker.person.firstName('male'),
+			lastname: faker.person.lastName('male'),
 			phone_number: faker.phone.number(),
 			bus: faker.vehicle.vrm(),
 			image: faker.image.avatar(),
@@ -231,7 +329,7 @@ export const handlers: Array<RequestHandler> = [
 		const routes = Array.from({ length: numberofRoutes }, () => ({
 			id: faker.string.uuid(),
 			name: faker.word.words(3),
-			zone_id: faker.string.uuid(),
+			zone: `Zone ${String.fromCharCode(65 + 1)}`,
 			stops: Array.from({ length: numberofStops }, () => ({
 				id: faker.string.uuid(),
 				latitude: faker.location.latitude(),
@@ -249,14 +347,14 @@ export const handlers: Array<RequestHandler> = [
 
 		const schedules = Array.from({ length: numberofSchedules }, () => ({
 			id: faker.string.uuid(),
-			route_id: faker.string.uuid(),
-			driver_id: faker.string.uuid(),
-			bus_id: faker.string.uuid(),
-			start_time: faker.date.soon({ days: 0.2 }),
+			route: faker.word.words(3),
+			driver: faker.person.fullName(),
+			bus: faker.vehicle.vrm(),
+			start_time: faker.date.soon({ days: 1 }),
 			students: Array.from({ length: numberofStudents }, () => ({
 				id: faker.string.uuid(),
-				firstName: faker.person.firstName('male'),
-				lastName: faker.person.lastName('male'),
+				firstname: faker.person.firstName('male'),
+				lastname: faker.person.lastName('male'),
 				grade: faker.number.int({ min: 1, max: 7 }),
 				stop: faker.location.streetAddress(),
 				school: faker.company.name(),
@@ -274,7 +372,7 @@ export const handlers: Array<RequestHandler> = [
 		const zones = []
 
 		for (let i = 0; i < numberOfZones; i++) {
-			const zoneName = `Zone ${String.fromCharCode(65 + i)}` // Convert ASCII value to letter (A, B, C, ...)
+			const zoneName = `Zone ${String.fromCharCode(65 + i)}`
 			zones.push({
 				id: faker.string.uuid(),
 				name: zoneName,
@@ -282,6 +380,52 @@ export const handlers: Array<RequestHandler> = [
 		}
 
 		return res(ctx.delay(0), ctx.status(200), ctx.json(zones))
+	}),
+	rest.get<getRolesResponse>('/api/roles', async (req, res, ctx) => {
+		const numberOfRoles = 1
+		const roles = []
+
+		for (let i = 0; i < numberOfRoles; i++) {
+			const roleName = 'SchoolAdmin'
+			roles.push({
+				id: faker.string.uuid(),
+				name: roleName,
+			})
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(roles))
+	}),
+	rest.get<getUsersResponse>('/api/users', async (req, res, ctx) => {
+		const numberOfUsers = 5
+		const users = []
+
+		for (let i = 0; i < numberOfUsers; i++) {
+			users.push({
+				id: faker.string.uuid(),
+				firstname: faker.person.firstName(),
+				lastname: faker.person.lastName(),
+				phone_number: faker.phone.number(),
+				email: faker.internet.email(),
+				role: 'School Admin',
+				school: 'City Primary',
+				status: 'Active',
+			})
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(users))
+	}),
+	rest.get<getSchoolByIdResponse>('/api/schools/:id', async (req, res, ctx) => {
+		const school = {
+			id: faker.string.uuid(),
+			name: 'City Primary',
+			address: '17 CBD,Nairobi',
+			phone_number: faker.phone.number(),
+			email: faker.internet.email(),
+			contact_person: faker.person.fullName(),
+			contact_person_phone: faker.phone.number(),
+		}
+
+		return res(ctx.delay(0), ctx.status(200), ctx.json(school))
 	}),
 	rest.delete('/api/parents/:id', async (req, res, ctx) => {
 		return res(
@@ -339,4 +483,49 @@ export const handlers: Array<RequestHandler> = [
 			ctx.json('Deleted zone successfuly'),
 		)
 	}),
+	rest.delete('/api/roles/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted role successfuly'),
+		)
+	}),
+	rest.delete('/api/users/:id', async (req, res, ctx) => {
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json('Deleted user successfuly'),
+		)
+	}),
+	rest.post<routeRequestBody>('/api/add-route', async (req, res, ctx) => {
+		const requestBody = await req.text()
+
+		const data = JSON.parse(requestBody)
+
+		return res(
+			ctx.delay(2000),
+			ctx.status(200),
+			ctx.json({
+				data,
+				message: 'Successfully added route',
+			}),
+		)
+	}),
+	rest.patch<updateZoneByIdResponse>(
+		'/api/zones/:id',
+		async (req, res, ctx) => {
+			const requestBody = await req.text()
+
+			const data = JSON.parse(requestBody)
+
+			return res(
+				ctx.delay(2000),
+				ctx.status(200),
+				ctx.json({
+					data,
+					message: 'Successfully updated zone',
+				}),
+			)
+		},
+	),
 ]

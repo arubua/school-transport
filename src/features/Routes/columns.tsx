@@ -1,8 +1,6 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
-import { getInitials } from '../../utils/getInitials'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -24,31 +22,41 @@ import { Button } from '../../components/ui/button'
 import { Icon } from '../../components/ui/icon'
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
-import { useDeleteStudent } from '../../hooks/api/students'
 import { useForm } from 'react-hook-form'
 import { Form } from '../../components/form'
 import { Checkbox } from '../../components/ui/checkbox'
 import { toast } from 'sonner'
 import { Spinner } from '../../components/spinner'
+import { useDeleteRoute } from './../../hooks/api/routes'
 
-export type Student = {
+export type Route = {
 	id: string
-	firstName: string
-	lastName: string
-	grade: string
-	school: string
-	stop: string
-	parent_phone: number
-	parent: string
-	avatarImage: string
+	name: string
+	description: string
+	zone: {
+		id: string
+		name: string
+	}
+	stops: [
+		{
+			created_at: string
+			stop: {
+				id: string
+				name: string
+				description: string
+				latitude: string
+				longitude: string
+			}
+		},
+	]
 }
 
-export const columns: ColumnDef<Student>[] = [
+export const columns: ColumnDef<Route>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
 			<Checkbox
-				className="absolute left-4 top-3 h-[18px] w-[18px]"
+				className="absolute top-3 mx-auto h-[18px] w-[18px]"
 				checked={table.getIsAllPageRowsSelected()}
 				onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
@@ -66,92 +74,63 @@ export const columns: ColumnDef<Student>[] = [
 		enableHiding: false,
 	},
 	{
-		id: 'name',
-		accessorFn: row => `${row.firstName} ${row.lastName}`,
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Student Name
-					<Icon name="arrow-up-down" className="ml-2 h-4 w-4" />
-				</Button>
-			)
-		},
+		accessorKey: 'name',
+		header: () => <div className="text-left">Route Name</div>,
 		cell: ({ row }) => {
-			let firstName = row.original.firstName
-			let lastName = row.original.lastName
-			let name = `${firstName} ${lastName}`
-			let image = row.original.avatarImage
-			let grade = row.original.grade
-			let school = row.original.school
+			let routeName = row.original.name
 
-			return (
-				<div className="flex items-center">
-					<Avatar>
-						<AvatarImage src={image} alt={name} />
-						<AvatarFallback>{getInitials(name)}</AvatarFallback>
-					</Avatar>
-					<div className="ml-1">
-						<div className=" text-left">{name}</div>
-						<div className="flex text-muted-foreground ">
-							<span>{`Grade ${grade}`}</span>
-							<span className="ml-2">{`${school} School`}</span>
-						</div>
-					</div>
-				</div>
-			)
+			return <div className="text-left">{routeName}</div>
 		},
 	},
 	{
-		accessorKey: 'parent',
-		header: () => <div className="text-left">Parent Details</div>,
+		accessorKey: 'zone',
+		header: () => <div className="text-left">Zone</div>,
 		cell: ({ row }) => {
-			let parentName = row.original.parent
-			let parentPhone = row.original.parent_phone
-
-			return (
-				<div className="">
-					<div className="text-left">{parentName}</div>
-					<div className="text-left text-muted-foreground">{parentPhone}</div>
-				</div>
-			)
+			let zone = row.original.zone.name
+			return <div className="text-left">{zone}</div>
 		},
 	},
 	{
-		accessorKey: 'stop',
-		header: () => <div className="text-left">Pickup Stop</div>,
+		accessorKey: 'description',
+		header: () => <div className="text-left">Description</div>,
 		cell: ({ row }) => {
-			let stop = row.original.stop
-			return <div className="text-left">{stop}</div>
+			let description = row.original.description
+			return <div className="text-left">{description}</div>
+		},
+	},
+	{
+		accessorKey: 'stops',
+		header: () => <div className="text-left">No. of Stops</div>,
+		cell: ({ row }) => {
+			let stops = row.original.stops
+			return <div className="text-left">{stops.length}</div>
 		},
 	},
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const student = row.original
+			const route = row.original
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
 
-			const deleteStudentMutation = useDeleteStudent()
+			const deleteRouteMutation = useDeleteRoute()
 
-			const { isLoading, isError, data, isSuccess } = deleteStudentMutation
+			const { isLoading, isError, data, isSuccess } = deleteRouteMutation
 
 			const form = useForm()
 
 			async function onSubmit() {
-				await deleteStudentMutation.mutateAsync(student.id)
+				await deleteRouteMutation.mutateAsync(route.id)
 			}
 
 			useEffect(() => {
 				if (isSuccess) {
-					toast.success("Student deleted successfuly")
+					toast.success('Route deleted successfuly')
 					setOpen(false)
 				}
 				if (isError) {
-					toast.error('Failed to delete student!')
+					toast.error('Failed to delete route!')
 				}
 			}, [isSuccess, isLoading])
 
@@ -168,15 +147,13 @@ export const columns: ColumnDef<Student>[] = [
 							<DropdownMenuContent align="end">
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() =>
-										navigate(`editStudent`, { state: { student } })
-									}
+									onClick={() => navigate(`editRoute`, { state: { route } })}
 								>
-									Update Student
+									Update Route
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DialogTrigger>
-									<DropdownMenuItem>Delete student</DropdownMenuItem>
+									<DropdownMenuItem>Delete route</DropdownMenuItem>
 								</DialogTrigger>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -184,12 +161,11 @@ export const columns: ColumnDef<Student>[] = [
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(onSubmit)}>
 									<DialogHeader>
-										<DialogTitle>Delete Student</DialogTitle>
+										<DialogTitle>Delete Route</DialogTitle>
 									</DialogHeader>
 									<div className="py-4">
 										<div className="text-destructive">
-											Are you sure you want to delete {student.firstName}{' '}
-											{student.lastName} ?
+											Are you sure you want to delete this route ?
 										</div>
 									</div>
 									<DialogFooter>

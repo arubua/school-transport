@@ -5,14 +5,18 @@ import {
 	SchoolNameSchema,
 	UsernameSchema,
 } from '../../utils/user-validation'
+import axiosInstance from '../axiosInstance'
+import { toast } from 'sonner'
 
 const getStudents = async () => {
-	const response = await fetch('/api/students')
-	if (!response.ok) {
-		throw new Error('Failed to fetch students data')
+	const { res, status } = await axiosInstance({
+		url: 'students',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useStudents = () => {
@@ -20,44 +24,41 @@ export const useStudents = () => {
 }
 
 const addStudent = async ({
-	firstName,
-	lastName,
-	grade,
-	school,
-	avatarImage,
-	parentId,
+	firstname,
+	lastname,
+	admission_no,
+	class_name,
+	school_id,
+	parent_id,
+	stop_id,
 }: {
-	firstName: string
-	lastName: string
-	grade: string
-	school: string
-	avatarImage: File[] | undefined
-	parentId: string
+	firstname: string
+	lastname: string
+	class_name: string
+	school_id: string
+	admission_no: string
+	parent_id: string
+	stop_id: string
 }) => {
-	const response = await fetch('/api/student', {
+	const { res, status } = await axiosInstance({
+		url: 'students',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
+
+		data: {
+			firstname,
+			lastname,
+			admission_no,
+			class_name,
+			school_id,
+			parent_id,
+			stop_id,
 		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
-			grade,
-			school,
-			avatarImage,
-			parentId,
-		}),
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddStudent = () => {
@@ -71,21 +72,17 @@ const updateStudentById = async ({
 	studentId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/students/${studentId}`, {
+	const { res, status } = await axiosInstance({
+		url: `students/${studentId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateStudent = () => {
@@ -93,19 +90,15 @@ export const useUpdateStudent = () => {
 }
 
 const deleteStudent = async (id: string) => {
-	const response = await fetch(`/api/students/${id}`, {
+	const { res, status } = await axiosInstance({
+		url: `students/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteStudent = () => {

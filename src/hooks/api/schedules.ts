@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getSchedules = async () => {
-	const response = await fetch('/api/schedules')
-	if (!response.ok) {
-		throw new Error('Failed to fetch schedules data')
+	const { res, status } = await axiosInstance({
+		url: 'schedules',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useSchedules = () => {
@@ -14,12 +17,14 @@ export const useSchedules = () => {
 }
 
 const getScheduleById = async (scheduleId: string) => {
-	const response = await fetch(`/api/schedules/${scheduleId}`)
-	if (!response.ok) {
-		throw new Error('Failed to fetch schedule data')
+	const { res, status } = await axiosInstance({
+		url: `schedule/${scheduleId}`,
+	})
+	if (!res) {
+		return null
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useScheduleById = (scheduleId: string) => {
@@ -27,44 +32,35 @@ export const useScheduleById = (scheduleId: string) => {
 }
 
 const addSchedule = async ({
-	firstName,
-	lastName,
-	email,
-	phone,
-	address,
-	avatarImage,
+	start_time,
+	route_id,
+	driver_id,
+	bus_id,
+	student_ids,
 }: {
-	firstName: string
-	lastName: string
-	email: string
-	phone: string
-	address: string
-	avatarImage: File[] | undefined
+	start_time: string
+	route_id: string
+	driver_id: string
+	bus_id: string
+	student_ids: Array<Object>
 }) => {
-	const response = await fetch('/api/schedule', {
+	const { res } = await axiosInstance({
+		url: 'schedules',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
+
+		data: {
+			start_time: `${start_time}:00`,
+			route_id,
+			driver_id,
+			bus_id,
+			// student_ids,
 		},
-		body: JSON.stringify({
-			firstName,
-			lastName,
-			email,
-			phone,
-			address,
-			avatarImage,
-		}),
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddSchedule = () => {
@@ -76,47 +72,74 @@ const updateScheduleById = async ({
 	updatedData,
 }: {
 	scheduleId: string
-	updatedData: object
+	updatedData: {
+		start_time: string
+		route_id: string
+		driver_id: string
+		bus_id: string
+		student_ids?: Array<string>
+	}
 }) => {
-	const response = await fetch(`/api/schedules/${scheduleId}`, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (updatedData.hasOwnProperty('student_ids')) {
+		delete updatedData['student_ids']
 	}
 
-	const data = await response.json()
-	return data
+	const { res, status } = await axiosInstance({
+		url: `schedules/${scheduleId}`,
+		method: 'PUT',
+
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
+	}
+
+	return res.data.data
 }
 
 export const useUpdateSchedule = () => {
 	return useMutation(updateScheduleById)
 }
 
-
-
 const deleteSchedule = async (id: string) => {
-	const response = await fetch(`/api/schedules/${id}`, {
+	const { res } = await axiosInstance({
+		url: `schedules/${id}`,
 		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	return {}
+	return res
 }
 
 export const useDeleteSchedule = () => {
 	return useMutation(deleteSchedule)
+}
+
+const addStudentsToSchedule = async ({
+	student_ids,
+	schedule_id,
+}: {
+	schedule_id: string
+	student_ids: Array<String>
+}) => {
+	const { res } = await axiosInstance({
+		url: 'schedules/add-students',
+		method: 'POST',
+
+		data: {
+			student_ids,
+			schedule_id,
+		},
+	})
+	if (!res) {
+		return null
+	}
+
+	return res
+}
+
+export const useAddStudentsToSchedule = () => {
+	return useMutation(addStudentsToSchedule)
 }

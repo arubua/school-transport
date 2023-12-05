@@ -24,26 +24,29 @@ import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
 import { FileRejection } from 'react-dropzone'
 import FileUpload from '../../components/ui/file-input'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 export const ParentFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
+	firstname: NameSchema,
+	lastname: NameSchema,
 	email: EmailSchema,
-	phone: z.string(),
+	phone_number: z.string(),
 	address: AddressSchema,
-	avatarImage: z.array(z.instanceof(File)),
-
+	// avatarImage: z.array(z.instanceof(File)),
 })
 
 const ParentForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	const [isUpdating] = useState(location.state && location.state.parent)
+	const [parentId] = useState(location.state && location.state.parentId)
+
 
 	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
-	const [parentId, setParentId] = useState('')
+	// const [parentId, setParentId] = useState('')
 
 	const handleDeleteImage = (fileToDelete: File) => {
 		const updatedAcceptedFiles = acceptedFiles.filter(
@@ -57,29 +60,34 @@ const ParentForm = () => {
 
 	const { isLoading, isError, data, isSuccess } = AddParentMutation
 
-
 	const form = useForm<z.infer<typeof ParentFormSchema>>({
 		resolver: zodResolver(ParentFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
+			firstname: '',
+			lastname: '',
 			email: '',
-			phone: '',
+			phone_number: '',
 			address: '',
-			avatarImage: undefined,
+			// avatarImage: undefined,
 		},
 	})
 
 	useEffect(() => {
 		if (isUpdating) {
 			const parentData = location.state.parent
-			setParentId(parentData.id)
+			// setParentId(parentData.id)
 			form.reset(parentData)
 		}
 	}, [isUpdating, location.state, form])
 
-	async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
+	useEffect(() => {
+		if(isSuccess){
+			toast.success(`Parent created successfuly`)
+			navigate('/app/parents')
+		}
+	},[isSuccess])
 
+	async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
 		if (isUpdating) {
 			await updateParentMutation.mutateAsync({
 				parentId: parentId,
@@ -116,7 +124,7 @@ const ParentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="firstname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -128,7 +136,7 @@ const ParentForm = () => {
 							/>
 							<FormField
 								control={form.control}
-								name="lastName"
+								name="lastname"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -172,7 +180,7 @@ const ParentForm = () => {
 							</div>
 							<FormField
 								control={form.control}
-								name="phone"
+								name="phone_number"
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
@@ -204,8 +212,8 @@ const ParentForm = () => {
 							/>
 						</div>
 						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
+						{/* <Separator orientation="horizontal" /> */}
+						{/* <Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
 								<FormLabel>Avatar</FormLabel>
@@ -248,10 +256,10 @@ const ParentForm = () => {
 									</FormItem>
 								)}
 							/>
-						</div>
+						</div> */}
 						<Spacer size="3xs" />
 						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
+							<Button className='w-4/6' type="submit" disabled={isLoading}>
 								{isLoading && <Spinner showSpinner={isLoading} />}
 								Submit
 							</Button>

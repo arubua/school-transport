@@ -57,14 +57,22 @@ export function DataTable<TData, TValue>({
 		},
 	})
 
+	// const exp = table.getColumn('start_time')?.getFilterValue
+	const column = table.getAllColumns()
+
+
+	// console.log({exp})
+	console.log({column})
+
+
 	return (
 		<div>
 			<div className="flex justify-between py-4">
 				<Input
-					placeholder="Filter names..."
-					value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+					placeholder="Filter by route..."
+					value={(table.getColumn('route_name')?.getFilterValue() as string) ?? ''}
 					onChange={event =>
-						table.getColumn('name')?.setFilterValue(event.target.value)
+						table.getColumn('route_name')?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>
@@ -73,9 +81,9 @@ export function DataTable<TData, TValue>({
 						<Icon name="download" className="mr-2" />
 						Export
 					</Button>
-					<Button size={'sm'} onClick={() => navigate('addStudent')}>
+					<Button size={'sm'} onClick={() => navigate('addSchedule')}>
 						<Icon name="plus" className="mr-2" />
-						Add Student
+						Add Schedule
 					</Button>
 				</div>
 			</div>

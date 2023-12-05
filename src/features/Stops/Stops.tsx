@@ -2,9 +2,10 @@ import { columns } from './columns'
 import { DataTable } from './data-table'
 import { Spinner } from '../../components/spinner'
 import { useStops } from '../../hooks/api/stops'
+import ErrorDisplay from '../../components/error-view'
 
 export default function Stops() {
-	const { data, error, isLoading } = useStops()
+	const { data, isError, isLoading,refetch } = useStops()
 
 	if (isLoading) {
 		return (
@@ -14,9 +15,15 @@ export default function Stops() {
 		)
 	}
 
-	// if (error) {
-	// 	return <p>Error</p>
-	// }
+	if (isError) {
+        return (
+            <ErrorDisplay
+                message="Oops! Something went wrong while fetching the data. Please check your internet connection and try again."
+                actionText="Retry"
+                onActionClick={() => refetch} // Trigger refetch on button click
+            />
+        )
+    }
 
 	return (
 		<div className="container mx-auto py-10">

@@ -33,95 +33,150 @@ import { z } from 'zod'
 import { useAddStudent, useUpdateStudent } from '../../hooks/api/students'
 import { Separator } from '../../components/separator'
 import { useEffect, useState } from 'react'
-import { useParents } from '../../hooks/api/parents'
+import { useZones } from '../../hooks/api/zones'
 import { Icon } from '../../components/ui/icon'
 import { Spinner } from '../../components/spinner'
-import FileUpload from '../../components/ui/file-input'
-import { FileRejection } from 'react-dropzone'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useAddRoute, useUpdateRoute } from '../../hooks/api/routes'
+import { MultiSelect } from '../../components/multiselect'
+import { useStops } from '../../hooks/api/stops'
+import { toast } from 'sonner'
 
-const StudentFormSchema = z.object({
-	firstName: NameSchema,
-	lastName: NameSchema,
-	grade: z.string(),
-	school: SchoolNameSchema,
-	parentId: z.string(),
-	avatarImage: z.array(z.instanceof(File)),
+const RouteFormSchema = z.object({
+	name: z.string(),
+	stop_ids: z.array(
+		z.object({
+			label: z.string(),
+			value: z.string(),
+		}),
+	),
+	// stop_ids: z.array(z.string().trim()),
+	zone_id: z.string(),
+	description: z.string(),
 })
+
+type Route = {
+	id: string
+	name: string
+	description: string
+	zone: {
+		id: string
+		name: string
+	}
+	stops: [
+		{
+			created_at: string
+			stop: {
+				id: string
+				name: string
+				description: string
+				latitude: string
+				longitude: string
+			}
+		},
+	]
+}
 
 const RouteForm = () => {
 	const location = useLocation()
+	const navigate = useNavigate()
 
-	const [parents, setParents] = useState<{ label: string; value: string }[]>([])
-	const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
-	const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([])
-	const [studentId, setStudentId] = useState('')
+	const [zones, setZones] = useState<{ label: string; value: string }[]>([])
+	const [stops, setStops] = useState<{ label: string; value: string }[]>([])
 
-	const [isUpdating] = useState(location.state && location.state.student)
+	const [routeId, setRouteId] = useState('')
 
-	const handleDeleteImage = (fileToDelete: File) => {
-		const updatedAcceptedFiles = acceptedFiles.filter(
-			file => file !== fileToDelete,
-		)
-		setAcceptedFiles(updatedAcceptedFiles)
-	}
+	const [isUpdating] = useState(location.state && location.state.route)
 
-	const addStudentMutation = useAddStudent()
-	const updateStudentMutation = useUpdateStudent()
+	const addRouteMutation = useAddRoute()
+	const updateRouteMutation = useUpdateRoute()
 
-	const { isLoading, isError, data, isSuccess } = addStudentMutation
+	const { isLoading, isError, data, isSuccess } = addRouteMutation
+	const { isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } =
+		updateRouteMutation
 
-	const { data: parentsRaw } = useParents()
+	const { data: zonesRaw } = useZones()
+	const { data: stopsRaw } = useStops()
 
-	const form = useForm<z.infer<typeof StudentFormSchema>>({
-		resolver: zodResolver(StudentFormSchema),
+	const form = useForm<z.infer<typeof RouteFormSchema>>({
+		resolver: zodResolver(RouteFormSchema),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
-			grade: '',
-			school: '',
-			parentId: '',
-			avatarImage: undefined,
+			name: '',
+			stop_ids: [],
+			zone_id: '',
+			description: '',
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof StudentFormSchema>) {
+	async function onSubmit(values: z.infer<typeof RouteFormSchema>) {
+		const stop_ids = values.stop_ids.map(stop => stop.value)
+
+		const updatedData = { ...values, stop_ids }
 		if (isUpdating) {
-			await updateStudentMutation.mutateAsync({
-				studentId: studentId,
-				updatedData: values,
+			await updateRouteMutation.mutateAsync({
+				routeId: routeId,
+				updatedData,
 			})
 		} else {
-			await addStudentMutation.mutateAsync(values)
+			await addRouteMutation.mutateAsync(values)
 		}
 	}
 
 	useEffect(() => {
 		if (isUpdating) {
-			const studentData = location.state.student
-			setStudentId(studentData.id)
-			form.reset(studentData)
+			const { route } = location.state as { route: Route }
+			const zone_id = route.zone.id
+			const stop_ids: { label: string; value: string }[]  = route.stops.map(stop => {
+				return {
+					label: stop.stop.description,
+					value: stop.stop.id,
+				}
+			})
+
+			setRouteId(route.id)
+			const updatedRouteData = { ...route, zone_id, stop_ids }
+
+			form.reset(updatedRouteData)
 		}
 	}, [isUpdating, location.state, form])
 
 	useEffect(() => {
-		if (Array.isArray(parentsRaw) && parentsRaw.length > 0) {
-			const fParents = parentsRaw.map(parent => ({
-				label: `${parent.firstName} ${parent.lastName}`,
-				value: parent.id,
+		if (Array.isArray(zonesRaw) && zonesRaw.length > 0) {
+			const fZones = zonesRaw.map(zone => ({
+				label: zone.name,
+				value: zone.id,
 			}))
-			setParents(fParents)
+			setZones(fZones)
 		}
-	}, [parentsRaw])
+	}, [zonesRaw])
+
+	useEffect(() => {
+		if (Array.isArray(stopsRaw) && stopsRaw.length > 0) {
+			const fStops = stopsRaw.map(stop => ({
+				label: stop.description,
+				value: stop.id,
+			}))
+			setStops(fStops)
+		}
+	}, [stopsRaw])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success(`Route created successfuly`)
+			navigate('/app/routes')
+		}
+		if (isSuccessUpdate) {
+			toast.success(`Route updated successfuly`)
+			navigate('/app/routes')
+		}
+	}, [isSuccess, isSuccessUpdate])
 
 	return (
 		<div>
 			<div className="flex flex-col items-start">
 				<Spacer size="3xs" />
-				<h4 className="font-semibold">Personal Info</h4>
-				<p className="text-muted-foreground">
-					Update students photo and personal details here.
-				</p>
+				<h4 className="font-semibold">Route Info</h4>
+				<p className="text-muted-foreground">Update the route details here.</p>
 			</div>
 			<Spacer size="4xs" />
 
@@ -134,37 +189,67 @@ const RouteForm = () => {
 						<Spacer size="4xs" />
 						<Separator orientation="horizontal" />
 						<Spacer size="4xs" />
-						<div className="flex flex-col gap-2 md:flex-row md:gap-0">
+						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
 								<FormLabel>Name</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="firstName"
+								name="name"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className="w-60">
 										<FormControl>
-											<Input placeholder="First name" {...field} />
+											<Input {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Description</FormLabel>
+							</div>
 							<FormField
 								control={form.control}
-								name="lastName"
+								name="description"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className="w-60">
 										<FormControl>
-											<Input
-												className="ml-0 md:ml-2"
-												placeholder="Last name"
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<Spacer size="4xs" />
+						<Separator orientation="horizontal" />
+						<Spacer size="4xs" />
+						<div className="flex flex-col md:flex-row">
+							<div className="w-64">
+								<FormLabel>Stops</FormLabel>
+							</div>
+							<FormField
+								control={form.control}
+								name="stop_ids"
+								render={({ field: { ...field } }) => {
+									return (
+										<FormItem>
+											<MultiSelect
+												className="sm:w-60"
+												placeholder="Select stops..."
+												selected={field.value}
+												options={stops}
 												{...field}
 											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
+											<FormMessage />
+										</FormItem>
+									)
+								}}
 							/>
 						</div>
 						<Spacer size="4xs" />
@@ -172,51 +257,11 @@ const RouteForm = () => {
 						<Spacer size="4xs" />
 						<div className="flex flex-col md:flex-row">
 							<div className="w-64">
-								<FormLabel>Grade</FormLabel>
+								<FormLabel>Zone</FormLabel>
 							</div>
 							<FormField
 								control={form.control}
-								name="grade"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input type="number" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>School</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="school"
-								render={({ field }) => (
-									<FormItem>
-										<FormControl>
-											<Input placeholder="NBBPS" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>Parent</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="parentId"
+								name="zone_id"
 								render={({ field }) => (
 									<FormItem className="flex flex-col">
 										<Popover>
@@ -226,15 +271,14 @@ const RouteForm = () => {
 														variant="outline"
 														role="combobox"
 														className={cn(
-															'w-[200px] justify-between',
+															'w-60 justify-between',
 															!field.value && 'text-muted-foreground',
 														)}
 													>
 														{field.value
-															? parents.find(
-																	parent => parent.value === field.value,
-															  )?.label
-															: 'Select parent'}
+															? zones.find(zone => zone.value === field.value)
+																	?.label
+															: 'Select zone'}
 														<Icon
 															name="caret-sort"
 															className="ml-2 h-4 w-4 shrink-0 opacity-50"
@@ -245,25 +289,25 @@ const RouteForm = () => {
 											<PopoverContent className="w-[200px p-0">
 												<Command>
 													<CommandInput
-														placeholder="Search parent..."
+														placeholder="Search zone..."
 														className="h-9"
 													/>
-													<CommandEmpty>No parent found.</CommandEmpty>
+													<CommandEmpty>No zone found.</CommandEmpty>
 													<CommandGroup className="max-h-[250px] overflow-y-scroll">
-														{parents.map(parent => (
+														{zones.map(zone => (
 															<CommandItem
-																value={parent.value}
-																key={parent.value}
+																value={zone.value}
+																key={zone.value}
 																onSelect={() => {
-																	form.setValue('parentId', parent.value)
+																	form.setValue('zone_id', zone.value)
 																}}
 															>
-																{parent.label}
+																{zone.label}
 																<Icon
 																	name="check"
 																	className={cn(
 																		'ml-auto h-4 w-4',
-																		parent.value === field.value
+																		zone.value === field.value
 																			? 'opacity-100'
 																			: 'opacity-0',
 																	)}
@@ -279,56 +323,16 @@ const RouteForm = () => {
 								)}
 							/>
 						</div>
-						<Spacer size="4xs" />
-						<Separator orientation="horizontal" />
-						<Spacer size="4xs" />
-						<div className="flex flex-col md:flex-row">
-							<div className="w-64">
-								<FormLabel>Avatar</FormLabel>
-							</div>
-							<FormField
-								control={form.control}
-								name="avatarImage"
-								render={({ field: { onChange } }) => (
-									<FormItem>
-										<FormControl>
-											<FileUpload
-												accept={{
-													'image/png': ['.png'],
-													'image/jpg': ['.jpg'],
-													'image/jpeg': ['.jpeg'],
-												}}
-												multiple={false} // Set this to true if you want to allow multiple files
-												onDrop={(acceptedFiles, rejectedFiles) => {
-													setAcceptedFiles(acceptedFiles)
-													setRejectedFiles(rejectedFiles)
-													onChange(acceptedFiles)
-												}}
-												// error={'upload files error'}
-												format="PNG JPG JPEG"
-												size={5}
-												onDownload={() => {
-													// Handle the download action here
-												}}
-												downloading={false}
-												acceptedFiles={acceptedFiles}
-												fileName="avatar" // Provide a file name if needed
-												delete={file => {
-													handleDeleteImage(file)
-												}}
-												rejectedFiles={rejectedFiles}
-												// {...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
 						<Spacer size="3xs" />
-						<div className="flex max-w-xl justify-end">
-							<Button size="sm" type="submit" disabled={isLoading}>
+						<div className="flex max-w-lg justify-end  pr-3">
+							<Button
+								className="w-4/6"
+								size="sm"
+								type="submit"
+								disabled={isLoading || isLoadingUpdate}
+							>
 								{isLoading && <Spinner showSpinner={isLoading} />}
+								{isLoadingUpdate && <Spinner showSpinner={isLoadingUpdate} />}
 								Submit
 							</Button>
 						</div>

@@ -33,10 +33,13 @@ import { Form } from '../../components/form'
 export type Bus = {
 	id: string
 	reg_number: string
-	capacity: string
-	driver: string
-	school: string
-	image: string
+	capacity: number
+	// driver: string
+	school: {
+		id: string
+		name: string
+	}
+	// image: string
 }
 
 export const columns: ColumnDef<Bus>[] = [
@@ -55,13 +58,13 @@ export const columns: ColumnDef<Bus>[] = [
 		},
 		cell: ({ row }) => {
 			let reg_number = row.original.reg_number
-			let image = row.original.image
-			let school = row.original.school
+			// let image = row.original.image
+			let school = row.original.school.name
 
 			return (
 				<div className="flex items-center">
 					<Avatar>
-						<AvatarImage src={image} alt={reg_number} />
+						{/* <AvatarImage src={image} alt={reg_number} /> */}
 						<AvatarFallback>{getInitials(reg_number)}</AvatarFallback>
 					</Avatar>
 					<div className="ml-1">
@@ -76,12 +79,12 @@ export const columns: ColumnDef<Bus>[] = [
 		},
 	},
 	{
-		accessorKey: 'driver',
-		header: () => <div className="text-left">Driver</div>,
+		accessorKey: 'school',
+		header: () => <div className="text-left">School</div>,
 		cell: ({ row }) => {
-			let driver = row.original.driver
+			let school = row.original.school.name
 
-			return <div className="text-left">{driver}</div>
+			return <div className="text-left">{school}</div>
 		},
 	},
 	{
@@ -96,6 +99,8 @@ export const columns: ColumnDef<Bus>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			const bus = row.original
+			const busId = row.original.id
+
 			const navigate = useNavigate()
 
 			const [open, setOpen] = React.useState(false)
@@ -134,7 +139,7 @@ export const columns: ColumnDef<Bus>[] = [
 								<DropdownMenuItem>Add to Schedule</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
-									onClick={() => navigate(`editBus`, { state: { bus } })}
+									onClick={() => navigate(`editBus`, { state: { bus,busId } })}
 								>
 									Update bus
 								</DropdownMenuItem>

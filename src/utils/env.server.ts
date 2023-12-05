@@ -2,9 +2,8 @@ import { z } from 'zod'
 
 const schema = z.object({
 	VITE_NODE_ENV: z.enum(['production', 'development', 'test'] as const),
-	
-  });
-  
+	VITE_BASE_URL: z.string(),
+})
 
 declare global {
 	namespace NodeJS {
@@ -15,7 +14,10 @@ declare global {
 export function init() {
 	const parsed = schema.safeParse({
 		VITE_NODE_ENV: import.meta.env.MODE,
-		VITE_BASE_URL:import.meta.env.VITE_BASE_URL
+		VITE_BASE_URL:
+			import.meta.env.VITE_NODE_ENV === 'production'
+				? import.meta.env.VITE_BASE_URL_PROD
+				: import.meta.env.VITE_BASE_URL_DEV,
 	})
 
 	if (parsed.success === false) {
@@ -36,8 +38,12 @@ export function init() {
  */
 export function getEnv() {
 	return {
-		MODE: process.env.NODE_ENV,
-		SENTRY_DSN: process.env.SENTRY_DSN,
+		MODE: import.meta.env.NODE_ENV,
+		SENTRY_DSN: import.meta.env.SENTRY_DSN,
+		VITE_BASE_URL:
+			import.meta.env.VITE_NODE_ENV === 'production'
+				? import.meta.env.VITE_BASE_URL_PROD
+				: import.meta.env.VITE_BASE_URL_DEV,
 	}
 }
 

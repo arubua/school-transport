@@ -1,12 +1,15 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import axiosInstance from '../axiosInstance'
 
 const getBuses = async () => {
-	const response = await fetch('/api/buses')
-	if (!response.ok) {
-		throw new Error('Failed to fetch buses data')
+	const { res, status } = await axiosInstance({
+		url: 'buses',
+	})
+	if (!res) {
+		return []
 	}
-	const data = await response.json()
-	return data
+
+	return res.data.data
 }
 
 export const useBuses = () => {
@@ -16,60 +19,32 @@ export const useBuses = () => {
 const addBus = async ({
 	reg_number,
 	capacity,
-	driverId,
-	avatarImage,
+	school_id, // avatarImage,
 }: {
 	reg_number: string
-	capacity: string
-	driverId: string
-	avatarImage: File[] | undefined
+	capacity: number | string
+	school_id: string
+	// avatarImage: File[] | undefined
 }) => {
-	const response = await fetch('/api/driver', {
+	const { res } = await axiosInstance({
+		url: 'buses',
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
+
+		data: {
 			reg_number,
-			capacity,
-			driverId,
-			avatarImage,
-		}),
+			capacity: Number(capacity),
+			school_id,
+		},
 	})
-
-	if (!response.ok) {
-		const data = await response.json()
-
-		throw new Error(data.error)
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-
-	return data
+	return res
 }
 
 export const useAddBus = () => {
 	return useMutation(addBus)
-}
-
-const deleteBus = async (id: string) => {
-	const response = await fetch(`/api/buses/${id}`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	})
-
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
-	}
-
-	return {}
-}
-
-export const useDeleteBus = () => {
-	return useMutation(deleteBus)
 }
 
 const updateBus = async ({
@@ -79,23 +54,35 @@ const updateBus = async ({
 	busId: string
 	updatedData: object
 }) => {
-	const response = await fetch(`/api/buses/${busId}`, {
+	const { res, status } = await axiosInstance({
+		url: `buses/${busId}`,
 		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(updatedData),
-	})
 
-	if (!response.ok) {
-		const data = await response.json()
-		throw new Error(data.error)
+		data: { ...updatedData },
+	})
+	if (!res) {
+		return null
 	}
 
-	const data = await response.json()
-	return data
+	return res.data.data
 }
 
 export const useUpdateBus = () => {
 	return useMutation(updateBus)
+}
+
+const deleteBus = async (id: string) => {
+	const { res } = await axiosInstance({
+		url: `buses/${id}`,
+		method: 'DELETE',
+	})
+	if (!res) {
+		return null
+	}
+
+	return res
+}
+
+export const useDeleteBus = () => {
+	return useMutation(deleteBus)
 }

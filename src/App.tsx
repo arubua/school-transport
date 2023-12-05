@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { Login } from './features/Auth/Login'
 import { SignUp } from './features/Auth/Signup'
 
@@ -16,7 +16,7 @@ import StudentsView from './views/Students'
 import DriversView from './views/Drivers'
 import BusesView from './views/Buses'
 import ZonesView from './views/Zones'
-import AddZone from './features/Zones/add-zone'
+import AddZone from './features/Zones/zone-form'
 import ParentForm from './features/Parents/parent-form'
 import StudentForm from './features/Students/student-form'
 import DriverForm from './features/Drivers/driver-form'
@@ -26,6 +26,12 @@ import StopsForm from './features/Stops/stops-form'
 import RoutesView from './views/Routes'
 import RouteForm from './features/Routes/route-form'
 import ScheduleForm from './features/Schedules/schedule-form'
+import SchedulesView from './views/Schedules'
+import SettingsView from './views/Settings'
+import SignupConfirmation from './features/Auth/SignupConfirmation'
+import { ChangePassword } from './features/Auth/ChangePassword'
+import { PasswordReset } from './features/Auth/RequestPasswordReset'
+import { clearUserSession } from './utils/storage'
 
 const AuthSchema = z.object({
 	token: z.string().optional(),
@@ -35,6 +41,7 @@ init()
 
 function App() {
 	useEffect(() => {
+	
 		// Start MSW worker
 		if (
 			import.meta.env.MODE === 'development' ||
@@ -58,6 +65,12 @@ function App() {
 						<Route path="" element={<Login />} />
 						<Route path="login" element={<Login />} />
 						<Route path="signup" element={<SignUp />} />
+						<Route
+							path="signup_confirmation"
+							element={<SignupConfirmation />}
+						/>
+						<Route path="change_password" element={<ChangePassword />} />
+						<Route path="reset_password" element={<PasswordReset />} />
 					</Route>
 					<Route path="app" element={<Home />}>
 						{/* <Route element={<AuthRoute token={token} />}> */}
@@ -81,12 +94,12 @@ function App() {
 						<Route path="routes" element={<RoutesView />} />
 						<Route path="routes/addRoute" element={<RouteForm />} />
 						<Route path="routes/editRoute" element={<RouteForm />} />
-						<Route path="schedules" element={<RoutesView />} />
+						<Route path="schedules" element={<SchedulesView />} />
 						<Route path="schedules/addSchedule" element={<ScheduleForm />} />
 						<Route path="schedules/editSchedule" element={<ScheduleForm />} />
 						<Route path="zones" element={<ZonesView />} />
 						<Route path="buses/addZone" element={<AddZone />} />
-
+						<Route path="settings/*" element={<SettingsView />} />
 						{/* </Route> */}
 					</Route>
 				</Routes>
