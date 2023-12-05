@@ -1,6 +1,6 @@
 import { UseMutateFunction, useMutation } from '@tanstack/react-query'
 import { getEnv } from '../../utils/env.server'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { useLocalStorage, useSessionStorage } from '../hooks'
