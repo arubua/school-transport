@@ -1,20 +1,19 @@
-import React from 'react';
-import { z } from 'zod';
+import React from 'react'
+import { z } from 'zod'
+import safiriLogo from '../../../other/svg-icons/safiri-logo.svg'
 
-// Define Zod schema for props validation
 const LogoPropsSchema = z.object({
-  src: z.string(),
-  alt: z.string(),
-  className: z.string().optional(),
-});
+	className: z.string().optional(),
+})
 
-type LogoProps = z.infer<typeof LogoPropsSchema>;
+type LogoProps = z.infer<typeof LogoPropsSchema>
 
-const Logo: React.FC<LogoProps> = ({ src, alt, className }) => {
-  // Validate props using Zod schema
-  LogoPropsSchema.parse({ src, alt, className });
+const Logo: React.FC<LogoProps> = ({ className }) => {
+	LogoPropsSchema.parse({ className })
 
-  return <img src={src} alt={alt} className={className} />;
-};
+	return (
+		<img src={safiriLogo} alt="School Transport Logo" className={className} />
+	)
+}
 
-export default Logo;
+export default Logo

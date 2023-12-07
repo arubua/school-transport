@@ -1,18 +1,15 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-	ErrorSchema,
 	PasswordSchema,
 	RememberUser,
-	UsernameSchema,
 	usernameSchema,
 } from '../../utils/user-validation'
 import { useForm } from 'react-hook-form'
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -27,9 +24,7 @@ import { Icon } from '../../components/ui/icon'
 import Logo from '../../components/ui/logo'
 import { useLogin } from '../../hooks/api/auth'
 import { Spinner } from '../../components/spinner'
-import { toast } from 'sonner'
-import { useLocalStorage, useSessionStorage } from '../../hooks/hooks'
-import { getSessionExpirationDate } from '../../utils/auth'
+import safiriLogo from '../../../other/svg-icons/safiri-logo.svg'
 
 const LoginFormSchema = z.object({
 	username: usernameSchema,
@@ -62,30 +57,11 @@ export function Login() {
 
 	const { isLoading, isError, data, isSuccess } = loginMutation
 
-	// useEffect(() => {
-	// 	if (isSuccess) {
-	// 		toast.success('Login successful')
-	// 		setStoredUser(data)
-	// 		setStoredToken(data.token)
-	// 		form.reset()
-
-	// 		setTokenExpiry(getSessionExpirationDate())
-	// 		navigate('/app/home') // Redirect to /app on success
-	// 	}
-	// 	if (isError) {
-	// 		toast.error('Failed to login!')
-	// 	}
-	// }, [isSuccess, isLoading])
-
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
 				<div className="flex justify-center">
-					<Logo
-						src="/other/svg-icons/safiri-logo.svg"
-						alt="Logo Alt Text"
-						className="logo-class h-20 w-28"
-					/>
+					<Logo className="logo-class h-20 w-28" />
 				</div>
 				<div className="flex flex-col gap-3 text-center">
 					<h2 className="text-h2">Welcome back!</h2>
@@ -124,11 +100,6 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											{/* <Input
-												placeholder="********"
-												type="password"
-												{...field}
-											/> */}
 											<div className="relative">
 												<Input
 													type={showPassword ? 'text' : 'password'}
@@ -139,7 +110,6 @@ export function Login() {
 													{showPassword ? (
 														<Icon
 															name="eye-open"
-															// size=''
 															onClick={togglePasswordVisibility}
 														/>
 													) : (
@@ -172,7 +142,6 @@ export function Login() {
 										</FormItem>
 									)}
 								/>
-								{/* <Button variant="link">Forgot password ?</Button> */}
 								<Button className="p-0" variant="link">
 									<Link to={'/auth/reset_password'}>Forgot Password ?</Link>
 								</Button>
