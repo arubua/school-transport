@@ -10,13 +10,11 @@ import { EmailSchema, NameSchema } from '../utils/user-validation'
 import { getSessionExpirationDate, isUserTimedOut } from '../utils/auth'
 import AuthRoute from '../features/Auth/AuthRoute'
 
-// Define a Zod schema for user data
 const UserSchema = z.object({
 	firstname: NameSchema,
 	lastname: NameSchema,
 	changed_password: z.boolean(),
 	email: EmailSchema,
-	// image:z.string()
 })
 
 type User = z.infer<typeof UserSchema>
