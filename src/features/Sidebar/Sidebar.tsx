@@ -49,13 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 			<div className="p-4">
 				<>
 					<div className="flex">
-						<Logo
-							src="/other/svg-icons/safiri-logo.svg"
-							alt="Safiri logo"
-							className=" h-20 w-28"
-						/>
+					<Logo className="logo-class h-20 w-28" />
 					</div>
-					{/* <span className="text-xl font-semibold">{app}</span> */}
 				</>
 			</div>
 			<div className="flex-1 overflow-y-auto p-4 ">

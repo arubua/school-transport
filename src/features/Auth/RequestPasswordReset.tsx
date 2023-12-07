@@ -127,11 +127,7 @@ export function PasswordReset() {
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
 				<div className="flex justify-center">
-					<Logo
-						src="/other/svg-icons/safiri-logo.svg"
-						alt="Logo Alt Text"
-						className="logo-class h-20 w-28"
-					/>
+					<Logo className="logo-class h-20 w-28" />
 				</div>
 				<div className="flex flex-col gap-3 text-center">
 					<h4 className="text-h2">Reset Password!</h4>

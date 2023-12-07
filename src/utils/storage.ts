@@ -14,7 +14,7 @@ type User = {
 	}
 }
 
-type UserJson = User | {}
+export type UserJson = User | {}
 
 
 
