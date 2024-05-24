@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 
 const UserProps = z.object({
 	user: z.object({
-		name: z.string(),
+		username: z.string(),
 		email: z.string().email(),
 		avatar: z.string().optional(), // optional string validation
 	}),
@@ -25,7 +25,7 @@ const UserProps = z.object({
 type User = z.infer<typeof UserProps>
 
 export const UserNav: React.FC<User> = ({ user }) => {
-	const { avatar, name, email } = user
+	const { avatar, username, email } = user
 
 	const navigate = useNavigate()
 
@@ -36,8 +36,8 @@ export const UserNav: React.FC<User> = ({ user }) => {
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" className="relative m-2 h-10 w-10 rounded-full">
 					<Avatar className="h-10 w-10 ">
-						<AvatarImage src={avatar} alt={name} />
-						<AvatarFallback>{getInitials(name)}</AvatarFallback>
+						<AvatarImage src={avatar} alt={username} />
+						<AvatarFallback>{getInitials(username)}</AvatarFallback>
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
@@ -48,7 +48,7 @@ export const UserNav: React.FC<User> = ({ user }) => {
 			>
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col space-y-1">
-						<p className="text-sm font-medium leading-none">{name}</p>
+						<p className="text-sm font-medium leading-none">{username}</p>
 						<p className="text-xs leading-none text-muted-foreground">
 							{email}
 						</p>

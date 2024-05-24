@@ -4,29 +4,29 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
 import { Icon } from '../../components/ui/icon'
 import { UserNav } from './UserNav'
 
-// interface SidebarProps {
-// 	title: string
-// 	user: {
-// 		username: string
-// 		email: string
-// 		image:
-// 	}
-// 	toggleSidebar: () => void
-// 	isSidebarVisible: boolean
-// }
+interface SidebarProps {
+	title: string
+	user: {
+		username: string
+		email: string
+		avatar:string
+	}
+	toggleSidebar: () => void
+	isSidebarVisible: boolean
+}
 
-const SidebarProps = z.object({
-	title: z.string(),
-	user: z.object({
-		name: z.string(),
-		email: z.string().email(),
-		avatar: z.string().optional(), // optional string validation
-	}),
-	toggleSidebar: z.function(),
-	isSidebarVisible: z.function(),
-})
+// const SidebarProps = z.object({
+// 	title: z.string(),
+// 	user: z.object({
+// 		username: z.string(),
+// 		email: z.string().email(),
+// 		avatar: z.string().optional(), // optional string validation
+// 	}),
+// 	toggleSidebar: z.function(),
+// 	isSidebarVisible: z.function(),
+// })
 
-const index: React.FC<typeof SidebarProps> = ({
+const index: React.FC< SidebarProps> = ({
 	title,
 	user,
 	toggleSidebar,
