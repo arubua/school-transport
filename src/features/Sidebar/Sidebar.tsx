@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Logo from '../../components/ui/logo'
 import { Icon, IconName } from '../../components/ui/icon'
 import { z } from 'zod'
@@ -34,25 +34,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 		}
 	}
 
+	const navigate = useNavigate()
+
 	return (
 		<div
 			id="sidebar"
 			className={`${
 				isSidebarVisible ? '' : 'hidden'
-			} relative h-screen min-w-max w-52 flex-col border `}
+			} relative h-screen w-52 min-w-max flex-col border `}
 		>
 			<div className="absolute right-0 top-0 mt-4" onClick={toggleSidebar}>
 				<Icon name="hamburger" className="cursor-pointer" />
 			</div>
 			<div className="p-4">
 				<>
-					<div className="flex">
-						<Logo
-							src="/other/svg-icons/safiri-logo.svg"
-							alt="Safiri logo"
-							className=" h-20 w-28"
-						/>
-					</div>
+					<div className="flex text-3xl font-bold text-primary ">LOGO</div>
 					{/* <span className="text-xl font-semibold">{app}</span> */}
 				</>
 			</div>
@@ -91,14 +87,19 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)
 				})}
 			</div>
-			<div className="p-4 absolute bottom-2 ">
+			<div className="absolute bottom-2 p-4 ">
 				<ul>
 					<li>
 						<Link
-							to="#"
+							to="/auth/login"
 							title="Logout"
 							className="text-danger"
 							style={{ opacity: 1 }}
+							onClick={() => {
+								localStorage.clear()
+								sessionStorage.clear()
+								navigate('/auth/login')
+							}}
 						>
 							<div className="flex font-medium hover:text-primary">
 								<Icon className="mr-1" size="md" name="arrow-right-rec" />

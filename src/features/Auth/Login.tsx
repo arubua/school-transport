@@ -69,7 +69,7 @@ export function Login() {
 			form.reset()
 
 			setTokenExpiry(getSessionExpirationDate())
-			navigate('/app/home') // Redirect to /app on success
+			navigate('/app/parents') // Redirect to /app on success
 		}
 		if (isError) {
 			toast.error('Failed to login!')
@@ -79,12 +79,8 @@ export function Login() {
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
-				<div className="flex justify-center">
-					<Logo
-						src="/other/svg-icons/safiri-logo.svg"
-						alt="Logo Alt Text"
-						className="logo-class h-20 w-28"
-					/>
+				<div className="flex justify-center text-6xl text-primary font-extrabold ">
+					{ /*You can add a logo here*/ }
 				</div>
 				<div className="flex flex-col gap-3 text-center">
 					<h2 className="text-h2">Welcome back!</h2>

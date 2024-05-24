@@ -172,7 +172,7 @@ export const columns: ColumnDef<Student>[] = [
 										navigate(`editStudent`, { state: { student } })
 									}
 								>
-									Update Student
+									Update Student Details
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DialogTrigger>
