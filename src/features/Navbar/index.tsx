@@ -2,18 +2,31 @@ import React from 'react'
 import { z } from 'zod'
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
 import { Icon } from '../../components/ui/icon'
+import { UserNav } from './UserNav'
 
-interface SidebarProps {
-	title: string
-	user: {
-		username: string
-		email: string
-	}
-	toggleSidebar: () => void
-	isSidebarVisible: boolean
-}
+// interface SidebarProps {
+// 	title: string
+// 	user: {
+// 		username: string
+// 		email: string
+// 		image:
+// 	}
+// 	toggleSidebar: () => void
+// 	isSidebarVisible: boolean
+// }
 
-const index: React.FC<SidebarProps> = ({
+const SidebarProps = z.object({
+	title: z.string(),
+	user: z.object({
+		name: z.string(),
+		email: z.string().email(),
+		avatar: z.string().optional(), // optional string validation
+	}),
+	toggleSidebar: z.function(),
+	isSidebarVisible: z.function(),
+})
+
+const index: React.FC<typeof SidebarProps> = ({
 	title,
 	user,
 	toggleSidebar,
@@ -21,23 +34,22 @@ const index: React.FC<SidebarProps> = ({
 }) => {
 	return (
 		<div className="flex w-full justify-between">
-			<div className="flex title my-4">
-				{!isSidebarVisible && <Icon
-					name="hamburger"
-					className="cursor-pointer"
-					onClick={toggleSidebar}
-				/>}
+			<div className="title my-4 flex">
+				{!isSidebarVisible && (
+					<Icon
+						name="hamburger"
+						className="cursor-pointer"
+						onClick={toggleSidebar}
+					/>
+				)}
 				<h1 className="ml-1 text-lg font-medium">{title}</h1>
 			</div>
 			<div className="max-md: flex">
-				<Avatar className="mr-1 mt-2">
+				{/* <Avatar className="mr-1 mt-2">
 					<AvatarImage />
 					<AvatarFallback>TU</AvatarFallback>
-				</Avatar>
-				<div className="mt-1 flex flex-col">
-					<h2 className="text-left">{user.username}</h2>
-					<p>{user.email}</p>
-				</div>
+				</Avatar> */}
+				<UserNav user={user} />
 			</div>
 		</div>
 	)

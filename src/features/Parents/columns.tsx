@@ -172,7 +172,7 @@ export const columns: ColumnDef<Parent>[] = [
 								<DropdownMenuItem
 									onClick={() => navigate(`editParent`, { state: { parent } })}
 								>
-									Update Parent
+									Update Parent Details
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DialogTrigger>

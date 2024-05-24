@@ -1,9 +1,9 @@
 export const menus = [
-	{
-		title: 'Home',
-		icon: 'home',
-		route: '/app/home',
-	},
+	// {
+	// 	title: 'Home',
+	// 	icon: 'home',
+	// 	route: '/app/home',
+	// },
 	{
 		title: 'Parents',
 		icon: 'user',

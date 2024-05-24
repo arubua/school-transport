@@ -6,6 +6,7 @@ import { getUser } from '../../utils/storage'
 import { isUserTimedOut } from '../../utils/auth'
 import { EmailSchema, NameSchema } from '../../utils/user-validation'
 import { z } from 'zod'
+import { Avatar } from '@radix-ui/react-avatar'
 // import { clearStorage, getStorage } from "../../utils/storage";
 // import appTitle from "../../utils/appTitle";
 // import userLoggedInTimeout from "../../utils/userLoggedInTimeout";
@@ -16,6 +17,7 @@ const UserSchema = z.object({
 	username: NameSchema,
 	token: z.string(),
 	email: EmailSchema,
+	avatar:z.string()
 })
 
 type User = z.infer<typeof UserSchema>

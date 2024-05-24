@@ -12,11 +12,11 @@ const Splash = () => {
 						<Link to={'/login'}>Login</Link>
 					</Button>
 				</div> */}
-				<Logo
-					src="/other/svg-icons/safiri-logo.svg"
+				{/* <Logo
+					// src="/other/svg-icons/safiri-logo.svg"
 					alt="Logo Alt Text"
 					className="logo-class h-20 w-28"
-				/>
+				/> */}
 			</header>
 		</div>
 	)

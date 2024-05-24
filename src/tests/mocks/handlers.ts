@@ -128,6 +128,7 @@ export const handlers: Array<RequestHandler> = [
 				ctx.json({
 					username: data.username,
 					email: faker.internet.email({ firstName: 'test', lastName: 'user' }),
+					avatar:faker.image.avatar(),
 					token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.NpDP1uN-yGDGJwlE6i_aWpIIKgVf2mf9Rm_1LaZ-xtI`,
 				}), // Customize the response data
 			)
