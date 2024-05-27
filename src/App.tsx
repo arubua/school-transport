@@ -34,20 +34,21 @@ const AuthSchema = z.object({
 init()
 
 function App() {
-	useEffect(() => {
-		// Start MSW worker
-		if (
-			import.meta.env.MODE === 'development' ||
-			import.meta.env.MODE === 'test'
-		) {
-			worker.start()
-		}
+	// useEffect(() => {
+	// 	// Start MSW worker
+	// 	if (
+	// 		import.meta.env.MODE === 'development' ||
+	// 		import.meta.env.MODE === 'test'
+	// 	) {
+	// 		worker.start()
+	// 	}
 
-		// Cleaning up the worker when the component unmounts
-		return () => {
-			worker.stop()
-		}
-	}, [])
+	// 	// Cleaning up the worker when the component unmounts
+	// 	return () => {
+	// 		worker.stop()
+	// 	}
+	// }, [])
+	worker.start()
 
 	return (
 		<div className="App">
