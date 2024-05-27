@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -43,6 +43,13 @@ export function Login() {
 		'TOKEN_EXPIRY',
 		new Date(),
 	)
+
+	const [showPassword, setShowPassword] = useState(false)
+
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword)
+	}
+
 	const navigate = useNavigate() // Get the navigate function
 	const loginMutation = useLogin()
 
@@ -79,13 +86,13 @@ export function Login() {
 	return (
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
-				<div className="flex justify-center text-6xl text-primary font-extrabold ">
-					{ /*You can add a logo here*/ }
+				<div className="flex justify-center text-6xl font-extrabold text-primary ">
+					{/*You can add a logo here*/}
 				</div>
 				<div className="flex flex-col gap-3 text-center">
 					<h2 className="text-h2">Welcome back!</h2>
 					<p className="text-body-sm text-muted-foreground">
-						Please enter your details.
+						Use <strong>testuser</strong> and <strong>testpassword</strong> as your credentials to Login.
 					</p>
 				</div>
 				<Spacer size="4xs" />
@@ -116,11 +123,26 @@ export function Login() {
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input
-												placeholder="********"
-												type="password"
-												{...field}
-											/>
+											<div className="relative">
+												<Input
+													type={showPassword ? 'text' : 'password'}
+													placeholder="Password"
+													{...field}
+												/>
+												<div className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3">
+													{showPassword ? (
+														<Icon
+															name="eye-open"
+															onClick={togglePasswordVisibility}
+														/>
+													) : (
+														<Icon
+															name="eye-closed"
+															onClick={togglePasswordVisibility}
+														/>
+													)}
+												</div>
+											</div>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
