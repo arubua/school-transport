@@ -41,9 +41,9 @@ export function SignUp() {
 			name: '',
 			address: '',
 			email: '',
-			school_phone_number: "",
+			school_phone_number: '',
 			contact_person: '',
-			contact_person_phone: "",
+			contact_person_phone: '',
 		},
 	})
 

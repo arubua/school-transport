@@ -17,7 +17,7 @@ const UserSchema = z.object({
 	username: NameSchema,
 	token: z.string(),
 	email: EmailSchema,
-	avatar:z.string()
+	avatar: z.string(),
 })
 
 type User = z.infer<typeof UserSchema>
