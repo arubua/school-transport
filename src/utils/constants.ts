@@ -44,9 +44,9 @@ export const menus = [
 		icon: 'map',
 		route: '/app/zones',
 	},
-	{
-		title: 'Settings',
-		icon: 'cog',
-		route: '/app/setings',
-	},
+	// {
+	// 	title: 'Settings',
+	// 	icon: 'cog',
+	// 	route: '/app/setings',
+	// },
 ]
